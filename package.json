@@ -9,13 +9,21 @@
     "generate": "nuxt generate"
   },
   "dependencies": {
+    "@vue-a11y/announcer": "^2.1.0",
     "bootstrap": "^4.6.2",
     "bootstrap-vue": "^2.22.0",
     "core-js": "^3.25.3",
+    "function-plot": "^1.23.2",
+    "lodash": "^4.17.21",
+    "mathlive": "^0.89.2",
     "nuxt": "^2.15.8",
+    "text-diff": "^1.0.1",
+    "tone": "^14.7.77",
     "vue": "^2.7.10",
+    "vue-resize": "^1.0.1",
     "vue-server-renderer": "^2.7.10",
-    "vue-template-compiler": "^2.7.10"
+    "vue-template-compiler": "^2.7.10",
+    "vue-web-speech": "^0.2.3"
   },
   "devDependencies": {}
 }
