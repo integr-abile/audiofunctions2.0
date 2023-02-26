@@ -1,10 +1,7 @@
 export function ConvertFunction(value){
-    console.log("\n\nnuova")
-    console.log(value);
     //traduci left e right
     value = value.replaceAll('\\left', '(');
     value = value.replaceAll('\\right', ')');
-    console.log("left e right:"+value);
 
     //traduce le funzioni trigonometriche
     value = value.replaceAll('\\sin', 'sin');
@@ -31,8 +28,6 @@ export function ConvertFunction(value){
 
     //traduce il valore assoluto
     value = SubstituteAbs(value);
-    console.log("sostituiti:"+value);
-
 
     //cambia le parentesi graffe con le tonde
     value = value.replaceAll('{', '(');
@@ -41,7 +36,7 @@ export function ConvertFunction(value){
     value = value.replaceAll('\\', '/');
 
     //logga la formula dopo le modifiche
-    console.log("modificata:"+value);
+    //console.log("modificata:"+value);
 
     //prova a compilare la formula, per vedere se è corretta
     var compile = require('interval-arithmetic-eval');
