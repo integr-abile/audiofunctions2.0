@@ -71,9 +71,7 @@
         </div>
       </div>
       <footer ref="footer" class="w-100" style="background-color: blue">
-        <button v-tooltip="'Tooltip sul bottone'" @click="changeChartData">
-          Change data
-        </button>
+        <button @click="changeChartData">Change data</button>
         <b-button variant="danger">Prova bottone con bootstrap vue</b-button>
         <b-button v-b-toggle.sidebar-1>Toggle Sidebar</b-button>
         <b-sidebar id="sidebar-1" title="Sidebar" shadow>
@@ -99,11 +97,11 @@
 import functionPlot from "function-plot";
 // import Desmos from "desmos";
 import * as Tone from "tone";
-import $ from "jquery";
+// import $ from "jquery";
 import _ from "lodash";
 import Diff from "text-diff";
 // import Push from "vue-burger-menu";
-import {ConvertFunction} from './ValidateFunction.mjs'
+import { ConvertFunction } from "./ValidateFunction.mjs";
 
 export default {
   data() {
@@ -186,7 +184,7 @@ export default {
       //console.log(evt);
     });
 
-    mathField.addEventListener("input", (evt) => {            
+    mathField.addEventListener("input", (evt) => {
       if (evt.inputType == "insertText") {
         this.lastInsertedLatexFunction = evt.target.value;
         const insertedChar = evt.data;
@@ -194,23 +192,28 @@ export default {
       } else if (evt.inputType == "deleteContentBackward") {
         const latexAfterDeletion = evt.target.value;
         const diff = new Diff();
-        const textDiff = diff.main(this.lastInsertedLatexFunction, latexAfterDeletion);
-        const deletedText = textDiff.reduce((acc, [key, value]) => ({ ...acc, [key]: value }),{})["-1"];
+        const textDiff = diff.main(
+          this.lastInsertedLatexFunction,
+          latexAfterDeletion
+        );
+        const deletedText = textDiff.reduce(
+          (acc, [key, value]) => ({ ...acc, [key]: value }),
+          {}
+        )["-1"];
         this.lastInsertedLatexFunction = latexAfterDeletion;
         this.$announcer.assertive(`cancellato ${deletedText}`);
       }
 
       var converted = ConvertFunction(evt.target.value);
-      if (converted==null) {
+      if (converted == null) {
         console.log("formula is not Valid...");
-      }
-      else{
-        this.fun=converted;
+      } else {
+        this.fun = converted;
         this.updateFunctionChart();
       }
 
       // console.log("Locale:", locale);
-      //console.log(`direi ${evt.target.getValue("spoken-text")}`);      
+      //console.log(`direi ${evt.target.getValue("spoken-text")}`);
       //evt.target.executeCommand("speak");
     });
 

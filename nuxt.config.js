@@ -29,7 +29,6 @@ export default {
     // "~/plugins/vue-speech.js",
     /*{ src: "~/plugins/chart.js", ssr: false }*/
     { src: "~/plugins/vue-speech.js", mode: "client" },
-    { src: "~/plugins/vue-tooltip.js", mode: "client" },
     { src: "~/plugins/vue-resize.js", mode: "client" },
     { src: "~/plugins/mathlive-input.js", mode: "client" },
     { src: "~/plugins/vue-a11y-announcer.js", mode: "client" },
@@ -59,6 +58,6 @@ export default {
       }
       config.resolve.alias["vue"] = "vue/dist/vue.common"; //serve per mathlive perchè mi da questo errore: https://github.com/nuxt/nuxt.js/issues/1142 . Nella doc di vue-mathlive è specificato che ci potrebbe essere (vedi "Caution" https://github.com/arnog/vue-mathlive )
     },
-    transpile: ["function-plot", "vue-tooltip", "mathlive"],
+    transpile: ["function-plot", "mathlive"],
   },
 };
