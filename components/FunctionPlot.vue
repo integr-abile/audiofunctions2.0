@@ -11,6 +11,7 @@
       <Keypress key-event="keyup" :key-code="13" @success="logKey" />
       <Keypress key-event="keyup" :key-code="65" @success="logKey" />
       <Keypress key-event="keyup" :key-code="83" @success="logKey" />
+
       <Keypress key-event="keydown" :key-code="39" @success="handleKeyDown" />
       <Keypress key-event="keyup" :key-code="39" @success="handleKeyUp" />
       <!-- TODO: Aggiungere shortcut per attivare disattivare modalità interazione con funzione -->
@@ -95,13 +96,10 @@
 
 <script>
 import functionPlot from "function-plot";
-// import Desmos from "desmos";
 import * as Tone from "tone";
-// import $ from "jquery";
 import _ from "lodash";
 import Diff from "text-diff";
-// import Push from "vue-burger-menu";
-import { ConvertFunction } from "./ValidateFunction.mjs";
+// import { ConvertFunction } from "../plugins/validate-function.mjs";
 
 export default {
   data() {
@@ -204,7 +202,8 @@ export default {
         this.$announcer.assertive(`cancellato ${deletedText}`);
       }
 
-      var converted = ConvertFunction(evt.target.value);
+      // var converted = ConvertFunction(evt.target.value);
+      var converted = this.$validateFunction(evt.target.value);
       if (converted == null) {
         console.log("formula is not Valid...");
       } else {
