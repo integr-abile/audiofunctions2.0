@@ -164,7 +164,7 @@ export default {
     //   language: "it",
     // });
 
-    debugger;
+    // debugger;
     const mathField = document.getElementById("mf");
     mathField.addEventListener("change", (evt) => {
       //Return o enter premuto
