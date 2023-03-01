@@ -35,6 +35,8 @@ export default {
     { src: "~/plugins/validate-function.mjs", mode: "client" },
     { src: "~/plugins/session-data-serializer.js", mode: "client" },
     { src: "~/plugins/sound.js", mode: "client" },
+    { src: "~/plugins/vue-shortkey.js", mode: "client" },
+
     // { src: "~/plugins/vue-keypress.js" },
   ],
 
