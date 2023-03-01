@@ -1,5 +1,5 @@
 {
-  "name": "audiofunctions2.0",
+  "name": "af20",
   "version": "1.0.0",
   "private": true,
   "scripts": {
@@ -10,20 +10,22 @@
   },
   "dependencies": {
     "@vue-a11y/announcer": "^2.1.0",
-    "bootstrap": "^4.6.2",
-    "bootstrap-vue": "^2.22.0",
+    "bootstrap-vue": "^2.23.1",
     "core-js": "^3.25.3",
     "function-plot": "^1.23.2",
     "lodash": "^4.17.21",
-    "mathlive": "^0.89.2",
+    "mathlive": "^0.86.0",
     "nuxt": "^2.15.8",
     "text-diff": "^1.0.1",
     "tone": "^14.7.77",
     "vue": "^2.7.10",
+    "vue-keypress": "^2.1.2",
     "vue-resize": "^1.0.1",
     "vue-server-renderer": "^2.7.10",
     "vue-template-compiler": "^2.7.10",
     "vue-web-speech": "^0.2.3"
   },
-  "devDependencies": {}
+  "devDependencies": {
+    "postcss": "^8.4.17"
+  }
 }

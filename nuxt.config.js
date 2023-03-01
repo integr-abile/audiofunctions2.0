@@ -1,10 +1,14 @@
 export default {
   // Target: https://go.nuxtjs.dev/config-target
   target: "static",
+  ssr: false,
+  server: {
+    port: 3000,
+  },
 
   // Global page headers: https://go.nuxtjs.dev/config-head
   head: {
-    title: "audiofunctions2.0",
+    title: "af20",
     htmlAttrs: {
       lang: "en",
     },
@@ -18,27 +22,36 @@ export default {
   },
 
   // Global CSS: https://go.nuxtjs.dev/config-css
-  css: [],
+  css: ["mathlive/dist/mathlive-fonts.css"],
 
   // Plugins to run before rendering page: https://go.nuxtjs.dev/config-plugins
   plugins: [
+    // "~/plugins/vue-speech.js",
+    /*{ src: "~/plugins/chart.js", ssr: false }*/
     { src: "~/plugins/vue-speech.js", mode: "client" },
     { src: "~/plugins/vue-resize.js", mode: "client" },
     { src: "~/plugins/mathlive-input.js", mode: "client" },
     { src: "~/plugins/vue-a11y-announcer.js", mode: "client" },
+    { src: "~/plugins/validate-function.mjs", mode: "client" },
+    { src: "~/plugins/session-data-serializer.js", mode: "client" },
+    { src: "~/plugins/sound.js", mode: "client" },
+    // { src: "~/plugins/vue-keypress.js" },
   ],
 
   // Auto import components: https://go.nuxtjs.dev/config-components
   components: true,
 
   // Modules for dev and build (recommended): https://go.nuxtjs.dev/config-modules
-  buildModules: [],
+  buildModules: [
+    // https://go.nuxtjs.dev/tailwindcss
+    // '@nuxtjs/tailwindcss',
+  ],
 
   // Modules: https://go.nuxtjs.dev/config-modules
-  modules: [
-    // https://go.nuxtjs.dev/bootstrap
-    "bootstrap-vue/nuxt",
-  ],
+  modules: ["bootstrap-vue/nuxt"],
+  bootstrapVue: {
+    icons: true,
+  },
 
   // Build Configuration: https://go.nuxtjs.dev/config-build
   build: {
