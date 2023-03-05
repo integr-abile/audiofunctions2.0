@@ -152,5 +152,5 @@ function SubstituteAbs(value) {
 }
 
 export default ({ app }, inject) => {
-  inject("validateFunction", (fnString) => ConvertFunction(fnString));
+  inject("ValidateFunction", (fnString) => ConvertFunction(fnString));
 };

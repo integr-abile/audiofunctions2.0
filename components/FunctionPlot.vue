@@ -6,16 +6,18 @@
       :text="textToRead"
       :voice="ttsVoice"
       @list-voices="listVoices"
-    />
+    />    
     <div v-if="isFunctionInteractionModeEnabled">
       <Keypress key-event="keyup" :key-code="13" @success="logKey" />
       <Keypress key-event="keyup" :key-code="65" @success="logKey" />
-      <Keypress key-event="keyup" :key-code="83" @success="logKey" />
+      <Keypress key-event="keyup" :key-code="83" @success="logKey" />      
 
       <Keypress key-event="keydown" :key-code="39" @success="handleKeyDown" />
       <Keypress key-event="keyup" :key-code="39" @success="handleKeyUp" />
       <!-- TODO: Aggiungere shortcut per attivare disattivare modalità interazione con funzione -->
     </div>
+    <!-- press space to start audio -->
+    <Keypress key-event="keyup" :key-code="32" @success="StartStopAudio" />
 
     <header ref="header">
       <select v-model="synthVoice">
@@ -96,10 +98,9 @@
 
 <script>
 import functionPlot from "function-plot";
-import * as Tone from "tone";
+//import * as Tone from "tone";
 import _ from "lodash";
 import Diff from "text-diff";
-// import { ConvertFunction } from "../plugins/validate-function.mjs";
 
 export default {
   data() {
@@ -110,7 +111,7 @@ export default {
       voiceList: [],
       synthVoice: null,
       isFunctionInteractionModeEnabled: false,
-      instrument: new Tone.Synth().toDestination(),
+      //instrument: new Tone.Synth().toDestination(),
       keyLongPressed: false,
       keyTimer: null,
       currentFnXValue: 0,
@@ -125,7 +126,7 @@ export default {
           keyCode: 81, //Q
           modifiers: ["ctrlKey", "shiftKey"],
           preventDefault: true,
-        },
+        }
       ],
     };
   },
@@ -154,7 +155,9 @@ export default {
     },
   },
   mounted() {
-    console.log("mounted");
+    //setta la funzione da sonificare come y=x di default
+    this.$SetFunction("x");
+
     // const desmosContainer = document.getElementById("formula-desmos");
     // var calculator = Desmos.GraphingCalculator(desmosContainer, {
     //   zoomButtons: false,
@@ -203,12 +206,12 @@ export default {
         this.$announcer.assertive(`cancellato ${deletedText}`);
       }
 
-      // var converted = ConvertFunction(evt.target.value);
-      var converted = this.$validateFunction(evt.target.value);
+      var converted = this.$ValidateFunction(evt.target.value);      
       if (converted == null) {
         console.log("formula is not Valid...");
       } else {
         this.fun = converted;
+        this.$SetFunction(this.fun);
         this.updateFunctionChart();
       }
 
@@ -242,7 +245,6 @@ export default {
     changeChartData() {
       this.fun = "x^2";
       this.updateFunctionChart();
-      this.instrument.triggerAttackRelease("C4", "4n");
     },
     resizeWindowAmt(amt) {
       window.resizeBy(amt, 0);
@@ -269,6 +271,18 @@ export default {
       console.log(event);
       this.textToRead = `premuto ${event.event.key}`;
       this.shouldRead = true;
+    },
+    StartStopAudio(event){
+      if (this.$IsAudioStarted()){
+        this.$StopAudio();
+        return;
+      }
+      /*var sampledFunction = [-1,-0.9,-0.8,-0.7,-0.6,-0.5,-0.4,-0.3,
+                            -0.2,-0.1,0,-0.3,-0.4,-0.5,-0.6,-0.7,
+                            -0.5,-0.3,-0.1,0.1,0.3,0.5,0.7,0.9,
+                            0.8,0.7,0.6,0.5,0.4,0.3,0.2,0.1];
+      this.$SetFunction(sampledFunction);*/
+      this.$StartAudio();
     },
     readMathExpression(event, notRead = false) {
       // debugger;
