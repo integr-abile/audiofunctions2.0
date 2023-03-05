@@ -6,6 +6,12 @@
       lang="it-IT"
       @on-voices-loaded="onVoicesLoaded"
     />
+    <header>
+      <ChartActionsMenu />
+    </header>
+    <main>
+      <ChartFunctionPlot />
+    </main>
   </div>
 </template>
 
@@ -13,7 +19,7 @@
 export default {
   data() {
     return {
-      textToRead: "ciao",
+      textToRead: "",
     };
   },
   methods: {
