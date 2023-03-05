@@ -1,4 +1,7 @@
 function ConvertFunction(value) {
+  //converti tutto lowercase per evitare conflitti
+  value = value.toLowerCase();
+
   //traduci left e right
   value = value.replaceAll("\\left", "(");
   value = value.replaceAll("\\right", ")");
