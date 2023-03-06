@@ -57,6 +57,14 @@ export default {
 
   // Build Configuration: https://go.nuxtjs.dev/config-build
   build: {
+    loaders: {
+      sass: {
+        implementation: require("sass"),
+      },
+      scss: {
+        implementation: require("sass"),
+      },
+    },
     extend(config, ctx) {
       if (ctx.isDev) {
         config.devtool = ctx.isClient ? "source-map" : "inline-source-map"; //per poter debuggare mettendo breakpoints negli hook direttamente del componente vue

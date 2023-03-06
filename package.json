@@ -27,6 +27,8 @@
     "vue-web-speech": "^0.2.3"
   },
   "devDependencies": {
-    "postcss": "^8.4.17"
+    "postcss": "^8.4.17",
+    "sass": "^1.58.3",
+    "sass-loader": "10"
   }
 }

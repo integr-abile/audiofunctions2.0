@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="h-100 d-flex flex-column">
     <VueAnnouncer />
     <TextToSpeech
       :text-to-read="textToRead"
@@ -9,14 +9,15 @@
     <header>
       <ChartActionsMenu />
     </header>
-    <main>
-      <ChartFunctionPlot />
+    <main class="h-100">
+      <ChartFunctionPlot id="fnPlot" class="h-100" fn="x" />
     </main>
   </div>
 </template>
 
 <script>
 export default {
+  layout: "fullscreen",
   data() {
     return {
       textToRead: "",
