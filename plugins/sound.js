@@ -15,8 +15,54 @@ var sampledFunction;
 //crea un canale del mixer per controllare volume e panpot
 const channel = new Tone.Channel(0,-1).toDestination();
 
-//create a synth and connect it to the main output (your speakers)
+//crea un synth e lo connette al canale del mixer
 const synth = new Tone.Synth().connect(channel);    
+
+//crea una chitarra e la connette al canale del mixer
+const guitar = new Tone.PluckSynth({
+  attackNoise: 1,
+  dampening: 500,
+  resonance: 0.99,
+}).connect(channel);
+
+//crea un clarinetto e lo connette al canale del mixer
+const clarinet = new Tone.FMSynth({
+  volume: 0,
+  detune: 3,
+  portamento: 0,
+  harmonicity: 2,
+  oscillator: {
+    partialCount: 0,
+    partials: [],
+    phase: 0,
+    type: "sine",
+  },
+  envelope: {
+    attack: 0.21000000000000005,
+    attackCurve: "linear",
+    decay: 0.2,
+    decayCurve: "exponential",
+    release: 0.5,
+    releaseCurve: "exponential",
+    sustain: 1,
+  },
+  modulation: {
+    partialCount: 0,
+    partials: [],
+    phase: 0,
+    type: "triangle",
+  },
+  modulationEnvelope: {
+    attack: 0.20000000000000004,
+    attackCurve: "linear",
+    decay: 0.01,
+    decayCurve: "exponential",
+    release: 0.5,
+    releaseCurve: "exponential",
+    sustain: 1,
+  },
+  modulationIndex: 1,
+}).connect(channel);
 
 //crea un trasporto che chiama note ogni 1/campioni di battuta
 Tone.Transport.scheduleRepeat((time) => {
@@ -54,10 +100,11 @@ function ScaleFunctionInY(sampledFunc, yMin, yMax){
       scaledFunction.push(0);
     }
     else{
-      var value=(sampledFunc[i]-yMin)/(yMax-yMin)*(notes.length-1);
+      var value=(sampledFunc[i]-yMin)/(yMax-yMin)*(notes.length-2);
       scaledFunction.push(Math.round(value)+1);
     }
   }
+  console.log(scaledFunction)
   return scaledFunction;
 }
 
