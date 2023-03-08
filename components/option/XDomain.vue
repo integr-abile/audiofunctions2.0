@@ -1,7 +1,12 @@
-<template></template>
+<template>
+  <div>Mio dominio</div>
+</template>
 
 <script>
 export default {
+  props: {
+    data: Object,
+  },
   data() {
     return {
       xMin: 0,

@@ -7,7 +7,7 @@
       @on-voices-loaded="onVoicesLoaded"
     />
     <header>
-      <ChartActionsMenu />
+      <ChartActionsMenu :customizableItems="customizableItems" />
     </header>
     <main class="h-100">
       <ChartFunctionPlot id="fnPlot" class="h-100" fn="x" />
@@ -22,6 +22,19 @@ export default {
     return {
       textToRead: "",
     };
+  },
+  computed: {
+    customizableItems() {
+      return [
+        {
+          identifier: "xDomain",
+          data: {
+            xMin: 1,
+            xMax: 3,
+          },
+        },
+      ];
+    },
   },
   methods: {
     onVoicesLoaded(voices) {},

@@ -2,7 +2,10 @@
   <div class="container-fluid">
     <div class="d-flex w-100">
       <b-button v-b-toggle.options-sidebar>Opzioni</b-button>
-      <ChartOptionsSidebar sidebar-id="options-sidebar" />
+      <ChartOptionsSidebar
+        sidebar-id="options-sidebar"
+        :customizableOptionsData="customizableItems"
+      />
       <div class="d-flex justify-content-end w-100">
         <div class="d-grid gap-3">
           <!-- TODO: gestire popup istruzioni e keymap-->
@@ -19,7 +22,7 @@
       "
       @onFunctionInteractionModeChange="onFunctionInteractionModeChange"
     />
-    <ChartFavoritesBar v-if="favoriteItemsName.length > 0" />
+    <ChartFavoritesBar v-if="Object.keys(favoriteItems).length > 0" />
     <ChartFunctionShortcuts v-if="isFunctionInteractionModeEnabled" />
   </div>
 </template>
@@ -27,13 +30,8 @@
 <script>
 export default {
   props: {
-    favoriteItemsName: {
-      type: Array,
-      default() {
-        return [];
-      },
-    },
-    customizableItemsName: {
+    customizableItems: {
+      //sarà tipo {identifier:"optionId",data:{}}
       type: Array,
       default() {
         return [];
@@ -43,6 +41,7 @@ export default {
   data() {
     return {
       isFunctionInteractionModeEnabled: false,
+      favoriteItems: {},
     };
   },
   methods: {

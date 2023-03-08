@@ -4,10 +4,10 @@
       <!-- TODO: inserire vari componenti dinamici-->
       <!-- https://blog.codeminer42.com/how-to-use-dynamic-components-in-vue/ -->
       <component
-        v-for="(option, index) of customizableOptionsData"
+        v-for="(item, index) in customizableOptionsData"
         :key="index"
-        v-bind="option"
-        :is="mapTypeComponent[option.type]"
+        :data="item.data"
+        :is="mapTypeComponent[item.identifier]"
       ></component>
     </div>
   </b-sidebar>
