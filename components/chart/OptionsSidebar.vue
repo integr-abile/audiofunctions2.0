@@ -3,12 +3,16 @@
     <div class="px-3 py-2">
       <!-- TODO: inserire vari componenti dinamici-->
       <!-- https://blog.codeminer42.com/how-to-use-dynamic-components-in-vue/ -->
-      <component
-        v-for="(item, index) in customizableOptionsData"
+      <ChartPinnableOption
+        v-for="(item, index) in customizableOptions"
         :key="index"
-        :data="item.data"
-        :is="mapTypeComponent[item.identifier]"
-      ></component>
+        :optionData="item.data"
+        :optionComponent="mapTypeComponent[item.identifier]"
+        :optionIdentifier="item.identifier"
+        @onFavoriteStateChange="
+          (evtData) => $emit('optionStateChange', evtData)
+        "
+      />
     </div>
   </b-sidebar>
 </template>
@@ -17,24 +21,22 @@
 import OptionXDomain from "../option/XDomain.vue";
 
 export default {
+  emits: ["optionStateChange"],
   components: { OptionXDomain },
   props: {
     sidebarId: {
       type: String,
       required: true,
     },
-    customizableOptionsData: {
+    customizableOptions: {
       type: Array,
       default() {
         return [];
       },
     },
-  },
-  computed: {
-    mapTypeComponent() {
-      return {
-        xDomain: OptionXDomain,
-      };
+    mapTypeComponent: {
+      type: Object,
+      required: true,
     },
   },
 };
