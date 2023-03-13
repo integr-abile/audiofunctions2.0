@@ -18,6 +18,11 @@ export default {
       { hid: "description", name: "description", content: "" },
       { name: "format-detection", content: "telephone=no" },
     ],
+    script: [
+      {
+        src: "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/MathJax.js?config=TeX-AMS_HTML",
+      },
+    ],
     link: [{ rel: "icon", type: "image/x-icon", href: "/favicon.ico" }],
   },
 
@@ -35,6 +40,9 @@ export default {
     { src: "~/plugins/validate-function.mjs", mode: "client" },
     { src: "~/plugins/session-data-serializer.js", mode: "client" },
     { src: "~/plugins/sound.js", mode: "client" },
+    { src: "~/plugins/vue-shortkey.js", mode: "client" },
+    { src: "~/plugins/vue-mathjax.js", mode: "client" },
+
     // { src: "~/plugins/vue-keypress.js" },
   ],
 
@@ -55,6 +63,14 @@ export default {
 
   // Build Configuration: https://go.nuxtjs.dev/config-build
   build: {
+    loaders: {
+      sass: {
+        implementation: require("sass"),
+      },
+      scss: {
+        implementation: require("sass"),
+      },
+    },
     extend(config, ctx) {
       if (ctx.isDev) {
         config.devtool = ctx.isClient ? "source-map" : "inline-source-map"; //per poter debuggare mettendo breakpoints negli hook direttamente del componente vue

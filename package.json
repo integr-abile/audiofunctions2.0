@@ -20,12 +20,16 @@
     "tone": "^14.7.77",
     "vue": "^2.7.10",
     "vue-keypress": "^2.1.2",
+    "vue-mathjax": "^0.1.1",
     "vue-resize": "^1.0.1",
     "vue-server-renderer": "^2.7.10",
+    "vue-shortkey": "^3.1.7",
     "vue-template-compiler": "^2.7.10",
     "vue-web-speech": "^0.2.3"
   },
   "devDependencies": {
-    "postcss": "^8.4.17"
+    "postcss": "^8.4.17",
+    "sass": "^1.58.3",
+    "sass-loader": "10"
   }
 }
