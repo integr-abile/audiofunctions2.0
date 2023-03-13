@@ -20,6 +20,7 @@
     "tone": "^14.7.77",
     "vue": "^2.7.10",
     "vue-keypress": "^2.1.2",
+    "vue-mathjax": "^0.1.1",
     "vue-resize": "^1.0.1",
     "vue-server-renderer": "^2.7.10",
     "vue-shortkey": "^3.1.7",

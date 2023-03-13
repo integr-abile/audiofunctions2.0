@@ -9713,6 +9713,14 @@ vue-loader@^17.0.0:
     hash-sum "^2.0.0"
     loader-utils "^2.0.0"
 
+vue-mathjax@^0.1.1:
+  version "0.1.1"
+  resolved "https://registry.yarnpkg.com/vue-mathjax/-/vue-mathjax-0.1.1.tgz#146c71d581ad099a224241c47f8df48cc924c128"
+  integrity sha512-bg5PpGPEB42mp+154khmqO1gtq6a/N8TbbLMVCOmaPV37vH96o7mjoAQ3jeQLQw3WMEHGz5zoDzvbcxhDkQKRQ==
+  dependencies:
+    core-js "^3.6.5"
+    vue "^2.6.11"
+
 vue-meta@^2.4.0:
   version "2.4.0"
   resolved "https://registry.yarnpkg.com/vue-meta/-/vue-meta-2.4.0.tgz#a419fb4b4135ce965dab32ec641d1989c2ee4845"

@@ -33,6 +33,13 @@ export default {
             xMax: 3,
           },
         },
+        {
+          identifier: "yDomain",
+          data: {
+            yMin: 1,
+            yMax: 3,
+          },
+        },
       ];
     },
   },

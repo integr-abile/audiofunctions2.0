@@ -38,6 +38,7 @@
 
 <script>
 import OptionXDomain from "../option/XDomain.vue";
+import OptionYDomain from "../option/YDomain.vue";
 import _ from "lodash";
 
 export default {
@@ -54,6 +55,7 @@ export default {
     mapTypeComponent() {
       return {
         xDomain: OptionXDomain,
+        yDomain: OptionYDomain,
       };
     },
   },

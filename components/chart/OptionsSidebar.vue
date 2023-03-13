@@ -1,5 +1,5 @@
 <template>
-  <b-sidebar backdrop :id="sidebarId" title="Opzioni">
+  <b-sidebar ref="sidebar" backdrop :id="sidebarId" title="Opzioni">
     <div class="px-3 py-2">
       <!-- TODO: inserire vari componenti dinamici-->
       <!-- https://blog.codeminer42.com/how-to-use-dynamic-components-in-vue/ -->
@@ -12,8 +12,15 @@
         @onFavoriteStateChange="
           (evtData) => $emit('optionStateChange', evtData)
         "
+        class="mb-3"
       />
     </div>
+    <template #footer>
+      <div class="d-flex bg-dark text-light align-items-center px-3 py-2">
+        <strong class="mr-auto">Azioni</strong>
+        <b-button size="sm" @click="save">Salva tutto</b-button>
+      </div>
+    </template>
   </b-sidebar>
 </template>
 
@@ -37,6 +44,11 @@ export default {
     mapTypeComponent: {
       type: Object,
       required: true,
+    },
+  },
+  methods: {
+    save() {
+      this.$refs.sidebar.hide();
     },
   },
 };

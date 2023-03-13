@@ -18,6 +18,11 @@ export default {
       { hid: "description", name: "description", content: "" },
       { name: "format-detection", content: "telephone=no" },
     ],
+    script: [
+      {
+        src: "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/MathJax.js?config=TeX-AMS_HTML",
+      },
+    ],
     link: [{ rel: "icon", type: "image/x-icon", href: "/favicon.ico" }],
   },
 
@@ -36,6 +41,7 @@ export default {
     { src: "~/plugins/session-data-serializer.js", mode: "client" },
     { src: "~/plugins/sound.js", mode: "client" },
     { src: "~/plugins/vue-shortkey.js", mode: "client" },
+    { src: "~/plugins/vue-mathjax.js", mode: "client" },
 
     // { src: "~/plugins/vue-keypress.js" },
   ],
