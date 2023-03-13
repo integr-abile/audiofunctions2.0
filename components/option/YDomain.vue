@@ -12,7 +12,9 @@
         style="width: 52px"
       >
       </b-form-input>
-      <span class="mr-1"> &lt;= x &lt;= </span>
+      <span class="mr-1 text-center">
+        <vue-mathjax :formula="formula"></vue-mathjax>
+      </span>
 
       <label for="min-x-domain-value" class="sr-only"
         >valore massimo di Y mostrato sul grafico</label
@@ -26,10 +28,11 @@
 <script>
 export default {
   props: {
-    data: Object,
+    optionData: Object,
   },
   data() {
     return {
+      formula: "$$<= y <=$$",
       yMin: 0,
       yMax: 0,
       step: 0,

@@ -4,7 +4,7 @@
       <component
         class="flex-grow-1"
         :is="optionComponent"
-        :data="currentOptionData"
+        :optionData="currentOptionData"
       />
       <!-- Le icone di bootstrap sono di default larghe 1em da documentazione, quindi tengo il container un po' più largo-->
       <div class="d-flex justify-content-center" style="width: 1.5em">

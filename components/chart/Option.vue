@@ -1,5 +1,5 @@
 <template>
-  <component :is="optionComponent" :data="currentOptionData" />
+  <component :is="optionComponent" :optionData="currentOptionData" />
 </template>
 
 <script>

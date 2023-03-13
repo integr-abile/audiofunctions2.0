@@ -14,7 +14,6 @@
           style="width: 80px"
         >
         </b-form-input>
-        <!-- <span class="mr-1 text-center"> &lt;= x &lt;= </span> -->
         <vue-mathjax :formula="formula"></vue-mathjax>
 
         <label for="min-x-domain-value" class="sr-only"
@@ -35,7 +34,7 @@
 <script>
 export default {
   props: {
-    data: Object,
+    optionData: Object,
   },
   data() {
     return {
