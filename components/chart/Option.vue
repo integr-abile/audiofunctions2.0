@@ -7,8 +7,11 @@ export default {
   props: ["optionIdentifier", "optionData", "optionComponent"],
   data() {
     return {
-      currentOptionData: this.optionData,
+      currentOptionData: {},
     };
+  },
+  created() {
+    this.currentOptionData = this.optionData;
   },
 };
 </script>

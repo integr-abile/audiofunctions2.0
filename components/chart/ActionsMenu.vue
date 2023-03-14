@@ -7,6 +7,7 @@
         :customizableOptions="customizableItems"
         :mapTypeComponent="mapTypeComponent"
         @optionStateChange="handleOptionStateChange"
+        @optionDataChange="handleOptionDataChange"
       />
       <div class="d-flex justify-content-end w-100">
         <div class="d-grid gap-3">
@@ -29,7 +30,7 @@
     />
     <ChartFavoritesBar
       v-if="favoriteItems.length > 0"
-      :options="favoriteItems"
+      :options="sortedFavorites"
       :mapTypeComponent="mapTypeComponent"
     />
     <ChartFunctionShortcuts v-if="isFunctionInteractionModeEnabled" />
@@ -58,6 +59,9 @@ export default {
         yDomain: OptionYDomain,
       };
     },
+    sortedFavorites() {
+      return _.sortBy(this.favoriteItems, ["identifier"]);
+    },
   },
   data() {
     return {
@@ -70,6 +74,21 @@ export default {
       evtData.isFavorite
         ? this.addToFavoriteItemIfNeeded(evtData)
         : this.removeFromFavoriteItemsIfNeeded(evtData.identifier);
+    },
+    handleOptionDataChange(evtData) {
+      var favItemToEdit = _.remove(this.favoriteItems, function (item) {
+        return item.identifier == evtData.optionIdentifier;
+      });
+      if (favItemToEdit.length == 0) {
+        return;
+      }
+      const newFavItems = [...this.favoriteItems];
+      favItemToEdit[0].data = evtData.optionData;
+      newFavItems.push(favItemToEdit[0]);
+      console.log("action menu aggiornamento props");
+      this.favoriteItems = newFavItems;
+
+      //TODO: notificare il chiamante pagina che poi redirezionerà sul grafico
     },
     addToFavoriteItemIfNeeded(optionData) {
       const existingFavoriteItem = _.find(this.favoriteItems, {

@@ -31,6 +31,7 @@ export default {
           data: {
             xMin: 1,
             xMax: 3,
+            step: 1,
           },
         },
         {
@@ -38,6 +39,7 @@ export default {
           data: {
             yMin: 1,
             yMax: 3,
+            step: 1,
           },
         },
       ];

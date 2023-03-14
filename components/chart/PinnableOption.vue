@@ -5,6 +5,7 @@
         class="flex-grow-1"
         :is="optionComponent"
         :optionData="currentOptionData"
+        @onOptionDataChange="handleOptionDataChange"
       />
       <!-- Le icone di bootstrap sono di default larghe 1em da documentazione, quindi tengo il container un po' più largo-->
       <div class="d-flex justify-content-center" style="width: 1.5em">
@@ -19,13 +20,21 @@
 
 <script>
 export default {
-  emits: ["onFavoriteStateChange"],
+  emits: ["favoriteStateChange", "optionDataChange"],
   props: ["optionIdentifier", "optionData", "optionComponent"],
   data() {
     return {
       isFavorite: false,
-      currentOptionData: this.optionData,
+      currentOptionData: {},
     };
+  },
+  watch: {
+    optionData(val) {
+      this.currentOptionData = val;
+    },
+  },
+  created() {
+    this.currentOptionData = this.optionData;
   },
   computed: {
     favoriteStateIcon() {
@@ -35,13 +44,28 @@ export default {
   methods: {
     toggleFavoriteState() {
       this.isFavorite = !this.isFavorite;
-      this.$emit("onFavoriteStateChange", {
+      this.$emit("favoriteStateChange", {
         identifier: this.optionIdentifier,
         data: this.currentOptionData,
         isFavorite: this.isFavorite,
       });
     },
-    salvaModifiche() {},
+    handleOptionDataChange(newData) {
+      this.currentOptionData = newData;
+      this.$emit("optionDataChange", {
+        optionData: this.currentOptionData,
+        isFavorite: this.isFavorite,
+        optionIdentifier: this.optionIdentifier,
+      });
+    },
+    salvaModifiche() {
+      //TODO: qua le modifiche dovrebbero propagarsi direttamente al grafico
+      // this.$emit("optionDataChange", {
+      //   optionData: this.currentOptionData,
+      //   isFavorite: this.isFavorite,
+      //   optionIdentifier: this.optionIdentifier,
+      // });
+    },
   },
 };
 </script>

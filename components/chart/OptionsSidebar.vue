@@ -1,7 +1,6 @@
 <template>
   <b-sidebar ref="sidebar" backdrop :id="sidebarId" title="Opzioni">
     <div class="px-3 py-2">
-      <!-- TODO: inserire vari componenti dinamici-->
       <!-- https://blog.codeminer42.com/how-to-use-dynamic-components-in-vue/ -->
       <ChartPinnableOption
         v-for="(item, index) in customizableOptions"
@@ -9,9 +8,8 @@
         :optionData="item.data"
         :optionComponent="mapTypeComponent[item.identifier]"
         :optionIdentifier="item.identifier"
-        @onFavoriteStateChange="
-          (evtData) => $emit('optionStateChange', evtData)
-        "
+        @favoriteStateChange="(evtData) => $emit('optionStateChange', evtData)"
+        @optionDataChange="(evtData) => $emit('optionDataChange', evtData)"
         class="mb-3"
       />
     </div>
@@ -28,7 +26,7 @@
 import OptionXDomain from "../option/XDomain.vue";
 
 export default {
-  emits: ["optionStateChange"],
+  emits: ["optionStateChange", "optionDataChange"],
   components: { OptionXDomain },
   props: {
     sidebarId: {
