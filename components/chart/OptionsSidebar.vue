@@ -1,10 +1,17 @@
 <template>
-  <b-sidebar ref="sidebar" backdrop :id="sidebarId" title="Opzioni">
-    <div class="px-3 py-2">
+  <b-sidebar
+    @shown="(evt) => (refreshKey += 1)"
+    ref="sidebar"
+    backdrop
+    :id="sidebarId"
+    title="Opzioni"
+  >
+    <div class="px-3 py-2" :key="refreshKey">
       <!-- https://blog.codeminer42.com/how-to-use-dynamic-components-in-vue/ -->
       <ChartPinnableOption
         v-for="(item, index) in customizableOptions"
         :key="index"
+        :initialIsFavorite="item.isFavorite"
         :optionData="item.data"
         :optionComponent="mapTypeComponent[item.identifier]"
         :optionIdentifier="item.identifier"
@@ -23,17 +30,20 @@
 </template>
 
 <script>
-import OptionXDomain from "../option/XDomain.vue";
-
 export default {
   emits: ["optionStateChange", "optionDataChange"],
-  components: { OptionXDomain },
+  data() {
+    return {
+      refreshKey: 0,
+    };
+  },
   props: {
     sidebarId: {
       type: String,
       required: true,
     },
     customizableOptions: {
+      //ogni elemento sarà tipo {identifier:"optionId",data:{}, isFavorite: true}
       type: Array,
       default() {
         return [];

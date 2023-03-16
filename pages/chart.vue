@@ -33,6 +33,7 @@ export default {
             xMax: 3,
             step: 1,
           },
+          isFavorite: false,
         },
         {
           identifier: "yDomain",
@@ -41,6 +42,7 @@ export default {
             yMax: 3,
             step: 1,
           },
+          isFavorite: false,
         },
       ];
     },

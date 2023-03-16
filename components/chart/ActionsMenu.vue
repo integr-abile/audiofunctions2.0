@@ -4,7 +4,7 @@
       <b-button v-b-toggle.options-sidebar>Opzioni</b-button>
       <ChartOptionsSidebar
         sidebar-id="options-sidebar"
-        :customizableOptions="customizableItems"
+        :customizableOptions="currentCustomizableItems"
         :mapTypeComponent="mapTypeComponent"
         @optionStateChange="handleOptionStateChange"
         @optionDataChange="handleOptionDataChange"
@@ -67,7 +67,11 @@ export default {
     return {
       isFunctionInteractionModeEnabled: false,
       favoriteItems: [],
+      currentCustomizableItems: [],
     };
+  },
+  created() {
+    this.currentCustomizableItems = this.customizableItems;
   },
   methods: {
     handleOptionStateChange(evtData) {
@@ -76,6 +80,11 @@ export default {
         : this.removeFromFavoriteItemsIfNeeded(evtData.identifier);
     },
     handleOptionDataChange(evtData) {
+      const idx = _.findIndex(this.currentCustomizableItems, function (item) {
+        return item.identifier == evtData.optionIdentifier;
+      });
+      this.currentCustomizableItems[idx].data = evtData.optionData;
+
       var favItemToEdit = _.remove(this.favoriteItems, function (item) {
         return item.identifier == evtData.optionIdentifier;
       });
@@ -85,12 +94,13 @@ export default {
       const newFavItems = [...this.favoriteItems];
       favItemToEdit[0].data = evtData.optionData;
       newFavItems.push(favItemToEdit[0]);
-      console.log("action menu aggiornamento props");
       this.favoriteItems = newFavItems;
-
-      //TODO: notificare il chiamante pagina che poi redirezionerà sul grafico
     },
     addToFavoriteItemIfNeeded(optionData) {
+      const idx = _.findIndex(this.currentCustomizableItems, function (item) {
+        return item.identifier == optionData.identifier;
+      });
+      this.currentCustomizableItems[idx].isFavorite = true;
       const existingFavoriteItem = _.find(this.favoriteItems, {
         identifier: optionData.identifier,
       });
@@ -99,6 +109,11 @@ export default {
       }
     },
     removeFromFavoriteItemsIfNeeded(optionIdentifier) {
+      const idx = _.findIndex(this.currentCustomizableItems, function (item) {
+        return item.identifier == optionIdentifier;
+      });
+      this.currentCustomizableItems[idx].isFavorite = false;
+
       this.favoriteItems = _.filter(this.favoriteItems, function (item) {
         return item.identifier != optionIdentifier;
       });

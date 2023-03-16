@@ -21,7 +21,12 @@
 <script>
 export default {
   emits: ["favoriteStateChange", "optionDataChange"],
-  props: ["optionIdentifier", "optionData", "optionComponent"],
+  props: [
+    "optionIdentifier",
+    "optionData",
+    "optionComponent",
+    "initialIsFavorite",
+  ],
   data() {
     return {
       isFavorite: false,
@@ -30,11 +35,13 @@ export default {
   },
   watch: {
     optionData(val) {
+      console.log("aggiornati dai in pinnable option");
       this.currentOptionData = val;
     },
   },
   created() {
     this.currentOptionData = this.optionData;
+    this.isFavorite = this.initialIsFavorite;
   },
   computed: {
     favoriteStateIcon() {
