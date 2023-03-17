@@ -29,6 +29,7 @@
       "
     />
     <ChartFavoritesBar
+      :key="favoritesBarRefreshKey"
       v-if="favoriteItems.length > 0"
       :options="sortedFavorites"
       :mapTypeComponent="mapTypeComponent"
@@ -68,10 +69,11 @@ export default {
       isFunctionInteractionModeEnabled: false,
       favoriteItems: [],
       currentCustomizableItems: [],
+      favoritesBarRefreshKey: 0,
     };
   },
   created() {
-    this.currentCustomizableItems = this.customizableItems;
+    this.currentCustomizableItems = _.cloneDeep(this.customizableItems); //bisognare fare un deep clone altrimenti non mi fa una copia anche degli elementi contenuti nell'array
   },
   methods: {
     handleOptionStateChange(evtData) {
@@ -85,16 +87,14 @@ export default {
       });
       this.currentCustomizableItems[idx].data = evtData.optionData;
 
-      var favItemToEdit = _.remove(this.favoriteItems, function (item) {
+      const favIdx = _.findIndex(this.favoriteItems, function (item) {
         return item.identifier == evtData.optionIdentifier;
       });
-      if (favItemToEdit.length == 0) {
+      if (favIdx == -1) {
         return;
       }
-      const newFavItems = [...this.favoriteItems];
-      favItemToEdit[0].data = evtData.optionData;
-      newFavItems.push(favItemToEdit[0]);
-      this.favoriteItems = newFavItems;
+      this.favoriteItems[favIdx].data = evtData.optionData;
+      this.favoritesBarRefreshKey += 1;
     },
     addToFavoriteItemIfNeeded(optionData) {
       const idx = _.findIndex(this.currentCustomizableItems, function (item) {
