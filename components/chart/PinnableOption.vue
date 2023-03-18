@@ -13,14 +13,18 @@
       </div>
     </div>
     <div class="d-flex justify-content-end">
-      <b-button size="sm" @click="salvaModifiche">Applica</b-button>
+      <b-button
+        size="sm"
+        @click="(evtData) => $emit('saveChanges', [this.optionIdentifier])"
+        >Applica</b-button
+      >
     </div>
   </div>
 </template>
 
 <script>
 export default {
-  emits: ["favoriteStateChange", "optionDataChange"],
+  emits: ["favoriteStateChange", "optionDataChange", "saveChanges"],
   props: [
     "optionIdentifier",
     "optionData",
@@ -64,14 +68,6 @@ export default {
         isFavorite: this.isFavorite,
         optionIdentifier: this.optionIdentifier,
       });
-    },
-    salvaModifiche() {
-      //TODO: qua le modifiche dovrebbero propagarsi direttamente al grafico
-      // this.$emit("optionDataChange", {
-      //   optionData: this.currentOptionData,
-      //   isFavorite: this.isFavorite,
-      //   optionIdentifier: this.optionIdentifier,
-      // });
     },
   },
 };

@@ -7,7 +7,10 @@
       @on-voices-loaded="onVoicesLoaded"
     />
     <header>
-      <ChartActionsMenu :customizableItems="customizableItems" />
+      <ChartActionsMenu
+        :customizableItems="customizableItems"
+        @saveChanges="onOptionsChangesSaved"
+      />
     </header>
     <main class="h-100">
       <ChartFunctionPlot id="fnPlot" class="h-100" fn="x" />
@@ -21,6 +24,7 @@ export default {
   data() {
     return {
       textToRead: "",
+      currentOptionsValues: {},
     };
   },
   computed: {
@@ -49,6 +53,11 @@ export default {
   },
   methods: {
     onVoicesLoaded(voices) {},
+    onOptionsChangesSaved(optionsChanged) {
+      //[{"identifier": "xDomain","data": {}]
+      debugger;
+      console.log(`options changed to: ${optionsChanged}`);
+    },
   },
 };
 </script>

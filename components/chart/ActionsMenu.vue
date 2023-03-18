@@ -8,6 +8,7 @@
         :mapTypeComponent="mapTypeComponent"
         @optionStateChange="handleOptionStateChange"
         @optionDataChange="handleOptionDataChange"
+        @saveChanges="handleSaveChanges"
       />
       <div class="d-flex justify-content-end w-100">
         <div class="d-grid gap-3">
@@ -44,6 +45,7 @@ import OptionYDomain from "../option/YDomain.vue";
 import _ from "lodash";
 
 export default {
+  emits: ["saveChanges"],
   props: {
     customizableItems: {
       //ogni elemento sarà tipo {identifier:"optionId",data:{}, isFavorite: true}
@@ -76,6 +78,21 @@ export default {
     this.currentCustomizableItems = _.cloneDeep(this.customizableItems); //bisognare fare un deep clone altrimenti non mi fa una copia anche degli elementi contenuti nell'array
   },
   methods: {
+    handleSaveChanges(optionIdentifiers) {
+      console.log(`handleSaveChanges for ${optionIdentifiers}`);
+      const itemsSaved = _.filter(
+        this.currentCustomizableItems,
+        function (item) {
+          return _.includes(optionIdentifiers, item.identifier);
+        }
+      );
+      this.$emit(
+        "saveChanges",
+        _.map(itemsSaved, function (obj) {
+          return _.omit(obj, ["isFavorite"]); //isFavorite non serve come informazione al grafico
+        })
+      );
+    },
     handleOptionStateChange(evtData) {
       evtData.isFavorite
         ? this.addToFavoriteItemIfNeeded(evtData)

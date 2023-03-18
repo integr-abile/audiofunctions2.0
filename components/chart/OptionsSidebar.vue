@@ -17,13 +17,16 @@
         :optionIdentifier="item.identifier"
         @favoriteStateChange="(evtData) => $emit('optionStateChange', evtData)"
         @optionDataChange="(evtData) => $emit('optionDataChange', evtData)"
+        @saveChanges="
+          (optionIdentifiers) => $emit('saveChanges', optionIdentifiers)
+        "
         class="mb-3"
       />
     </div>
     <template #footer>
       <div class="d-flex bg-dark text-light align-items-center px-3 py-2">
         <strong class="mr-auto">Azioni</strong>
-        <b-button size="sm" @click="save">Salva tutto</b-button>
+        <b-button size="sm" @click="saveAll">Salva tutto</b-button>
       </div>
     </template>
   </b-sidebar>
@@ -31,7 +34,7 @@
 
 <script>
 export default {
-  emits: ["optionStateChange", "optionDataChange"],
+  emits: ["optionStateChange", "optionDataChange", "saveChanges"],
   data() {
     return {
       refreshKey: 0,
@@ -55,7 +58,8 @@ export default {
     },
   },
   methods: {
-    save() {
+    saveAll() {
+      this.$emit("saveChanges", _.map(this.customizableOptions, "identifier"));
       this.$refs.sidebar.hide();
     },
   },
