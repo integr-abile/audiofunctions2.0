@@ -14,7 +14,11 @@
         </div>
       </div>
     </div>
-    <div v-else>Nessuna funzione inserita</div>
+    <div class="h-100" v-else>
+      <div class="d-flex h-100 justify-content-center align-items-center">
+        <h2>Nessuna funzione inserita</h2>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -23,9 +27,7 @@ import functionPlot from "function-plot";
 import _ from "lodash";
 
 export default {
-  props: {
-    fn: String,
-  },
+  props: ["fn", "dummy"],
   computed: {
     doesFunctionExists() {
       return !_.isNil(this.fn);
@@ -50,8 +52,10 @@ export default {
       },
       immediate: true,
     },
+    fn(val) {
+      this.updateFunctionChart();
+    },
   },
-  mounted() {},
   methods: {
     handleResize({ width, height }) {
       this.fnContainerWidth = width;
@@ -65,7 +69,7 @@ export default {
         grid: true,
         data: [
           {
-            fn: this.fn ?? "x",
+            fn: this.fn,
           },
         ],
       });

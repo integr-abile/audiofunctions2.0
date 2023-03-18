@@ -42,6 +42,7 @@
 <script>
 import OptionXDomain from "../option/XDomain.vue";
 import OptionYDomain from "../option/YDomain.vue";
+import OptionFunction from "../option/Function.vue";
 import _ from "lodash";
 
 export default {
@@ -60,6 +61,7 @@ export default {
       return {
         xDomain: OptionXDomain,
         yDomain: OptionYDomain,
+        function: OptionFunction,
       };
     },
     sortedFavorites() {

@@ -13,19 +13,24 @@
       />
     </header>
     <main class="h-100">
-      <ChartFunctionPlot id="fnPlot" class="h-100" fn="x" />
+      <ChartFunctionPlot v-bind="functionOptions" id="fnPlot" class="h-100" />
     </main>
   </div>
 </template>
 
 <script>
+import _ from "lodash";
+
 export default {
   layout: "fullscreen",
   data() {
     return {
       textToRead: "",
-      currentOptionsValues: {},
+      functionOptions: {},
     };
+  },
+  mounted() {
+    this.valorizeFunctionParamsFromOptions(this.customizableItems);
   },
   computed: {
     customizableItems() {
@@ -48,6 +53,13 @@ export default {
           },
           isFavorite: false,
         },
+        {
+          identifier: "function",
+          data: {
+            fn: "3x+2",
+          },
+          isFavorite: false,
+        },
       ];
     },
   },
@@ -55,8 +67,19 @@ export default {
     onVoicesLoaded(voices) {},
     onOptionsChangesSaved(optionsChanged) {
       //[{"identifier": "xDomain","data": {}]
-      debugger;
       console.log(`options changed to: ${optionsChanged}`);
+      this.valorizeFunctionParamsFromOptionsChanged(optionsChanged);
+    },
+    valorizeFunctionParamsFromOptions(options) {
+      const functionData = _.head(
+        _.filter(options, function (item) {
+          return item.identifier == "function";
+        })
+      ).data;
+
+      this.functionOptions = {
+        fn: functionData.fn,
+      };
     },
   },
 };
