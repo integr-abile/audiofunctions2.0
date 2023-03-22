@@ -12,6 +12,7 @@
           type="number"
           placeholder="0"
           style="width: 80px"
+          v-model="xMin"
         >
         </b-form-input>
         <vue-mathjax :formula="formula"></vue-mathjax>
@@ -24,6 +25,7 @@
           type="number"
           placeholder="0"
           style="width: 80px"
+          v-model="xMax"
         >
         </b-form-input>
       </div>
@@ -33,16 +35,42 @@
 
 <script>
 export default {
+  emits: ["optionDataChange"],
   props: {
     optionData: Object,
   },
   data() {
     return {
       formula: "$$<= x <=$$",
-      xMin: 0,
-      xMax: 0,
-      step: 0,
+      currentOptionData: {},
+      xMin: "",
+      xMax: "",
+      step: "",
     };
+  },
+  watch: {
+    xMin(val) {
+      this.currentOptionData.xMin = val;
+      this.$emit("optionDataChange", this.currentOptionData);
+    },
+    xMax(val) {
+      this.currentOptionData.xMax = val;
+      this.$emit("optionDataChange", this.currentOptionData);
+    },
+    optionData(val) {
+      this.updateOptionData(val);
+    },
+  },
+  created() {
+    this.updateOptionData(this.optionData);
+  },
+  methods: {
+    updateOptionData(currenValues) {
+      this.currentOptionData = currenValues;
+      this.xMin = `${currenValues.xMin}`;
+      this.xMax = `${currenValues.xMax}`;
+      this.step = `${currenValues.step}`;
+    },
   },
 };
 </script>

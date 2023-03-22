@@ -7,21 +7,30 @@
       @on-voices-loaded="onVoicesLoaded"
     />
     <header>
-      <ChartActionsMenu :customizableItems="customizableItems" />
+      <ChartActionsMenu
+        :customizableItems="customizableItems"
+        @saveChanges="onOptionsChangesSaved"
+      />
     </header>
     <main class="h-100">
-      <ChartFunctionPlot id="fnPlot" class="h-100" fn="x" />
+      <ChartFunctionPlot v-bind="functionOptions" id="fnPlot" class="h-100" />
     </main>
   </div>
 </template>
 
 <script>
+import _ from "lodash";
+
 export default {
   layout: "fullscreen",
   data() {
     return {
       textToRead: "",
+      functionOptions: {},
     };
+  },
+  mounted() {
+    this.valorizeFunctionParamsFromOptions(this.customizableItems);
   },
   computed: {
     customizableItems() {
@@ -31,20 +40,47 @@ export default {
           data: {
             xMin: 1,
             xMax: 3,
+            step: 1,
           },
+          isFavorite: false,
         },
         {
           identifier: "yDomain",
           data: {
             yMin: 1,
             yMax: 3,
+            step: 1,
           },
+          isFavorite: false,
+        },
+        {
+          identifier: "function",
+          data: {
+            fn: "3x+2",
+          },
+          isFavorite: false,
         },
       ];
     },
   },
   methods: {
     onVoicesLoaded(voices) {},
+    onOptionsChangesSaved(optionsChanged) {
+      //[{"identifier": "xDomain","data": {}]
+      console.log(`options changed to: ${optionsChanged}`);
+      this.valorizeFunctionParamsFromOptions(optionsChanged);
+    },
+    valorizeFunctionParamsFromOptions(options) {
+      const functionData = _.head(
+        _.filter(options, function (item) {
+          return item.identifier == "function";
+        })
+      ).data;
+
+      this.functionOptions = {
+        fn: functionData.fn,
+      };
+    },
   },
 };
 </script>

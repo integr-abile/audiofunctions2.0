@@ -5,8 +5,10 @@
         v-for="(item, index) in options"
         :key="index"
         class="p-2 rounded border border-2 mr-2"
+        style="min-width: 250px"
       >
         <ChartOption
+          :key="componentKey"
           :optionData="item.data"
           :optionComponent="mapTypeComponent[item.identifier]"
           :optionIdentifier="item.identifier"
@@ -28,6 +30,17 @@ export default {
     mapTypeComponent: {
       type: Object,
       required: true,
+    },
+  },
+  data() {
+    return {
+      componentKey: 0, //variabile usata per indicare la necessità di refreshare il componente ChartOption
+    };
+  },
+  watch: {
+    options(val) {
+      console.log("favorite bar changed");
+      this.componentKey += 1;
     },
   },
 };
