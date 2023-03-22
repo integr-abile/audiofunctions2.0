@@ -8,7 +8,7 @@
     />
     <header>
       <ChartActionsMenu
-        :customizableItems="customizableItems"
+        :customizableItems="initialConfiguration"
         @saveChanges="onOptionsChangesSaved"
       />
     </header>
@@ -27,13 +27,31 @@ export default {
     return {
       textToRead: "",
       functionOptions: {},
+      initialConfiguration: [],
     };
   },
+  created() {
+    const sessionDataSerializer = this.$sessionDataSerializer;
+    const initialEncodedConfiguration =
+      this.$route.query[sessionDataSerializer.sessionDataQueryParamKey];
+    if (initialEncodedConfiguration == null) {
+      return;
+    }
+    try {
+      //La sintassi dell'initialConfiguration è quella del customizableItems
+      const config = sessionDataSerializer.parse(initialEncodedConfiguration);
+      this.initialConfiguration = config;
+    } catch (e) {
+      this.initialConfiguration = this.defaultConfiguration;
+      alert(e.message);
+    }
+  },
   mounted() {
-    this.valorizeFunctionParamsFromOptions(this.customizableItems);
+    this.valorizeFunctionParamsFromOptions(this.initialConfiguration);
   },
   computed: {
-    customizableItems() {
+    defaultConfiguration() {
+      //questa variabile non cambia mai e sarà quella da ricavare dai query params
       return [
         {
           identifier: "xDomain",

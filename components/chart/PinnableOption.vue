@@ -8,8 +8,15 @@
         @optionDataChange="handleOptionDataChange"
       />
       <!-- Le icone di bootstrap sono di default larghe 1em da documentazione, quindi tengo il container un po' più largo-->
-      <div class="d-flex justify-content-center" style="width: 1.5em">
-        <b-icon @click="toggleFavoriteState" :icon="favoriteStateIcon"></b-icon>
+      <div class="d-flex justify-content-end" style="width: 3em">
+        <b-button
+          variant="outline-info"
+          size="sm"
+          :title="favoriteActionMessage"
+          @click="toggleFavoriteState"
+        >
+          <b-icon :icon="favoriteStateIcon" aria-hidden="true"></b-icon>
+        </b-button>
       </div>
     </div>
     <div class="d-flex justify-content-end">
@@ -50,6 +57,9 @@ export default {
   computed: {
     favoriteStateIcon() {
       return this.isFavorite ? "star-fill" : "star";
+    },
+    favoriteActionMessage() {
+      return this.isFavorite ? "Togli dai preferiti" : "Aggiungi ai preferiti";
     },
   },
   methods: {

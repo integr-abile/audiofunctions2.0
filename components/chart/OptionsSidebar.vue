@@ -5,6 +5,7 @@
     backdrop
     :id="sidebarId"
     title="Opzioni"
+    width="400px"
   >
     <div class="px-3 py-2" :key="refreshKey">
       <!-- https://blog.codeminer42.com/how-to-use-dynamic-components-in-vue/ -->
