@@ -68,7 +68,7 @@ export default {
     onOptionsChangesSaved(optionsChanged) {
       //[{"identifier": "xDomain","data": {}]
       console.log(`options changed to: ${optionsChanged}`);
-      this.valorizeFunctionParamsFromOptionsChanged(optionsChanged);
+      this.valorizeFunctionParamsFromOptions(optionsChanged);
     },
     valorizeFunctionParamsFromOptions(options) {
       const functionData = _.head(
