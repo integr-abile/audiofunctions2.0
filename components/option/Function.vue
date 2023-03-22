@@ -1,5 +1,6 @@
 <template>
   <div>
+    <VueAnnouncer />
     <mathlive-mathfield
       ref="mathfield"
       role="presentation"
@@ -7,9 +8,15 @@
         virtualKeyboardMode: 'manual',
         keypressSound: 'none',
       }"
-      :value="inputFunctionLatex"
+      :value="stableInputFunctionLatex"
+      class="border w-100"
     >
     </mathlive-mathfield>
+    <Keypress
+      key-event="keyup"
+      :multiple-keys="readMathKeys"
+      @success="readMathExpression"
+    />
   </div>
 </template>
 
@@ -18,15 +25,32 @@ import Diff from "text-diff";
 import _ from "lodash";
 
 export default {
+  emits: ["optionDataChange"],
   props: {
     optionData: Object,
   },
   data() {
     return {
-      inputFunctionLatex: "",
+      stableInputFunctionLatex: "",
       lastInsertedLatexFunction: "",
       currentOptionData: {},
+      readMathKeys: [
+        {
+          keyCode: 81, //Q
+          modifiers: ["ctrlKey, shiftKey"],
+          preventDefault: true,
+        },
+      ],
     };
+  },
+  watch: {
+    stableInputFunctionLatex(val) {
+      this.currentOptionData.fn = val;
+      this.$emit("optionDataChange", this.currentOptionData);
+    },
+  },
+  components: {
+    Keypress: () => import("vue-keypress"),
   },
   mounted() {
     this.updateOptionData(this.optionData);
@@ -35,7 +59,7 @@ export default {
   methods: {
     updateOptionData(currentValues) {
       this.currentOptionData = currentValues;
-      this.inputFunctionLatex = `${currentValues.fn}`;
+      this.stableInputFunctionLatex = `${currentValues.fn}`;
     },
     readMathExpression(event, notRead = false) {
       // debugger;
@@ -67,7 +91,7 @@ export default {
       const mathField = this.$refs.mathfield.$el;
       mathField.addEventListener("change", (evt) => {
         //Return o enter premuto
-        this.inputFunctionLatex = evt.target.value;
+        this.stableInputFunctionLatex = this.lastInsertedLatexFunction;
         console.log(`focus-out. Latex: ${evt.target.value}`);
       });
 
@@ -94,6 +118,7 @@ export default {
           this.$announcer.assertive(`cancellato ${deletedText}`);
         }
 
+        // this.stableInputFunctionLatex = evt.target.value;
         // console.log("Locale:", locale);
         console.log(`direi ${evt.target.getValue("spoken-text")}`);
 
@@ -102,7 +127,7 @@ export default {
 
       mathField.addEventListener("focus-out", (evt) => {
         //Quando col tab lascio il campo di input
-        this.inputFunctionLatex = evt.target.value;
+        this.stableInputFunctionLatex = this.lastInsertedLatexFunction;
         console.log(`focus-out. Latex: ${evt.target.value}`);
         this.$announcer.assertive("");
       });
@@ -117,3 +142,10 @@ export default {
   },
 };
 </script>
+<style scoped lang="scss">
+math-field {
+  &:focus-within {
+    outline: 2px solid black;
+  }
+}
+</style>

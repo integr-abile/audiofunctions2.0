@@ -1,6 +1,6 @@
 <template>
   <div class="container-fluid">
-    <div class="d-flex w-100">
+    <div class="d-flex w-100 mb-2">
       <b-button v-b-toggle.options-sidebar>Opzioni</b-button>
       <ChartOptionsSidebar
         sidebar-id="options-sidebar"

@@ -5,6 +5,7 @@
         v-for="(item, index) in options"
         :key="index"
         class="p-2 rounded border border-2 mr-2"
+        style="min-width: 250px"
       >
         <ChartOption
           :key="componentKey"

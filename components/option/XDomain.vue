@@ -35,7 +35,7 @@
 
 <script>
 export default {
-  emits: ["onOptionDataChange"],
+  emits: ["optionDataChange"],
   props: {
     optionData: Object,
   },
@@ -51,11 +51,11 @@ export default {
   watch: {
     xMin(val) {
       this.currentOptionData.xMin = val;
-      this.$emit("onOptionDataChange", this.currentOptionData);
+      this.$emit("optionDataChange", this.currentOptionData);
     },
     xMax(val) {
       this.currentOptionData.xMax = val;
-      this.$emit("onOptionDataChange", this.currentOptionData);
+      this.$emit("optionDataChange", this.currentOptionData);
     },
     optionData(val) {
       this.updateOptionData(val);
