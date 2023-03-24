@@ -32,9 +32,11 @@ export default {
   },
   created() {
     const sessionDataSerializer = this.$sessionDataSerializer;
+
     const initialEncodedConfiguration =
       this.$route.query[sessionDataSerializer.sessionDataQueryParamKey];
     if (initialEncodedConfiguration == null) {
+      this.initialConfiguration = this.defaultConfiguration;
       return;
     }
     try {
@@ -46,8 +48,10 @@ export default {
       alert(e.message);
     }
   },
-  mounted() {
-    this.valorizeFunctionParamsFromOptions(this.initialConfiguration);
+  watch: {
+    initialConfiguration(val) {
+      this.valorizeFunctionParamsFromOptions(val);
+    },
   },
   computed: {
     defaultConfiguration() {
@@ -76,7 +80,7 @@ export default {
           data: {
             fn: "3x+2",
           },
-          isFavorite: false,
+          isFavorite: true,
         },
       ];
     },

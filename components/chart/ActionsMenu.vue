@@ -78,6 +78,10 @@ export default {
   },
   created() {
     this.currentCustomizableItems = _.cloneDeep(this.customizableItems); //bisognare fare un deep clone altrimenti non mi fa una copia anche degli elementi contenuti nell'array
+    this.favoriteItems = _.filter(this.currentCustomizableItems, {
+      isFavorite: true,
+    });
+    // debugger;
   },
   methods: {
     handleSaveChanges(optionIdentifiers) {

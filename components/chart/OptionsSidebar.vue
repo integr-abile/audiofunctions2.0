@@ -7,23 +7,25 @@
     title="Opzioni"
     width="400px"
   >
-    <div class="px-3 py-2" :key="refreshKey">
+    <ul class="px-3 py-2" :key="refreshKey" style="list-style-type: none">
       <!-- https://blog.codeminer42.com/how-to-use-dynamic-components-in-vue/ -->
-      <ChartPinnableOption
-        v-for="(item, index) in customizableOptions"
-        :key="index"
-        :initialIsFavorite="item.isFavorite"
-        :optionData="item.data"
-        :optionComponent="mapTypeComponent[item.identifier]"
-        :optionIdentifier="item.identifier"
-        @favoriteStateChange="(evtData) => $emit('optionStateChange', evtData)"
-        @optionDataChange="(evtData) => $emit('optionDataChange', evtData)"
-        @saveChanges="
-          (optionIdentifiers) => $emit('saveChanges', optionIdentifiers)
-        "
-        class="mb-3"
-      />
-    </div>
+      <li v-for="(item, index) in customizableOptions" :key="index">
+        <ChartPinnableOption
+          :initialIsFavorite="item.isFavorite"
+          :optionData="item.data"
+          :optionComponent="mapTypeComponent[item.identifier]"
+          :optionIdentifier="item.identifier"
+          @favoriteStateChange="
+            (evtData) => $emit('optionStateChange', evtData)
+          "
+          @optionDataChange="(evtData) => $emit('optionDataChange', evtData)"
+          @saveChanges="
+            (optionIdentifiers) => $emit('saveChanges', optionIdentifiers)
+          "
+          class="mb-3"
+        />
+      </li>
+    </ul>
     <template #footer>
       <div class="d-flex bg-dark text-light align-items-center px-3 py-2">
         <strong class="mr-auto">Azioni</strong>
