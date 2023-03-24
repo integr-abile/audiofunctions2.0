@@ -3,11 +3,16 @@ class SessionDataSerializer {
     this.sessionDataQueryParamKey = "sd";
   }
   parse(base64EncodedData) {
-    debugger;
     const urlEncodedJsonData = atob(base64EncodedData);
     const decodedUrlEncodedJsonData = decodeURIComponent(urlEncodedJsonData);
-    const paramsObject = JSON.parse(decodedUrlEncodedJsonData);
-    return paramsObject;
+    try {
+      const paramsObject = JSON.parse(decodedUrlEncodedJsonData);
+      return paramsObject;
+    } catch (e) {
+      throw new Error(
+        "errore nel parsing dell'url. La pagina verrà configurata con le opzioni di default"
+      );
+    }
   }
 
   encode(sessionParamsObject) {
