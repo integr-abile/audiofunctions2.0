@@ -105,10 +105,20 @@ export default {
         _.filter(options, function (item) {
           return item.identifier == "function";
         })
-      ).data;
+      );
+      const xDomainData = _.head(
+        _.filter(options, function (item) {
+          return item.identifier == "xDomain";
+        })
+      );
 
       this.functionOptions = {
-        fn: functionData.fn,
+        fn: _.isNil(functionData)
+          ? this.functionOptions.fn
+          : functionData.data.fn,
+        sonificationStep: _.isNil(xDomainData)
+          ? this.functionOptions.sonificationStep
+          : xDomainData.data.step,
       };
     },
     handleFunctionActionRequest(requestType) {

@@ -27,7 +27,7 @@ import functionPlot from "function-plot";
 import _ from "lodash";
 
 export default {
-  props: ["fn", "dummy", "actionRequest"],
+  props: ["fn", "actionRequest", "sonificationStep"],
   computed: {
     doesFunctionExists() {
       return !_.isNil(this.fn);
@@ -37,7 +37,7 @@ export default {
     return {
       fnContainerWidth: 0,
       fnContainerHeight: 0,
-      currentFnXValue: 0,
+      currentFnXValue: 0, //serve soprattutto ai fini della sonificazione
     };
   },
   watch: {
