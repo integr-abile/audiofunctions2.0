@@ -27,7 +27,7 @@ import functionPlot from "function-plot";
 import _ from "lodash";
 
 export default {
-  props: ["fn", "dummy"],
+  props: ["fn", "dummy", "actionRequest"],
   computed: {
     doesFunctionExists() {
       return !_.isNil(this.fn);
@@ -37,6 +37,7 @@ export default {
     return {
       fnContainerWidth: 0,
       fnContainerHeight: 0,
+      currentFnXValue: 0,
     };
   },
   watch: {
@@ -51,6 +52,23 @@ export default {
         this.updateFunctionChart();
       },
       immediate: true,
+    },
+    actionRequest(val) {
+      console.log(`richiesta azione ${val.requestType}`);
+      switch (val.requestType) {
+        case this.$FunctionAction.beginExploration:
+          break;
+        case this.$FunctionAction.endExploration:
+          break;
+        case this.$FunctionAction.incrementStep:
+          break;
+        case this.$FunctionAction.decrementStep:
+          break;
+        case this.$FunctionAction.goToBegin:
+          break;
+        case this.$FunctionAction.goToEnd:
+          break;
+      }
     },
     fn(val) {
       this.updateFunctionChart();

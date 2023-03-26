@@ -35,7 +35,11 @@
       :options="sortedFavorites"
       :mapTypeComponent="mapTypeComponent"
     />
-    <ChartFunctionShortcuts v-if="isFunctionInteractionModeEnabled" />
+    <ChartFunctionShortcuts
+      :isFunctionInteractionEnabled="isFunctionInteractionModeEnabled"
+      v-if="isFunctionInteractionModeEnabled"
+      @actionRequest="(evt) => $emit('userInteraction', evt)"
+    />
   </div>
 </template>
 
@@ -46,7 +50,7 @@ import OptionFunction from "../option/Function.vue";
 import _ from "lodash";
 
 export default {
-  emits: ["saveChanges"],
+  emits: ["saveChanges", "userInteraction"],
   props: {
     customizableItems: {
       //ogni elemento sarà tipo {identifier:"optionId",data:{}, isFavorite: true}

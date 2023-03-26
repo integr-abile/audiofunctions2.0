@@ -10,10 +10,16 @@
       <ChartActionsMenu
         :customizableItems="initialConfiguration"
         @saveChanges="onOptionsChangesSaved"
+        @userInteraction="handleFunctionActionRequest"
       />
     </header>
     <main class="h-100">
-      <ChartFunctionPlot v-bind="functionOptions" id="fnPlot" class="h-100" />
+      <ChartFunctionPlot
+        v-bind="functionOptions"
+        :actionRequest="functionActionRequest"
+        id="fnPlot"
+        class="h-100"
+      />
     </main>
   </div>
 </template>
@@ -28,6 +34,8 @@ export default {
       textToRead: "",
       functionOptions: {},
       initialConfiguration: [],
+      functionActionRequest: null, //oggetto del tipo {requestType: enum, repetition: 1}
+      lastFunctionActionRequestType: null,
     };
   },
   created() {
@@ -78,7 +86,7 @@ export default {
         {
           identifier: "function",
           data: {
-            fn: "3x+2",
+            fn: null,
           },
           isFavorite: true,
         },
@@ -102,6 +110,16 @@ export default {
       this.functionOptions = {
         fn: functionData.fn,
       };
+    },
+    handleFunctionActionRequest(requestType) {
+      this.functionActionRequest = {
+        requestType: requestType,
+        repetition:
+          requestType == this.lastFunctionActionRequestType
+            ? this.functionActionRequest.repetition + 1
+            : 1,
+      };
+      this.lastFunctionActionRequestType = requestType;
     },
   },
 };
