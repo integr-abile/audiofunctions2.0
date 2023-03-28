@@ -39,6 +39,10 @@ export default {
     };
   },
   created() {
+    //Strumenti musicali
+    this.$soundFactory.getAllInstrumentsName();
+
+    //Deserializzazione URL per configurazione iniziale
     const sessionDataSerializer = this.$sessionDataSerializer;
 
     const initialEncodedConfiguration =
