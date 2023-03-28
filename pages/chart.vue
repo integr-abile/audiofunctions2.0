@@ -40,7 +40,7 @@ export default {
   },
   created() {
     //Strumenti musicali
-    this.$soundFactory.getAllInstrumentsName();
+    // this.$soundFactory.getAllInstrumentsName();
 
     //Deserializzazione URL per configurazione iniziale
     const sessionDataSerializer = this.$sessionDataSerializer;
@@ -93,6 +93,14 @@ export default {
             fn: null,
           },
           isFavorite: true,
+        },
+        {
+          identifier: "sonification",
+          data: {
+            availableInstruments: this.$soundFactory.getAllInstrumentsName(),
+            selectedInstrument: null,
+          },
+          isFavorite: false,
         },
       ];
     },

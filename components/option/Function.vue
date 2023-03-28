@@ -1,6 +1,7 @@
 <template>
   <div>
     <VueAnnouncer />
+    <h2>Funzione</h2>
     <mathlive-mathfield
       ref="mathfield"
       role="presentation"
