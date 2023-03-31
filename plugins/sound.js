@@ -45,7 +45,7 @@ class SoundFactory {
   #allInstruments = [
     {
       name: "sine",
-      instrument: new Tone.Synth().toDestination(),
+      instrument: new Tone.Oscillator(), //usare Oscillator e non Synth() perchè il cambio di frequenza altrimenti avviene sentendo un "pop" ad ogni cambio. Non è dolce
       instrumentType: this.InstrumentFrequencyType.continuous,
       frequencyRange: {
         min: 150,
@@ -140,11 +140,11 @@ class SoundFactory {
   }
   sonify(
     yValue,
-    yDistanceFromFunction,
+    yDistanceFromFunction, //da cui dipende il volume
     domYIntervalExtremes,
     domYFrequencyMap,
-    domXRange,
-    domYRange,
+    domXRange, //da cui dipende il pan
+    domYRange, //da cui dipende il volume
     instrumentId
   ) {
     if (
@@ -170,12 +170,19 @@ class SoundFactory {
         function () {
           const instrument = this.getInstrumentFrom(instrumentId);
           const concreteInstrument = instrument.instrument;
-          concreteInstrument.connect(this.#panner);
           // debugger;
-
-          concreteInstrument.triggerRelease();
           console.log("freq target" + targetFrequency);
-          concreteInstrument.triggerAttack(`${targetFrequency}`);
+          if (concreteInstrument.state == "started") {
+            console.log("modifico solo la frequenza");
+            concreteInstrument.set({ frequency: `${targetFrequency}` });
+          } else {
+            console.log("setup strument per primo avvio");
+            concreteInstrument.connect(this.#panner);
+            instrument.name == "sine"
+              ? concreteInstrument.start()
+              : concreteInstrument.triggerAttack(`${targetFrequency}`);
+          }
+          // concreteInstrument.triggerRelease();
         }.bind(this),
         1
       );

@@ -17,6 +17,12 @@ export default {
       domYFrequencyMap: {},
     };
   },
+  mounted() {
+    if (!this.checkPreconditions()) {
+      return;
+    }
+    this.createDomYFrequencyMap();
+  },
   watch: {
     yFunctionValue(val) {
       console.log("cambiato valore funzione");
@@ -52,7 +58,7 @@ export default {
       if (!this.checkPreconditions()) {
         return;
       }
-      //   this.createDomYFrequencyMap();
+      this.createDomYFrequencyMap();
     },
   },
   methods: {
