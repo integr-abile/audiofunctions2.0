@@ -27,17 +27,26 @@ import functionPlot from "function-plot";
 import _ from "lodash";
 
 export default {
-  props: ["fn", "actionRequest", "sonificationStep"],
+  emits: ["needNotifyStatus"],
+  props: ["fn", "actionRequest", "sonificationStep", "domXRange", "domYRange"],
   computed: {
     doesFunctionExists() {
       return !_.isNil(this.fn);
+    },
+    functionStatus() {
+      return {
+        yFunctionValue: this.currentFnYValue,
+        yPointerDistanceFromFunction: 0, //TODO: valorizzare correttamente quando riesco a prendere il valore con l'evento giusto sulla funzione
+      };
     },
   },
   data() {
     return {
       fnContainerWidth: 0,
       fnContainerHeight: 0,
-      currentFnXValue: 0, //serve soprattutto ai fini della sonificazione
+      currentFnXValue: 0,
+      currentFnYValue: 0,
+      fnPlotInstance: null,
     };
   },
   watch: {
@@ -73,6 +82,12 @@ export default {
     fn(val) {
       this.updateFunctionChart();
     },
+    domXRange(val) {
+      this.updateFunctionChart();
+    },
+    domYRange(val) {
+      this.updateFunctionChart();
+    },
   },
   methods: {
     handleResize({ width, height }) {
@@ -80,10 +95,16 @@ export default {
       this.fnContainerHeight = height;
     },
     updateFunctionChart() {
-      const fnPlotInstance = functionPlot({
+      this.fnPlotInstance = functionPlot({
         target: "#root",
         width: this.fnContainerWidth,
         height: this.fnContainerHeight * 0.99,
+        yAxis: {
+          domain: this.domYRange,
+        },
+        xAxis: {
+          domain: this.domXRange,
+        },
         grid: true,
         data: [
           {
@@ -91,7 +112,27 @@ export default {
           },
         ],
       });
-      //TODO: setup listeners su istanza functionPlot
+      this.fnPlotInstance.on(
+        "tip:update",
+        function (cx, cy, cidx) {
+          // console.log("hover fn plot");
+          //quando la posizione del puntino sulla funzione viene aggiornata
+          this.currentFnYValue = cx.y;
+          this.currentFnXValue = cx.x;
+          this.$emit("needNotifyStatus", this.functionStatus);
+        }.bind(this)
+      );
+      this.fnPlotInstance.on("mouseover", function () {
+        //TODO: valutare se tenere anche questo evento o mi basta il mousemove. Alla fine mi servirebbe solo per capire quanto il puntatore è distante dalla funzione
+      });
+      this.fnPlotInstance.on("mouseout", function () {
+        this.yPointerDistanceFromFunction = 0; //essendo fuori dall'area del grafico col mouse non ha più senso sapere quanto sono distante dalla funzione
+        console.log("mouseout");
+        //TODO: intercettare "mouseover" e "mouseout" per avviare o fermare la sonificazione
+      });
+      this.fnPlotInstance.on("mousemove", function () {
+        //TODO: intercettare "mousemove" per beccare la posizione del puntatore del mouse all'interno del grafico
+      });
     },
   },
 };

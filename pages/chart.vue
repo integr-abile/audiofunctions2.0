@@ -1,6 +1,13 @@
 <template>
   <div class="h-100 d-flex flex-column">
     <VueAnnouncer />
+    <ChartSonifier
+      v-bind="functionSonificationData"
+      :isEnabled="functionSonificationOptions.isEnabled"
+      :instrument="functionSonificationOptions.instrument"
+      :domXRange="functionSonificationOptions.domXRange"
+      :domYRange="functionSonificationOptions.domYRange"
+    />
     <TextToSpeech
       :text-to-read="textToRead"
       lang="it-IT"
@@ -19,6 +26,7 @@
         :actionRequest="functionActionRequest"
         id="fnPlot"
         class="h-100"
+        @needNotifyStatus="handleFunctionStateNotification"
       />
     </main>
   </div>
@@ -36,12 +44,11 @@ export default {
       initialConfiguration: [],
       functionActionRequest: null, //oggetto del tipo {requestType: enum, repetition: 1}
       lastFunctionActionRequestType: null,
+      functionSonificationData: {},
+      functionSonificationOptions: {},
     };
   },
   created() {
-    //Strumenti musicali
-    // this.$soundFactory.getAllInstrumentsName();
-
     //Deserializzazione URL per configurazione iniziale
     const sessionDataSerializer = this.$sessionDataSerializer;
 
@@ -59,6 +66,9 @@ export default {
       this.initialConfiguration = this.defaultConfiguration;
       alert(e.message);
     }
+  },
+  async mounted() {
+    this.isSonificationEnabled = await this.$soundFactory.enableSonifier();
   },
   watch: {
     initialConfiguration(val) {
@@ -81,7 +91,7 @@ export default {
         {
           identifier: "yDomain",
           data: {
-            yMin: 1,
+            yMin: 2,
             yMax: 3,
             step: 1,
           },
@@ -90,7 +100,7 @@ export default {
         {
           identifier: "function",
           data: {
-            fn: null,
+            fn: "x",
           },
           isFavorite: true,
         },
@@ -99,6 +109,7 @@ export default {
           data: {
             availableInstruments: this.$soundFactory.getAllInstrumentsName(),
             selectedInstrument: null,
+            isEnabled: true,
           },
           isFavorite: false,
         },
@@ -110,6 +121,7 @@ export default {
     onOptionsChangesSaved(optionsChanged) {
       //[{"identifier": "xDomain","data": {}]
       console.log(`options changed to: ${optionsChanged}`);
+
       this.valorizeFunctionParamsFromOptions(optionsChanged);
     },
     valorizeFunctionParamsFromOptions(options) {
@@ -123,6 +135,16 @@ export default {
           return item.identifier == "xDomain";
         })
       );
+      const yDomainData = _.head(
+        _.filter(options, function (item) {
+          return item.identifier == "yDomain";
+        })
+      );
+      const sonificationData = _.head(
+        _.filter(options, function (item) {
+          return item.identifier == "sonification";
+        })
+      );
 
       this.functionOptions = {
         fn: _.isNil(functionData)
@@ -130,7 +152,24 @@ export default {
           : functionData.data.fn,
         sonificationStep: _.isNil(xDomainData)
           ? this.functionOptions.sonificationStep
-          : xDomainData.data.step,
+          : parseInt(xDomainData.data.step),
+        domXRange: _.isNil(xDomainData)
+          ? this.functionOptions.domXRange
+          : [parseInt(xDomainData.data.xMin), parseInt(xDomainData.data.xMax)],
+        domYRange: _.isNil(yDomainData)
+          ? this.functionOptions.domYRange
+          : [parseInt(yDomainData.data.yMin), parseInt(yDomainData.data.yMax)],
+      };
+      // debugger;
+      this.functionSonificationOptions = {
+        isEnabled: _.isNil(sonificationData)
+          ? this.functionSonificationOptions.isEnabled
+          : sonificationData.data.isEnabled,
+        instrument: _.isNil(sonificationData)
+          ? this.functionSonificationOptions.instrument
+          : sonificationData.data.selectedInstrument,
+        domXRange: this.functionOptions.domXRange,
+        domYRange: this.functionOptions.domYRange,
       };
     },
     handleFunctionActionRequest(requestType) {
@@ -142,6 +181,9 @@ export default {
             : 1,
       };
       this.lastFunctionActionRequestType = requestType;
+    },
+    handleFunctionStateNotification(functionState) {
+      this.functionSonificationData = functionState;
     },
   },
 };

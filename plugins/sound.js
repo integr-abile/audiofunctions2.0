@@ -4,7 +4,15 @@ import _ from "lodash";
 class SoundFactory {
   constructor(availableInstrumentNames) {
     //TODO: availableInstrumentNames è un array che indica quali nomi di strumenti sono ammessi tra quelli tra cui scegliere
+    this.#createPanner();
   }
+
+  #createPanner() {
+    this.#panner = new Tone.Panner(0).toDestination();
+  }
+
+  #panner;
+
   #generatePitchClasses() {
     let notes = [
       "C",
@@ -37,7 +45,7 @@ class SoundFactory {
   #allInstruments = [
     {
       name: "sine",
-      instrument: new Tone.Oscillator(),
+      instrument: new Tone.Synth().toDestination(),
       instrumentType: this.InstrumentFrequencyType.continuous,
       frequencyRange: {
         min: 150,
@@ -104,13 +112,77 @@ class SoundFactory {
     return _.map(this.#allInstruments, "name");
   }
 
+  async enableSonifier() {
+    await Tone.start();
+    return true;
+  }
+
+  getInstrumentTypeFrom(instrumentId) {
+    return this.getInstrumentFrom(instrumentId).instrumentType;
+  }
+
+  getInstrumentFrom(instrumentId) {
+    return _.head(
+      _.filter(this.#allInstruments, function (item) {
+        return item.name == instrumentId;
+      })
+    );
+  }
+
   pitchClasses(from, to) {
     // debugger;
     const beginIdx = this.#allPitchClasses.indexOf(from);
     const endIdx = this.#allPitchClasses.indexOf(to);
     return this.#allPitchClasses.slice(beginIdx, endIdx + 1);
   }
-  sonify(yValue, yDistanceFromFunction, domXRange, domYRange, instrumentId) {}
+  stopSonification(instrumentId) {
+    this.getInstrumentFrom(instrumentId).instrument.triggerRelease();
+  }
+  sonify(
+    yValue,
+    yDistanceFromFunction,
+    domYIntervalExtremes,
+    domYFrequencyMap,
+    domXRange,
+    domYRange,
+    instrumentId
+  ) {
+    if (
+      this.getInstrumentTypeFrom(instrumentId) ==
+      this.InstrumentFrequencyType.continuous
+    ) {
+      const idxDomYValueGtCur = domYIntervalExtremes.findIndex((element) => {
+        return element > yValue;
+      });
+      const maxValueIntervalDomY = domYIntervalExtremes[idxDomYValueGtCur];
+      const minValueIntervalDomY = domYIntervalExtremes[idxDomYValueGtCur - 1];
+      const maxValueIntervalFreq = domYFrequencyMap[maxValueIntervalDomY];
+      const minValueIntervalFreq = domYFrequencyMap[minValueIntervalDomY];
+
+      //equazione della retta passante per 2 punti -> x-x_1 / x_2 - x_1 = y-y_1 / y_2 - y_1
+      const targetFrequency =
+        (maxValueIntervalFreq - minValueIntervalFreq) *
+          ((yValue - minValueIntervalDomY) /
+            (maxValueIntervalDomY - minValueIntervalDomY)) +
+        minValueIntervalFreq;
+
+      setTimeout(
+        function () {
+          const instrument = this.getInstrumentFrom(instrumentId);
+          const concreteInstrument = instrument.instrument;
+          concreteInstrument.connect(this.#panner);
+          // debugger;
+
+          concreteInstrument.triggerRelease();
+          console.log("freq target" + targetFrequency);
+          concreteInstrument.triggerAttack(`${targetFrequency}`);
+        }.bind(this),
+        1
+      );
+    } else {
+      //pitch based sonification
+    }
+  }
 }
 
 const soundFactory = new SoundFactory();
