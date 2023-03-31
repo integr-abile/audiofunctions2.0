@@ -12,6 +12,7 @@ class SoundFactory {
   }
 
   #panner;
+  #lastPitchClass;
 
   #generatePitchClasses() {
     let notes = [
@@ -177,7 +178,7 @@ class SoundFactory {
             concreteInstrument.set({ frequency: `${targetFrequency}` });
           } else {
             console.log("setup strument per primo avvio");
-            concreteInstrument.connect(this.#panner);
+            concreteInstrument.connect(this.#panner); //quando fermo lo strumento mi devo preoccupare di disconnetterlo
             instrument.name == "sine"
               ? concreteInstrument.start()
               : concreteInstrument.triggerAttack(`${targetFrequency}`);
@@ -187,7 +188,30 @@ class SoundFactory {
         1
       );
     } else {
-      //pitch based sonification
+      const idxDomYValueLtCur =
+        domYIntervalExtremes.findIndex((element) => {
+          return element > yValue;
+        }) - 1;
+      const pitchClass =
+        domYFrequencyMap[domYIntervalExtremes[idxDomYValueLtCur]];
+      if (pitchClass == this.#lastPitchClass) {
+        return;
+      }
+      this.#lastPitchClass = pitchClass;
+      setTimeout(
+        function () {
+          const instrument = this.getInstrumentFrom(instrumentId);
+          const concreteInstrument = instrument.instrument;
+          console.log(`pitch class ${pitchClass}`);
+          if (concreteInstrument.state == "started") {
+            concreteInstrument.triggerRelease();
+          } else {
+            concreteInstrument.connect(this.#panner);
+          }
+          concreteInstrument.triggerAttackRelease(pitchClass, "4n");
+        }.bind(this),
+        1
+      );
     }
   }
 }
