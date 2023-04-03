@@ -7,6 +7,7 @@ export default {
     "isEnabled",
     "instrument",
     "yFunctionValue",
+    "xFunctionValue",
     "yPointerDistanceFromFunction",
     "domXRange",
     "domYRange",
@@ -15,6 +16,7 @@ export default {
     return {
       domYIntervalExtremes: [],
       domYFrequencyMap: {},
+      lastInstrument: null,
     };
   },
   mounted() {
@@ -24,17 +26,23 @@ export default {
     this.createDomYFrequencyMap();
   },
   watch: {
+    isEnabled(val) {
+      if (!val) {
+        this.$soundFactory.stopSonification(this.instrument);
+      }
+    },
     yFunctionValue(val) {
       console.log("cambiato valore funzione");
       //   debugger;
-      if (!this.checkPreconditions()) {
+      if (!this.checkPreconditions() || !this.isEnabled) {
         return;
       }
+      console.log("inizio sonificazione");
       this.sonify();
     },
     yPointerDistanceFromFunction(val) {
       console.log("cambiata distanza tra il puntatore e la funzione");
-      if (!this.checkPreconditions()) {
+      if (!this.checkPreconditions() || !this.isEnabled) {
         return;
       }
       this.sonify();
@@ -58,6 +66,10 @@ export default {
       if (!this.checkPreconditions()) {
         return;
       }
+      if (!_.isNil(this.lastInstrument)) {
+        this.$soundFactory.stopSonification(this.lastInstrument);
+      }
+      this.lastInstrument = val;
       this.createDomYFrequencyMap();
     },
   },
@@ -134,6 +146,7 @@ export default {
     sonify() {
       this.$soundFactory.sonify(
         this.yFunctionValue,
+        this.xFunctionValue,
         this.yPointerDistanceFromFunction,
         this.domYIntervalExtremes,
         this.domYFrequencyMap,

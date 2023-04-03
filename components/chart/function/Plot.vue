@@ -36,6 +36,7 @@ export default {
     functionStatus() {
       return {
         yFunctionValue: this.currentFnYValue,
+        xFunctionValue: this.currentFnXValue,
         yPointerDistanceFromFunction: 0, //TODO: valorizzare correttamente quando riesco a prendere il valore con l'evento giusto sulla funzione
       };
     },

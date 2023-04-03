@@ -137,10 +137,18 @@ class SoundFactory {
     return this.#allPitchClasses.slice(beginIdx, endIdx + 1);
   }
   stopSonification(instrumentId) {
-    this.getInstrumentFrom(instrumentId).instrument.triggerRelease();
+    const currentInstrument = this.getInstrumentFrom(instrumentId);
+    // debugger;
+    if (currentInstrument.name == "sine") {
+      currentInstrument.instrument.stop();
+    } else {
+      currentInstrument.instrument.triggerRelease();
+    }
+    // this.getInstrumentFrom(instrumentId).instrument.triggerRelease();
   }
   sonify(
     yValue,
+    xValue,
     yDistanceFromFunction, //da cui dipende il volume
     domYIntervalExtremes,
     domYFrequencyMap,
@@ -148,6 +156,9 @@ class SoundFactory {
     domYRange, //da cui dipende il volume
     instrumentId
   ) {
+    const valueRangeRatioPercentage =
+      ((xValue - domXRange[0]) / (domXRange[1] - domXRange[0])) * 100;
+    const curPanningValue = valueRangeRatioPercentage / 50 - 1;
     if (
       this.getInstrumentTypeFrom(instrumentId) ==
       this.InstrumentFrequencyType.continuous
@@ -173,12 +184,16 @@ class SoundFactory {
           const concreteInstrument = instrument.instrument;
           // debugger;
           console.log("freq target" + targetFrequency);
+
           if (concreteInstrument.state == "started") {
-            console.log("modifico solo la frequenza");
+            //se ho già avviato la riproduzione
+            console.log("modifico solo la frequenza ed eventualmente il pan");
             concreteInstrument.set({ frequency: `${targetFrequency}` });
+            this.#panner.pan.value = curPanningValue;
           } else {
             console.log("setup strument per primo avvio");
             concreteInstrument.connect(this.#panner); //quando fermo lo strumento mi devo preoccupare di disconnetterlo
+            this.#panner.pan.value = curPanningValue;
             instrument.name == "sine"
               ? concreteInstrument.start()
               : concreteInstrument.triggerAttack(`${targetFrequency}`);
@@ -208,6 +223,7 @@ class SoundFactory {
           } else {
             concreteInstrument.connect(this.#panner);
           }
+          this.#panner.pan.value = curPanningValue;
           concreteInstrument.triggerAttackRelease(pitchClass, "4n");
         }.bind(this),
         1
