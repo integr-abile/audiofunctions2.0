@@ -20,6 +20,11 @@
       :key-code="$KeyboardKey.arrowLeft"
       @success="handleKeyDown"
     />
+    <Keypress
+      key-event="keyup"
+      :multiple-keys="fnBatchExplorationMultipleKeys"
+      @success="sonifyBatch"
+    />
   </div>
 </template>
 
@@ -30,6 +35,13 @@ export default {
   data() {
     return {
       holdKeyTimer: null,
+      fnBatchExplorationMultipleKeys: [
+        {
+          keyCode: this.$KeyboardKey.b,
+          modifiers: ["ctrlKey", "shiftKey"],
+          preventDefault: true,
+        },
+      ],
     };
   },
   components: {
@@ -77,6 +89,9 @@ export default {
           }
           break;
       }
+    },
+    sonifyBatch(event) {
+      this.$emit("actionRequest", this.$FunctionAction.batchExploration);
     },
     handleKeyPress(event) {},
   },

@@ -38,6 +38,9 @@ export default {
         yFunctionValue: this.currentFnYValue,
         xFunctionValue: this.currentFnXValue,
         yPointerDistanceFromFunction: this.yPointerDistanceFromFunction,
+        shouldSound:
+          this.canEmitEventsForSonification ||
+          this.isBatchExplorationInProgress,
       };
     },
     yPointerDistanceFromFunction() {
@@ -53,6 +56,12 @@ export default {
       fnPlotInstance: null,
       yMousePointer: 0,
       canEmitEventsForSonification: false,
+      isBatchExplorationInProgress: false,
+      batchSonificationTimeSeconds:
+        process.env.SONIFICATION_BATCH_SONIFICATION_TIME_SECONDS,
+      minSonificationTimeSeconds:
+        process.env.SONIFICATION_MIN_TICK_TIME_SECONDS,
+      batchSonificationTimer: null,
     };
   },
   watch: {
@@ -68,6 +77,9 @@ export default {
       },
       immediate: true,
     },
+    canEmitEventsForSonification(val) {
+      this.$emit("needNotifyStatus", this.functionStatus);
+    },
     actionRequest(val) {
       console.log(`richiesta azione ${val.requestType}`);
       switch (val.requestType) {
@@ -82,6 +94,58 @@ export default {
         case this.$FunctionAction.goToBegin:
           break;
         case this.$FunctionAction.goToEnd:
+          break;
+        case this.$FunctionAction.batchExploration:
+          if (this.isBatchExplorationInProgress) {
+            return;
+          }
+          this.isBatchExplorationInProgress = true;
+          const xDomainTicksToNotifyCount =
+            (this.domXRange[1] - this.domXRange[0]) / this.sonificationStep;
+          let notificationIntervalTimeSeconds =
+            this.batchSonificationTimeSeconds / xDomainTicksToNotifyCount;
+          if (
+            notificationIntervalTimeSeconds < this.minSonificationTimeSeconds
+          ) {
+            notificationIntervalTimeSeconds = this.minSonificationTimeSeconds;
+          }
+          this.currentFnXValue = this.domXRange[0]; //inizio sonificando il primo valore della funzione
+          let sonifyTick = function () {
+            if (
+              this.isBatchExplorationInProgress &&
+              this.currentFnXValue < this.domXRange[1]
+            ) {
+              const y = functionPlot.$eval.builtIn(
+                {
+                  fn: this.fn,
+                },
+                "fn",
+                {
+                  x: this.currentFnXValue,
+                }
+              );
+              // debugger;
+              this.yMousePointer = y;
+              this.currentFnYValue = y;
+              console.log(
+                `batch sonification x:${this.currentFnXValue} y:${this.currentFnYValue}`
+              );
+              //TODO: controllare se Y sta nel dominio visualizzato altrimenti fare qualcosa
+              if (y >= this.domYRange[0] && y < this.domYRange[1]) {
+                this.$emit("needNotifyStatus", this.functionStatus);
+              }
+              this.currentFnXValue += this.sonificationStep;
+              this.batchSonificationTimer = setTimeout(
+                sonifyTick,
+                notificationIntervalTimeSeconds * 1000
+              );
+            } else {
+              clearTimeout(this.batchSonificationTimer);
+              this.isBatchExplorationInProgress = false;
+              this.$emit("needNotifyStatus", this.functionStatus);
+            }
+          }.bind(this);
+          sonifyTick();
           break;
       }
     },
@@ -121,6 +185,7 @@ export default {
       this.fnPlotInstance.on(
         "tip:update",
         function (cx, cy, cidx) {
+          this.isBatchExplorationInProgress = false;
           this.currentFnYValue = cx.y;
           this.currentFnXValue = cx.x;
           if (this.canEmitEventsForSonification) {
@@ -137,9 +202,8 @@ export default {
       );
       this.fnPlotInstance.on(
         "mouseout",
-        function () {
-          this.yPointerDistanceFromFunction = 0; //essendo fuori dall'area del grafico col mouse non ha più senso sapere quanto sono distante dalla funzione
-          // console.log("mouseout");
+        function (event) {
+          console.log("mouseout");
           this.canEmitEventsForSonification = false;
         }.bind(this)
       );

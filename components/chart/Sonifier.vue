@@ -9,6 +9,7 @@ export default {
     "yFunctionValue",
     "xFunctionValue",
     "yPointerDistanceFromFunction",
+    "shouldSound",
     "domXRange",
     "domYRange",
   ],
@@ -31,10 +32,24 @@ export default {
         this.$soundFactory.stopSonification(this.instrument);
       }
     },
+    shouldSound(val) {
+      console.log(`should sound: ${val}`);
+      if (val) {
+        if (!this.checkPreconditions() || !this.isEnabled) {
+          return;
+        }
+        this.sonify();
+      } else {
+        if (!_.isNil(this.instrument)) {
+          console.log("sto per interrompere la sonificazione");
+          this.$soundFactory.stopSonification(this.instrument);
+        }
+      }
+    },
     yFunctionValue(val) {
       console.log("cambiato valore funzione");
       //   debugger;
-      if (!this.checkPreconditions() || !this.isEnabled) {
+      if (!this.checkPreconditions() || !this.isEnabled || !this.shouldSound) {
         return;
       }
       console.log("inizio sonificazione");
@@ -42,7 +57,7 @@ export default {
     },
     yPointerDistanceFromFunction(val) {
       console.log("cambiata distanza tra il puntatore e la funzione");
-      if (!this.checkPreconditions() || !this.isEnabled) {
+      if (!this.checkPreconditions() || !this.isEnabled || !this.shouldSound) {
         return;
       }
       this.sonify();
