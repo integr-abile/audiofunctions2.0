@@ -37,8 +37,11 @@ export default {
       return {
         yFunctionValue: this.currentFnYValue,
         xFunctionValue: this.currentFnXValue,
-        yPointerDistanceFromFunction: 0, //TODO: valorizzare correttamente quando riesco a prendere il valore con l'evento giusto sulla funzione
+        yPointerDistanceFromFunction: this.yPointerDistanceFromFunction,
       };
+    },
+    yPointerDistanceFromFunction() {
+      return Math.abs(this.currentFnYValue - this.yMousePointer);
     },
   },
   data() {
@@ -48,6 +51,8 @@ export default {
       currentFnXValue: 0,
       currentFnYValue: 0,
       fnPlotInstance: null,
+      yMousePointer: 0,
+      canEmitEventsForSonification: false,
     };
   },
   watch: {
@@ -116,24 +121,35 @@ export default {
       this.fnPlotInstance.on(
         "tip:update",
         function (cx, cy, cidx) {
-          // console.log("hover fn plot");
-          //quando la posizione del puntino sulla funzione viene aggiornata
           this.currentFnYValue = cx.y;
           this.currentFnXValue = cx.x;
-          this.$emit("needNotifyStatus", this.functionStatus);
+          if (this.canEmitEventsForSonification) {
+            this.$emit("needNotifyStatus", this.functionStatus);
+          }
         }.bind(this)
       );
-      this.fnPlotInstance.on("mouseover", function () {
-        //TODO: valutare se tenere anche questo evento o mi basta il mousemove. Alla fine mi servirebbe solo per capire quanto il puntatore è distante dalla funzione
-      });
-      this.fnPlotInstance.on("mouseout", function () {
-        this.yPointerDistanceFromFunction = 0; //essendo fuori dall'area del grafico col mouse non ha più senso sapere quanto sono distante dalla funzione
-        console.log("mouseout");
-        //TODO: intercettare "mouseover" e "mouseout" per avviare o fermare la sonificazione
-      });
-      this.fnPlotInstance.on("mousemove", function () {
-        //TODO: intercettare "mousemove" per beccare la posizione del puntatore del mouse all'interno del grafico
-      });
+      this.fnPlotInstance.on(
+        "mouseover",
+        function (event) {
+          console.log("mouseover");
+          this.canEmitEventsForSonification = true;
+        }.bind(this)
+      );
+      this.fnPlotInstance.on(
+        "mouseout",
+        function () {
+          this.yPointerDistanceFromFunction = 0; //essendo fuori dall'area del grafico col mouse non ha più senso sapere quanto sono distante dalla funzione
+          // console.log("mouseout");
+          this.canEmitEventsForSonification = false;
+        }.bind(this)
+      );
+      this.fnPlotInstance.on(
+        "mousemove",
+        function (event) {
+          // console.log(`mosso mouse y: ${event.y}`);
+          this.yMousePointer = event.y;
+        }.bind(this)
+      );
     },
   },
 };

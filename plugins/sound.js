@@ -8,11 +8,16 @@ class SoundFactory {
   }
 
   #createPanner() {
-    this.#panner = new Tone.Panner(0).toDestination();
+    this.#gain = new Tone.Gain(1).toDestination();
+    this.#panner = new Tone.Panner(0);
+    this.#panner.connect(this.#gain);
   }
 
   #panner;
+  #gain;
   #lastPitchClass;
+  #minGain = 0.1;
+  #maxGain = 1; //no amplificazione
 
   #generatePitchClasses() {
     let notes = [
@@ -37,6 +42,13 @@ class SoundFactory {
       }
     }
     return toReturn;
+  }
+  #getGainFrom(distance, domYRange) {
+    const minRange = domYRange[0];
+    const maxRange = domYRange[1];
+    const m = (this.#minGain - this.#maxGain) / (maxRange - minRange);
+    const q = this.#maxGain;
+    return m * distance + q;
   }
   InstrumentFrequencyType = {
     continuous: "continuous",
@@ -156,9 +168,11 @@ class SoundFactory {
     domYRange, //da cui dipende il volume
     instrumentId
   ) {
-    const valueRangeRatioPercentage =
+    const valueXRangeRatioPercentage =
       ((xValue - domXRange[0]) / (domXRange[1] - domXRange[0])) * 100;
-    const curPanningValue = valueRangeRatioPercentage / 50 - 1;
+    const curPanningValue = valueXRangeRatioPercentage / 50 - 1;
+    const curGain = this.#getGainFrom(yDistanceFromFunction, domYRange);
+    console.log(`current gain ${curGain}`);
     if (
       this.getInstrumentTypeFrom(instrumentId) ==
       this.InstrumentFrequencyType.continuous
@@ -190,10 +204,13 @@ class SoundFactory {
             console.log("modifico solo la frequenza ed eventualmente il pan");
             concreteInstrument.set({ frequency: `${targetFrequency}` });
             this.#panner.pan.value = curPanningValue;
+            this.#gain.gain.value = curGain;
           } else {
             console.log("setup strument per primo avvio");
             concreteInstrument.connect(this.#panner); //quando fermo lo strumento mi devo preoccupare di disconnetterlo
+            concreteInstrument.set({ frequency: `${targetFrequency}` });
             this.#panner.pan.value = curPanningValue;
+            this.#gain.gain.value = curGain;
             instrument.name == "sine"
               ? concreteInstrument.start()
               : concreteInstrument.triggerAttack(`${targetFrequency}`);
@@ -224,6 +241,7 @@ class SoundFactory {
             concreteInstrument.connect(this.#panner);
           }
           this.#panner.pan.value = curPanningValue;
+          this.#gain.gain.value = curGain;
           concreteInstrument.triggerAttackRelease(pitchClass, "4n");
         }.bind(this),
         1
