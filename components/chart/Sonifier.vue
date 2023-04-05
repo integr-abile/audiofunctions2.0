@@ -35,7 +35,11 @@ export default {
     shouldSound(val) {
       console.log(`should sound: ${val}`);
       if (val) {
-        if (!this.checkPreconditions() || !this.isEnabled) {
+        if (
+          !this.checkPreconditions() ||
+          !this.isEnabled ||
+          !this.shouldSound
+        ) {
           return;
         }
         this.sonify();

@@ -7,7 +7,7 @@ export default {
   },
   env: {
     SONIFICATION_MIN_TICK_TIME_SECONDS: 0.2, //TODO: valutare bene questo numero. lower bound per non andare incontro principio di indeterminazione tonale
-    SONIFICATION_BATCH_SONIFICATION_TIME_SECONDS: 2, //TODO: valutare bene questo numero. lower bound per non andare incontro principio di indeterminazione tonale
+    SONIFICATION_BATCH_SONIFICATION_TIME_SECONDS: 1, //TODO: valutare bene questo numero. lower bound per non andare incontro principio di indeterminazione tonale
   },
 
   // Global page headers: https://go.nuxtjs.dev/config-head

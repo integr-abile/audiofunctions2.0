@@ -13,8 +13,13 @@ const KeyboardKey = {
   arrowLeft: 37,
   b: 66,
 };
+const AudioSample = {
+  noYAtX: "/audio/no_y.mp3",
+  displayedChartBorder: "/audio/displayed_chart_border.mp3",
+};
 
 export default ({ app }, inject) => {
   inject("FunctionAction", FunctionAction);
   inject("KeyboardKey", KeyboardKey);
+  inject("AudioSample", AudioSample);
 };

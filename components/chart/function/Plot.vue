@@ -39,12 +39,19 @@ export default {
         xFunctionValue: this.currentFnXValue,
         yPointerDistanceFromFunction: this.yPointerDistanceFromFunction,
         shouldSound:
-          this.canEmitEventsForSonification ||
-          this.isBatchExplorationInProgress,
+          (this.canEmitEventsForSonification ||
+            this.isBatchExplorationInProgress) &&
+          this.isCurrentYInDisplayedRange,
       };
     },
     yPointerDistanceFromFunction() {
       return Math.abs(this.currentFnYValue - this.yMousePointer);
+    },
+    isCurrentYInDisplayedRange() {
+      return (
+        this.currentFnYValue >= this.domYRange[0] &&
+        this.currentFnYValue < this.domYRange[1]
+      );
     },
   },
   data() {
@@ -76,9 +83,6 @@ export default {
         this.updateFunctionChart();
       },
       immediate: true,
-    },
-    canEmitEventsForSonification(val) {
-      this.$emit("needNotifyStatus", this.functionStatus);
     },
     actionRequest(val) {
       console.log(`richiesta azione ${val.requestType}`);
@@ -130,10 +134,11 @@ export default {
               console.log(
                 `batch sonification x:${this.currentFnXValue} y:${this.currentFnYValue}`
               );
-              //TODO: controllare se Y sta nel dominio visualizzato altrimenti fare qualcosa
-              if (y >= this.domYRange[0] && y < this.domYRange[1]) {
-                this.$emit("needNotifyStatus", this.functionStatus);
+              this.$emit("needNotifyStatus", this.functionStatus);
+              if (!this.isCurrentYInDisplayedRange) {
+                this.$soundFactory.playSample(this.$AudioSample.noYAtX, true);
               }
+
               this.currentFnXValue += this.sonificationStep;
               this.batchSonificationTimer = setTimeout(
                 sonifyTick,
@@ -164,6 +169,7 @@ export default {
       this.fnContainerWidth = width;
       this.fnContainerHeight = height;
     },
+
     updateFunctionChart() {
       this.fnPlotInstance = functionPlot({
         target: "#root",
@@ -185,11 +191,15 @@ export default {
       this.fnPlotInstance.on(
         "tip:update",
         function (cx, cy, cidx) {
+          console.log("tip:update");
           this.isBatchExplorationInProgress = false;
           this.currentFnYValue = cx.y;
           this.currentFnXValue = cx.x;
           if (this.canEmitEventsForSonification) {
             this.$emit("needNotifyStatus", this.functionStatus);
+            if (!this.isCurrentYInDisplayedRange) {
+              this.$soundFactory.playSample(this.$AudioSample.noYAtX);
+            }
           }
         }.bind(this)
       );
@@ -198,6 +208,7 @@ export default {
         function (event) {
           console.log("mouseover");
           this.canEmitEventsForSonification = true;
+          this.$emit("needNotifyStatus", this.functionStatus);
         }.bind(this)
       );
       this.fnPlotInstance.on(
@@ -205,6 +216,7 @@ export default {
         function (event) {
           console.log("mouseout");
           this.canEmitEventsForSonification = false;
+          this.$emit("needNotifyStatus", this.functionStatus);
         }.bind(this)
       );
       this.fnPlotInstance.on(

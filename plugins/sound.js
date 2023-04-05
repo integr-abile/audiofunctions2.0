@@ -15,6 +15,8 @@ class SoundFactory {
 
   #panner;
   #gain;
+  #audioSamplePlayer;
+  #currentSoundUrlLoaded;
   #lastPitchClass;
   #minGain = 0.1;
   #maxGain = 1; //no amplificazione
@@ -121,6 +123,47 @@ class SoundFactory {
       availablePitchClasses: this.pitchClasses("C3", "C6"),
     },
   ];
+  playSample(audioSampleId, ignoreNotFinishedYet = true) {
+    if (_.isNil(this.#audioSamplePlayer)) {
+      this.#audioSamplePlayer = new Tone.Player();
+      this.#audioSamplePlayer.load(audioSampleId, function () {
+        console.log(`audio sample loaded ${audioSampleId}`);
+        this.#audioSamplePlayer.start();
+      });
+
+      this.#currentSoundUrlLoaded = audioSampleId;
+    } else {
+      if (audioSampleId != this.#currentSoundUrlLoaded) {
+        console.log("sto caricando " + audioSampleId);
+        this.#audioSamplePlayer.load(audioSampleId, function () {
+          console.log(`audio sample loaded ${audioSampleId}`);
+          if (ignoreNotFinishedYet) {
+            this.#audioSamplePlayer.start();
+          } else {
+            if (this.#audioSamplePlayer.state === "started") {
+              return;
+            }
+            this.#audioSamplePlayer.start();
+          }
+        });
+        this.#currentSoundUrlLoaded = audioSampleId;
+      } else {
+        if (!this.#audioSamplePlayer.buffer.loaded) {
+          console.error("non ho ancora caricato il file audio");
+          return;
+        }
+        //se devo semplicemente riprodurre un file audio che ho già nel mio buffer
+        if (ignoreNotFinishedYet) {
+          this.#audioSamplePlayer.start();
+        } else {
+          if (this.#audioSamplePlayer.state === "started") {
+            return;
+          }
+          this.#audioSamplePlayer.start();
+        }
+      }
+    }
+  }
   getAllInstrumentsName() {
     return _.map(this.#allInstruments, "name");
   }
@@ -149,6 +192,7 @@ class SoundFactory {
     return this.#allPitchClasses.slice(beginIdx, endIdx + 1);
   }
   stopSonification(instrumentId) {
+    console.log("stopSonification");
     const currentInstrument = this.getInstrumentFrom(instrumentId);
     // debugger;
     if (currentInstrument.name == "sine") {
@@ -199,7 +243,10 @@ class SoundFactory {
           // debugger;
           console.log("freq target" + targetFrequency);
 
-          if (concreteInstrument.state == "started") {
+          if (
+            concreteInstrument.state == "started" ||
+            concreteInstrument.oscillator.state == "started"
+          ) {
             //se ho già avviato la riproduzione
             console.log("modifico solo la frequenza ed eventualmente il pan");
             concreteInstrument.set({ frequency: `${targetFrequency}` });
