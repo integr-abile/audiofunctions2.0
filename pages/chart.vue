@@ -34,6 +34,7 @@
 
 <script>
 import _ from "lodash";
+import * as Tone from "tone";
 
 export default {
   layout: "fullscreen",

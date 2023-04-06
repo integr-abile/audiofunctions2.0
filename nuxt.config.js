@@ -42,11 +42,11 @@ export default {
     { src: "~/plugins/mathlive-input.js", mode: "client" },
     { src: "~/plugins/vue-a11y-announcer.js", mode: "client" },
     { src: "~/plugins/validate-function.mjs", mode: "client" },
+    { src: "~/plugins/enums.js", mode: "client" },
     { src: "~/plugins/session-data-serializer.js", mode: "client" },
     { src: "~/plugins/sound.js", mode: "client" },
     { src: "~/plugins/vue-shortkey.js", mode: "client" },
     { src: "~/plugins/vue-mathjax.js", mode: "client" },
-    { src: "~/plugins/enums.js", mode: "client" },
 
     // { src: "~/plugins/vue-keypress.js" },
   ],

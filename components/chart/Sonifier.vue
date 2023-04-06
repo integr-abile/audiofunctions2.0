@@ -40,6 +40,10 @@ export default {
           !this.isEnabled ||
           !this.shouldSound
         ) {
+          if (!_.isNil(this.instrument)) {
+            console.log("sto per interrompere la sonificazione");
+            this.$soundFactory.stopSonification(this.instrument);
+          }
           return;
         }
         this.sonify();

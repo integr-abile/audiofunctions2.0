@@ -25,6 +25,7 @@
 <script>
 import functionPlot from "function-plot";
 import _ from "lodash";
+import * as Tone from "tone";
 
 export default {
   emits: ["needNotifyStatus"],
@@ -136,7 +137,7 @@ export default {
               );
               this.$emit("needNotifyStatus", this.functionStatus);
               if (!this.isCurrentYInDisplayedRange) {
-                this.$soundFactory.playSample(this.$AudioSample.noYAtX, true);
+                this.$soundFactory.playSample(this.$AudioSample.noYAtX);
               }
 
               this.currentFnXValue += this.sonificationStep;
@@ -148,6 +149,9 @@ export default {
               clearTimeout(this.batchSonificationTimer);
               this.isBatchExplorationInProgress = false;
               this.$emit("needNotifyStatus", this.functionStatus);
+              this.$soundFactory.playSample(
+                this.$AudioSample.displayedChartBorder
+              );
             }
           }.bind(this);
           sonifyTick();
@@ -198,7 +202,7 @@ export default {
           if (this.canEmitEventsForSonification) {
             this.$emit("needNotifyStatus", this.functionStatus);
             if (!this.isCurrentYInDisplayedRange) {
-              this.$soundFactory.playSample(this.$AudioSample.noYAtX);
+              this.$soundFactory.playSample(this.$AudioSample.noYAtX, false);
             }
           }
         }.bind(this)
@@ -208,7 +212,7 @@ export default {
         function (event) {
           console.log("mouseover");
           this.canEmitEventsForSonification = true;
-          this.$emit("needNotifyStatus", this.functionStatus);
+          //Non emetto un evento se no mi riparte dall'ultimo tip:update, mentre è solo il tip:update che può comandare la posizione X,Y
         }.bind(this)
       );
       this.fnPlotInstance.on(
