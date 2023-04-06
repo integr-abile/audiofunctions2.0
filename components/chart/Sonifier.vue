@@ -35,15 +35,7 @@ export default {
     shouldSound(val) {
       console.log(`should sound: ${val}`);
       if (val) {
-        if (
-          !this.checkPreconditions() ||
-          !this.isEnabled ||
-          !this.shouldSound
-        ) {
-          if (!_.isNil(this.instrument)) {
-            console.log("sto per interrompere la sonificazione");
-            this.$soundFactory.stopSonification(this.instrument);
-          }
+        if (!this.checkPreconditions() || !this.isEnabled) {
           return;
         }
         this.sonify();

@@ -54,6 +54,12 @@ export default {
         this.currentFnYValue < this.domYRange[1]
       );
     },
+    isCurrentXInDisplayedRange() {
+      return (
+        this.currentFnXValue >= this.domXRange[0] &&
+        this.currentFnXValue < this.domXRange[1]
+      );
+    },
   },
   data() {
     return {
@@ -220,6 +226,10 @@ export default {
         function (event) {
           console.log("mouseout");
           this.canEmitEventsForSonification = false;
+          this.$soundFactory.playSample(
+            this.$AudioSample.displayedChartBorder,
+            false
+          );
           this.$emit("needNotifyStatus", this.functionStatus);
         }.bind(this)
       );
