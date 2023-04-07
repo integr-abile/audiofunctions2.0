@@ -7,6 +7,7 @@
       :instrument="functionSonificationOptions.instrument"
       :domXRange="functionSonificationOptions.domXRange"
       :domYRange="functionSonificationOptions.domYRange"
+      :earconObj="earconToNotifyObj"
     />
     <TextToSpeech
       :text-to-read="textToRead"
@@ -27,6 +28,7 @@
         id="fnPlot"
         class="h-100"
         @needNotifyStatus="handleFunctionStateNotification"
+        @needPlayEarcon="(earconObj) => (earconToNotifyObj = earconObj)"
       />
     </main>
   </div>
@@ -47,6 +49,7 @@ export default {
       lastFunctionActionRequestType: null,
       functionSonificationData: {},
       functionSonificationOptions: {},
+      earconToNotifyObj: {},
     };
   },
   created() {

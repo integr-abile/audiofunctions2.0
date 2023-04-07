@@ -165,6 +165,9 @@ export default ({ app }, inject) => {
       }
     }
     playAudio(player) {
+      if (!player.loaded) {
+        return;
+      }
       if (player.state === "started") {
         player.stop();
       }

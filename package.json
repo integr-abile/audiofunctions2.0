@@ -14,6 +14,7 @@
     "core-js": "^3.25.3",
     "function-plot": "^1.23.2",
     "lodash": "^4.17.21",
+    "mathjs": "^11.8.0",
     "mathlive": "^0.86.0",
     "nuxt": "^2.15.8",
     "text-diff": "^1.0.1",

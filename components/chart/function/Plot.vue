@@ -28,7 +28,7 @@ import _ from "lodash";
 import * as Tone from "tone";
 
 export default {
-  emits: ["needNotifyStatus"],
+  emits: ["needNotifyStatus", "needPlayEarcon"],
   props: ["fn", "actionRequest", "sonificationStep", "domXRange", "domYRange"],
   computed: {
     doesFunctionExists() {
@@ -76,6 +76,7 @@ export default {
       minSonificationTimeSeconds:
         process.env.SONIFICATION_MIN_TICK_TIME_SECONDS,
       batchSonificationTimer: null,
+      currentEarconToPlay: null,
     };
   },
   watch: {
@@ -143,7 +144,11 @@ export default {
               );
               this.$emit("needNotifyStatus", this.functionStatus);
               if (!this.isCurrentYInDisplayedRange) {
-                this.$soundFactory.playSample(this.$AudioSample.noYAtX);
+                this.$emit("needPlayEarcon", {
+                  id: this.$AudioSample.noYAtX,
+                  ignoreIsStillPlaying: true,
+                });
+                // this.$soundFactory.playSample(this.$AudioSample.noYAtX);
               }
 
               this.currentFnXValue += this.sonificationStep;
@@ -155,9 +160,13 @@ export default {
               clearTimeout(this.batchSonificationTimer);
               this.isBatchExplorationInProgress = false;
               this.$emit("needNotifyStatus", this.functionStatus);
-              this.$soundFactory.playSample(
-                this.$AudioSample.displayedChartBorder
-              );
+              this.$emit("needPlayEarcon", {
+                id: this.$AudioSample.displayedChartBorder,
+                ignoreIsStillPlaying: true,
+              });
+              // this.$soundFactory.playSample(
+              //   this.$AudioSample.displayedChartBorder
+              // );
             }
           }.bind(this);
           sonifyTick();
@@ -205,12 +214,7 @@ export default {
           this.isBatchExplorationInProgress = false;
           this.currentFnYValue = cx.y;
           this.currentFnXValue = cx.x;
-          if (this.canEmitEventsForSonification) {
-            this.$emit("needNotifyStatus", this.functionStatus);
-            if (!this.isCurrentYInDisplayedRange) {
-              this.$soundFactory.playSample(this.$AudioSample.noYAtX, false);
-            }
-          }
+          this.notifyCurrentXYPositionIfNeeded();
         }.bind(this)
       );
       this.fnPlotInstance.on(
@@ -226,10 +230,14 @@ export default {
         function (event) {
           console.log("mouseout");
           this.canEmitEventsForSonification = false;
-          this.$soundFactory.playSample(
-            this.$AudioSample.displayedChartBorder,
-            false
-          );
+          this.$emit("needPlayEarcon", {
+            id: this.$AudioSample.displayedChartBorder,
+            ignoreIsStillPlaying: false,
+          });
+          // this.$soundFactory.playSample(
+          //   this.$AudioSample.displayedChartBorder,
+          //   false
+          // );
           this.$emit("needNotifyStatus", this.functionStatus);
         }.bind(this)
       );
@@ -240,6 +248,18 @@ export default {
           this.yMousePointer = event.y;
         }.bind(this)
       );
+    },
+    notifyCurrentXYPositionIfNeeded() {
+      if (this.canEmitEventsForSonification) {
+        this.$emit("needNotifyStatus", this.functionStatus);
+        if (!this.isCurrentYInDisplayedRange) {
+          this.$emit("needPlayEarcon", {
+            id: this.$AudioSample.noYAtX,
+            ignoreIsStillPlaying: false,
+          });
+          // this.$soundFactory.playSample(this.$AudioSample.noYAtX, false);
+        }
+      }
     },
   },
 };

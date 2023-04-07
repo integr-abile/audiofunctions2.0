@@ -12,6 +12,7 @@ export default {
     "shouldSound",
     "domXRange",
     "domYRange",
+    "earconObj",
   ],
   data() {
     return {
@@ -31,6 +32,12 @@ export default {
       if (!val) {
         this.$soundFactory.stopSonification(this.instrument);
       }
+    },
+    earconObj(val) {
+      if (!this.checkPreconditions() || !this.isEnabled) {
+        return;
+      }
+      this.$soundFactory.playSample(val.id, val.ignoreIsStillPlaying);
     },
     shouldSound(val) {
       console.log(`should sound: ${val}`);

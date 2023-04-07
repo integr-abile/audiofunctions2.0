@@ -73,9 +73,12 @@ export default {
             this.$emit("actionRequest", this.$FunctionAction.beginExploration);
             var repeat = function () {
               this.$emit("actionRequest", this.$FunctionAction.incrementStep);
-              this.holdKeyTimer = setTimeout(repeat, 200);
+              this.holdKeyTimer = setTimeout(
+                repeat,
+                process.env.INTERACTION_SONIFICATION_HOLD_KEY_TICK_TIME_SECONDS
+              );
             }.bind(this); //è necessario bindare il this alla funzione, altrimenti verrebbe perso il this dell'istanza di Vue all'interno della funzione: https://lusaxweb.github.io/vuesax-blog/tips/scope_this.html#create-var
-            setTimeout(repeat, 200);
+            repeat();
           }
           break;
         case this.$KeyboardKey.arrowLeft:
@@ -83,9 +86,12 @@ export default {
             this.$emit("actionRequest", this.$FunctionAction.beginExploration);
             var repeat = function () {
               this.$emit("actionRequest", this.$FunctionAction.decrementStep);
-              this.holdKeyTimer = setTimeout(repeat, 200);
+              this.holdKeyTimer = setTimeout(
+                repeat,
+                process.env.INTERACTION_SONIFICATION_HOLD_KEY_TICK_TIME_SECONDS
+              );
             }.bind(this); //è necessario bindare il this alla funzione, altrimenti verrebbe perso il this dell'istanza di Vue all'interno della funzione: https://lusaxweb.github.io/vuesax-blog/tips/scope_this.html#create-var
-            setTimeout(repeat, 200);
+            repeat();
           }
           break;
       }
