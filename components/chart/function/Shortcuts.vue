@@ -29,6 +29,8 @@
 </template>
 
 <script>
+import _ from "lodash";
+
 export default {
   emits: ["actionRequest"],
   props: ["isFunctionInteractionEnabled"],
@@ -70,12 +72,19 @@ export default {
       switch (event.event.keyCode) {
         case this.$KeyboardKey.arrowRight:
           if (this.holdKeyTimer == null) {
-            this.$emit("actionRequest", this.$FunctionAction.beginExploration);
+            // this.$emit("actionRequest", this.$FunctionAction.beginExploration);
             var repeat = function () {
-              this.$emit("actionRequest", this.$FunctionAction.incrementStep);
+              this.$emit(
+                "actionRequest",
+                _.isNil(this.holdKeyTimer)
+                  ? this.$FunctionAction.beginExploration
+                  : this.$FunctionAction.incrementStep
+              );
+              // this.$emit("actionRequest", this.$FunctionAction.incrementStep);
               this.holdKeyTimer = setTimeout(
                 repeat,
-                process.env.INTERACTION_SONIFICATION_HOLD_KEY_TICK_TIME_SECONDS
+                process.env
+                  .INTERACTION_SONIFICATION_HOLD_KEY_TICK_TIME_SECONDS * 1000
               );
             }.bind(this); //è necessario bindare il this alla funzione, altrimenti verrebbe perso il this dell'istanza di Vue all'interno della funzione: https://lusaxweb.github.io/vuesax-blog/tips/scope_this.html#create-var
             repeat();
@@ -83,12 +92,18 @@ export default {
           break;
         case this.$KeyboardKey.arrowLeft:
           if (this.holdKeyTimer == null) {
-            this.$emit("actionRequest", this.$FunctionAction.beginExploration);
+            // this.$emit("actionRequest", this.$FunctionAction.beginExploration);
             var repeat = function () {
-              this.$emit("actionRequest", this.$FunctionAction.decrementStep);
+              this.$emit(
+                "actionRequest",
+                _.isNil(this.holdKeyTimer)
+                  ? this.$FunctionAction.beginExploration
+                  : this.$FunctionAction.incrementStep
+              );
               this.holdKeyTimer = setTimeout(
                 repeat,
-                process.env.INTERACTION_SONIFICATION_HOLD_KEY_TICK_TIME_SECONDS
+                process.env
+                  .INTERACTION_SONIFICATION_HOLD_KEY_TICK_TIME_SECONDS * 1000
               );
             }.bind(this); //è necessario bindare il this alla funzione, altrimenti verrebbe perso il this dell'istanza di Vue all'interno della funzione: https://lusaxweb.github.io/vuesax-blog/tips/scope_this.html#create-var
             repeat();

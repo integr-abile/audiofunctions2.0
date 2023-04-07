@@ -25,7 +25,6 @@
 <script>
 import functionPlot from "function-plot";
 import _ from "lodash";
-import * as Tone from "tone";
 
 export default {
   emits: ["needNotifyStatus", "needPlayEarcon"],
@@ -96,16 +95,40 @@ export default {
       console.log(`richiesta azione ${val.requestType}`);
       switch (val.requestType) {
         case this.$FunctionAction.beginExploration:
-          break;
+          this.isBatchExplorationInProgress = false;
+          this.currentFnXValue = this.currentFnXValue ?? this.domXRange[0];
+          this.calculateYForXAndNotify(this.currentFnXValue);
         case this.$FunctionAction.endExploration:
           break;
         case this.$FunctionAction.incrementStep:
+          this.currentFnXValue += this.sonificationStep;
+          console.log(
+            "current X " +
+              this.currentFnXValue +
+              "sonification step " +
+              this.sonificationStep
+          );
+          this.calculateYForXAndNotify(this.currentFnXValue);
+          if (!this.isCurrentXInDisplayedRange) {
+            //se la x nuova sonificata è però fuori range riporto la X ad essere dentro il range
+            this.currentFnXValue -= this.sonificationStep;
+          }
           break;
         case this.$FunctionAction.decrementStep:
+          this.currentFnXValue -= this.sonificationStep;
+          this.calculateYForXAndNotify(this.currentFnXValue);
+          if (!this.isCurrentXInDisplayedRange) {
+            //se la x nuova sonificata è però fuori range riporto la X ad essere dentro il range
+            this.currentFnXValue += this.sonificationStep;
+          }
           break;
         case this.$FunctionAction.goToBegin:
+          this.currentFnXValue = this.domXRange[0];
+          this.calculateYForXAndNotify(this.currentFnXValue);
           break;
         case this.$FunctionAction.goToEnd:
+          this.currentFnXValue = this.domXRange[1] - 0.000001;
+          this.calculateYForXAndNotify(this.currentFnXValue);
           break;
         case this.$FunctionAction.batchExploration:
           if (this.isBatchExplorationInProgress) {
@@ -127,29 +150,7 @@ export default {
               this.isBatchExplorationInProgress &&
               this.currentFnXValue < this.domXRange[1]
             ) {
-              const y = functionPlot.$eval.builtIn(
-                {
-                  fn: this.fn,
-                },
-                "fn",
-                {
-                  x: this.currentFnXValue,
-                }
-              );
-              // debugger;
-              this.yMousePointer = y;
-              this.currentFnYValue = y;
-              console.log(
-                `batch sonification x:${this.currentFnXValue} y:${this.currentFnYValue}`
-              );
-              this.$emit("needNotifyStatus", this.functionStatus);
-              if (!this.isCurrentYInDisplayedRange) {
-                this.$emit("needPlayEarcon", {
-                  id: this.$AudioSample.noYAtX,
-                  ignoreIsStillPlaying: true,
-                });
-                // this.$soundFactory.playSample(this.$AudioSample.noYAtX);
-              }
+              this.calculateYForXAndNotify(this.currentFnXValue);
 
               this.currentFnXValue += this.sonificationStep;
               this.batchSonificationTimer = setTimeout(
@@ -259,6 +260,29 @@ export default {
           });
           // this.$soundFactory.playSample(this.$AudioSample.noYAtX, false);
         }
+      }
+    },
+    calculateYForXAndNotify(x) {
+      const y = functionPlot.$eval.builtIn(
+        {
+          fn: this.fn,
+        },
+        "fn",
+        {
+          x: x,
+        }
+      );
+      // debugger;
+      this.yMousePointer = y;
+      this.currentFnYValue = y;
+
+      this.$emit("needNotifyStatus", this.functionStatus);
+      if (!this.isCurrentYInDisplayedRange) {
+        this.$emit("needPlayEarcon", {
+          id: this.$AudioSample.noYAtX,
+          ignoreIsStillPlaying: true,
+        });
+        // this.$soundFactory.playSample(this.$AudioSample.noYAtX);
       }
     },
   },
