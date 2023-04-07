@@ -102,15 +102,13 @@ export default {
           break;
         case this.$FunctionAction.incrementStep:
           this.currentFnXValue += this.sonificationStep;
-          console.log(
-            "current X " +
-              this.currentFnXValue +
-              "sonification step " +
-              this.sonificationStep
-          );
           this.calculateYForXAndNotify(this.currentFnXValue);
           if (!this.isCurrentXInDisplayedRange) {
-            //se la x nuova sonificata è però fuori range riporto la X ad essere dentro il range
+            this.$emit("needPlayEarcon", {
+              id: this.$AudioSample.displayedChartBorder,
+              ignoreIsStillPlaying: true,
+            });
+            //se la x nuova sonificata è però fuori range riporto la X ad essere dentro il range e notifico il bordo del grafico
             this.currentFnXValue -= this.sonificationStep;
           }
           break;
@@ -118,6 +116,10 @@ export default {
           this.currentFnXValue -= this.sonificationStep;
           this.calculateYForXAndNotify(this.currentFnXValue);
           if (!this.isCurrentXInDisplayedRange) {
+            this.$emit("needPlayEarcon", {
+              id: this.$AudioSample.displayedChartBorder,
+              ignoreIsStillPlaying: true,
+            });
             //se la x nuova sonificata è però fuori range riporto la X ad essere dentro il range
             this.currentFnXValue += this.sonificationStep;
           }
