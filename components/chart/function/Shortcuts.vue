@@ -98,7 +98,7 @@ export default {
                 "actionRequest",
                 _.isNil(this.holdKeyTimer)
                   ? this.$FunctionAction.beginExploration
-                  : this.$FunctionAction.incrementStep
+                  : this.$FunctionAction.decrementStep
               );
               this.holdKeyTimer = setTimeout(
                 repeat,

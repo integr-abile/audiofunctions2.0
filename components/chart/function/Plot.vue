@@ -70,12 +70,14 @@ export default {
       yMousePointer: 0,
       canEmitEventsForSonification: false,
       isBatchExplorationInProgress: false,
+      isManualExplorationInProgress: false,
       batchSonificationTimeSeconds:
         process.env.SONIFICATION_BATCH_SONIFICATION_TIME_SECONDS,
       minSonificationTimeSeconds:
         process.env.SONIFICATION_MIN_TICK_TIME_SECONDS,
       batchSonificationTimer: null,
       currentEarconToPlay: null,
+      explorationIndicatorColor: "#e86432", //rossiccio
     };
   },
   watch: {
@@ -96,13 +98,21 @@ export default {
       switch (val.requestType) {
         case this.$FunctionAction.beginExploration:
           this.isBatchExplorationInProgress = false;
+          this.isManualExplorationInProgress = true;
           this.currentFnXValue = this.currentFnXValue ?? this.domXRange[0];
           this.calculateYForXAndNotify(this.currentFnXValue);
+          this.updateFunctionChart();
+          break;
         case this.$FunctionAction.endExploration:
+          this.isManualExplorationInProgress = false;
+          this.updateFunctionChart();
           break;
         case this.$FunctionAction.incrementStep:
           this.currentFnXValue += this.sonificationStep;
+
           this.calculateYForXAndNotify(this.currentFnXValue);
+          this.updateFunctionChart();
+
           if (!this.isCurrentXInDisplayedRange) {
             this.$emit("needPlayEarcon", {
               id: this.$AudioSample.displayedChartBorder,
@@ -111,10 +121,12 @@ export default {
             //se la x nuova sonificata è però fuori range riporto la X ad essere dentro il range e notifico il bordo del grafico
             this.currentFnXValue -= this.sonificationStep;
           }
+
           break;
         case this.$FunctionAction.decrementStep:
           this.currentFnXValue -= this.sonificationStep;
           this.calculateYForXAndNotify(this.currentFnXValue);
+          this.updateFunctionChart();
           if (!this.isCurrentXInDisplayedRange) {
             this.$emit("needPlayEarcon", {
               id: this.$AudioSample.displayedChartBorder,
@@ -123,6 +135,7 @@ export default {
             //se la x nuova sonificata è però fuori range riporto la X ad essere dentro il range
             this.currentFnXValue += this.sonificationStep;
           }
+
           break;
         case this.$FunctionAction.goToBegin:
           this.currentFnXValue = this.domXRange[0];
@@ -167,9 +180,6 @@ export default {
                 id: this.$AudioSample.displayedChartBorder,
                 ignoreIsStillPlaying: true,
               });
-              // this.$soundFactory.playSample(
-              //   this.$AudioSample.displayedChartBorder
-              // );
             }
           }.bind(this);
           sonifyTick();
@@ -185,23 +195,36 @@ export default {
     domYRange(val) {
       this.updateFunctionChart();
     },
+    currentFnXValue(val) {
+      if (_.isNil(this.fnPlotInstance)) {
+        return;
+      }
+      const y = this.calculateYGivenX(val);
+    },
   },
   methods: {
     handleResize({ width, height }) {
       this.fnContainerWidth = width;
       this.fnContainerHeight = height;
     },
-
-    updateFunctionChart() {
-      this.fnPlotInstance = functionPlot({
+    createFnConfigObject() {
+      let config = {
         target: "#root",
         width: this.fnContainerWidth,
         height: this.fnContainerHeight * 0.99,
+        tip: {
+          xLine: true,
+          renderer: function (x, y) {
+            return `(${x.toFixed(2)}, ${y.toFixed(2)})`;
+          },
+        },
         yAxis: {
           domain: this.domYRange,
+          label: "y",
         },
         xAxis: {
           domain: this.domXRange,
+          label: "x",
         },
         grid: true,
         data: [
@@ -209,7 +232,36 @@ export default {
             fn: this.fn,
           },
         ],
-      });
+      };
+      if (
+        this.isBatchExplorationInProgress ||
+        this.isManualExplorationInProgress
+      ) {
+        config.data.push({
+          points: [
+            [this.currentFnXValue, this.domYRange[0]],
+            [this.currentFnXValue, this.domYRange[1]],
+          ],
+          fnType: "points",
+          color: "red",
+          graphType: "polyline",
+        });
+      }
+      // debugger;
+      return config;
+    },
+
+    updateFunctionChart() {
+      //TODO: ripulire SVG con l'eventuale seconda funzione già disegnata
+      if (!_.isNil(this.fnPlotInstance)) {
+        const svg = document.querySelector("#root svg");
+        if (!_.isNil(svg)) {
+          while (svg.lastChild) {
+            svg.removeChild(svg.lastChild);
+          }
+        }
+      }
+      this.fnPlotInstance = functionPlot(this.createFnConfigObject());
       this.fnPlotInstance.on(
         "tip:update",
         function (cx, cy, cidx) {
@@ -251,6 +303,10 @@ export default {
           this.yMousePointer = event.y;
         }.bind(this)
       );
+      this.fnPlotInstance.on("all:zoom", function (event) {
+        //scale o translation
+        //TODO: implement
+      });
     },
     notifyCurrentXYPositionIfNeeded() {
       if (this.canEmitEventsForSonification) {
@@ -264,8 +320,8 @@ export default {
         }
       }
     },
-    calculateYForXAndNotify(x) {
-      const y = functionPlot.$eval.builtIn(
+    calculateYGivenX(x) {
+      return functionPlot.$eval.builtIn(
         {
           fn: this.fn,
         },
@@ -274,7 +330,9 @@ export default {
           x: x,
         }
       );
-      // debugger;
+    },
+    calculateYForXAndNotify(x) {
+      const y = this.calculateYGivenX(x);
       this.yMousePointer = y;
       this.currentFnYValue = y;
 
