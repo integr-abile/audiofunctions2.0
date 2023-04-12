@@ -1,17 +1,22 @@
 <template>
   <div>
     <VueAnnouncer />
-    <mathlive-mathfield
-      ref="mathfield"
-      role="presentation"
-      :options="{
-        virtualKeyboardMode: 'manual',
-        keypressSound: 'none',
-      }"
-      :value="stableInputFunctionLatex"
-      class="border w-100"
-    >
-    </mathlive-mathfield>
+    <h2>Funzione</h2>
+    <div class="d-flex align-items-center">
+      <vue-mathjax :formula="preFieldLabelText" class="mr-1"></vue-mathjax>
+      <mathlive-mathfield
+        ref="mathfield"
+        role="presentation"
+        :options="{
+          virtualKeyboardMode: 'manual',
+          keypressSound: 'none',
+        }"
+        :value="stableInputFunctionLatex"
+        class="border w-100"
+      >
+      </mathlive-mathfield>
+    </div>
+
     <Keypress
       key-event="keyup"
       :multiple-keys="readMathKeys"
@@ -31,6 +36,7 @@ export default {
   },
   data() {
     return {
+      preFieldLabelText: "$$f(x) = $$",
       stableInputFunctionLatex: "",
       lastInsertedLatexFunction: "",
       currentOptionData: {},

@@ -1,6 +1,14 @@
 <template>
   <div class="h-100 d-flex flex-column">
     <VueAnnouncer />
+    <ChartSonifier
+      v-bind="functionSonificationData"
+      :isEnabled="functionSonificationOptions.isEnabled"
+      :instrument="functionSonificationOptions.instrument"
+      :domXRange="functionSonificationOptions.domXRange"
+      :domYRange="functionSonificationOptions.domYRange"
+      :earconObj="earconToNotifyObj"
+    />
     <TextToSpeech
       :text-to-read="textToRead"
       lang="it-IT"
@@ -10,16 +18,25 @@
       <ChartActionsMenu
         :customizableItems="initialConfiguration"
         @saveChanges="onOptionsChangesSaved"
+        @userInteraction="handleFunctionActionRequest"
       />
     </header>
     <main class="h-100">
-      <ChartFunctionPlot v-bind="functionOptions" id="fnPlot" class="h-100" />
+      <ChartFunctionPlot
+        v-bind="functionOptions"
+        :actionRequest="functionActionRequest"
+        id="fnPlot"
+        class="h-100"
+        @needNotifyStatus="handleFunctionStateNotification"
+        @needPlayEarcon="(earconObj) => (earconToNotifyObj = earconObj)"
+      />
     </main>
   </div>
 </template>
 
 <script>
 import _ from "lodash";
+import * as Tone from "tone";
 
 export default {
   layout: "fullscreen",
@@ -28,9 +45,15 @@ export default {
       textToRead: "",
       functionOptions: {},
       initialConfiguration: [],
+      functionActionRequest: null, //oggetto del tipo {requestType: enum, repetition: 1}
+      lastFunctionActionRequestType: null,
+      functionSonificationData: {},
+      functionSonificationOptions: {},
+      earconToNotifyObj: {},
     };
   },
   created() {
+    //Deserializzazione URL per configurazione iniziale
     const sessionDataSerializer = this.$sessionDataSerializer;
 
     const initialEncodedConfiguration =
@@ -47,6 +70,9 @@ export default {
       this.initialConfiguration = this.defaultConfiguration;
       alert(e.message);
     }
+  },
+  async mounted() {
+    this.isSonificationEnabled = await this.$soundFactory.enableSonifier();
   },
   watch: {
     initialConfiguration(val) {
@@ -69,7 +95,7 @@ export default {
         {
           identifier: "yDomain",
           data: {
-            yMin: 1,
+            yMin: 2,
             yMax: 3,
             step: 1,
           },
@@ -78,9 +104,18 @@ export default {
         {
           identifier: "function",
           data: {
-            fn: "3x+2",
+            fn: "x",
           },
           isFavorite: true,
+        },
+        {
+          identifier: "sonification",
+          data: {
+            availableInstruments: this.$soundFactory.getAllInstrumentsName(),
+            selectedInstrument: null,
+            isEnabled: true,
+          },
+          isFavorite: false,
         },
       ];
     },
@@ -90,6 +125,7 @@ export default {
     onOptionsChangesSaved(optionsChanged) {
       //[{"identifier": "xDomain","data": {}]
       console.log(`options changed to: ${optionsChanged}`);
+
       this.valorizeFunctionParamsFromOptions(optionsChanged);
     },
     valorizeFunctionParamsFromOptions(options) {
@@ -97,12 +133,66 @@ export default {
         _.filter(options, function (item) {
           return item.identifier == "function";
         })
-      ).data;
+      );
+      const xDomainData = _.head(
+        _.filter(options, function (item) {
+          return item.identifier == "xDomain";
+        })
+      );
+      const yDomainData = _.head(
+        _.filter(options, function (item) {
+          return item.identifier == "yDomain";
+        })
+      );
+      const sonificationData = _.head(
+        _.filter(options, function (item) {
+          return item.identifier == "sonification";
+        })
+      );
 
       this.functionOptions = {
-        fn: functionData.fn,
+        fn: _.isNil(functionData)
+          ? this.functionOptions.fn
+          : functionData.data.fn,
+        sonificationStep: _.isNil(xDomainData)
+          ? this.functionOptions.sonificationStep
+          : parseInt(xDomainData.data.step),
+        domXRange: _.isNil(xDomainData)
+          ? this.functionOptions.domXRange
+          : [parseInt(xDomainData.data.xMin), parseInt(xDomainData.data.xMax)],
+        domYRange: _.isNil(yDomainData)
+          ? this.functionOptions.domYRange
+          : [parseInt(yDomainData.data.yMin), parseInt(yDomainData.data.yMax)],
       };
+      // debugger;
+      this.functionSonificationOptions = {
+        isEnabled: _.isNil(sonificationData)
+          ? this.functionSonificationOptions.isEnabled
+          : sonificationData.data.isEnabled,
+        instrument: _.isNil(sonificationData)
+          ? this.functionSonificationOptions.instrument
+          : sonificationData.data.selectedInstrument,
+        domXRange: this.functionOptions.domXRange,
+        domYRange: this.functionOptions.domYRange,
+      };
+    },
+    handleFunctionActionRequest(requestType) {
+      this.functionActionRequest = {
+        requestType: requestType,
+        repetition:
+          requestType == this.lastFunctionActionRequestType
+            ? this.functionActionRequest.repetition + 1
+            : 1,
+      };
+      this.lastFunctionActionRequestType = requestType;
+    },
+    handleFunctionStateNotification(functionState) {
+      this.functionSonificationData = functionState;
     },
   },
 };
 </script>
+<style scoped>
+.function-summary {
+}
+</style>

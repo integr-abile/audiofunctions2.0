@@ -10,9 +10,28 @@
         @optionDataChange="handleOptionDataChange"
         @saveChanges="handleSaveChanges"
       />
-      <div class="d-flex justify-content-end w-100">
+      <div class="d-flex justify-content-end mx-3" style="flex: 1">
+        <div class="d-flex align-items-center">
+          <span
+            class="mr-2 font-weight-bold text-info"
+            style="text-decoration: underline"
+          >
+            Funzione corrente:
+          </span>
+        </div>
+        <vue-mathjax :formula="currentFunctionLatex" class="mr-2"></vue-mathjax>
+        <b-button
+          variant="outline-secondary"
+          size="sm"
+          title="Copia formula latex"
+        >
+          <b-icon-files></b-icon-files>
+        </b-button>
+      </div>
+      <div class="d-flex justify-content-end">
         <div class="d-grid gap-3">
           <!-- TODO: gestire popup istruzioni e keymap-->
+
           <b-button v-b-modal.instruction-modal>Istruzioni</b-button>
           <ChartInstructionModal modal-id="instruction-modal" />
           <b-button v-b-modal.keymap-modal>Keymap</b-button>
@@ -35,7 +54,11 @@
       :options="sortedFavorites"
       :mapTypeComponent="mapTypeComponent"
     />
-    <ChartFunctionShortcuts v-if="isFunctionInteractionModeEnabled" />
+    <ChartFunctionShortcuts
+      :isFunctionInteractionEnabled="isFunctionInteractionModeEnabled"
+      v-if="isFunctionInteractionModeEnabled"
+      @actionRequest="(evt) => $emit('userInteraction', evt)"
+    />
   </div>
 </template>
 
@@ -43,10 +66,11 @@
 import OptionXDomain from "../option/XDomain.vue";
 import OptionYDomain from "../option/YDomain.vue";
 import OptionFunction from "../option/Function.vue";
+import OptionSonification from "../option/Sonification.vue";
 import _ from "lodash";
 
 export default {
-  emits: ["saveChanges"],
+  emits: ["saveChanges", "userInteraction"],
   props: {
     customizableItems: {
       //ogni elemento sarà tipo {identifier:"optionId",data:{}, isFavorite: true}
@@ -62,6 +86,7 @@ export default {
         xDomain: OptionXDomain,
         yDomain: OptionYDomain,
         function: OptionFunction,
+        sonification: OptionSonification,
       };
     },
     sortedFavorites() {
@@ -74,6 +99,7 @@ export default {
       favoriteItems: [],
       currentCustomizableItems: [],
       favoritesBarRefreshKey: 0,
+      currentFunctionLatex: "$$f(x) = \\frac{3}{4}$$",
     };
   },
   created() {
