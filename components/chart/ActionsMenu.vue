@@ -1,6 +1,6 @@
 <template>
   <div class="container-fluid">
-    <div class="d-flex w-100 mb-2">
+    <div class="d-flex align-items-center w-100 mb-2">
       <b-button v-b-toggle.options-sidebar>Opzioni</b-button>
       <ChartOptionsSidebar
         sidebar-id="options-sidebar"
@@ -20,13 +20,15 @@
           </span>
         </div>
         <vue-mathjax :formula="currentFunctionLatex" class="mr-2"></vue-mathjax>
-        <b-button
-          variant="outline-secondary"
-          size="sm"
-          title="Copia formula latex"
-        >
-          <b-icon-files></b-icon-files>
-        </b-button>
+        <div class="d-flex align-items-center">
+          <b-button
+            variant="outline-secondary"
+            size="sm"
+            title="Copia formula latex"
+          >
+            <b-icon-files></b-icon-files>
+          </b-button>
+        </div>
       </div>
       <div class="d-flex justify-content-end">
         <div class="d-grid gap-3">
