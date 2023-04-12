@@ -166,7 +166,7 @@ export default {
               this.currentFnXValue < this.domXRange[1]
             ) {
               this.calculateYForXAndNotify(this.currentFnXValue);
-
+              this.updateFunctionChart();
               this.currentFnXValue += this.sonificationStep;
               this.batchSonificationTimer = setTimeout(
                 sonifyTick,
@@ -175,6 +175,7 @@ export default {
             } else {
               clearTimeout(this.batchSonificationTimer);
               this.isBatchExplorationInProgress = false;
+              this.updateFunctionChart();
               this.$emit("needNotifyStatus", this.functionStatus);
               this.$emit("needPlayEarcon", {
                 id: this.$AudioSample.displayedChartBorder,
@@ -220,11 +221,9 @@ export default {
         },
         yAxis: {
           domain: this.domYRange,
-          label: "y",
         },
         xAxis: {
           domain: this.domXRange,
-          label: "x",
         },
         grid: true,
         data: [

@@ -192,3 +192,7 @@ export default {
   },
 };
 </script>
+<style scoped>
+.function-summary {
+}
+</style>

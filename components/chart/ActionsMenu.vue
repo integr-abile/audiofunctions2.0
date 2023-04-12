@@ -10,9 +10,28 @@
         @optionDataChange="handleOptionDataChange"
         @saveChanges="handleSaveChanges"
       />
-      <div class="d-flex justify-content-end w-100">
+      <div class="d-flex justify-content-end mx-3" style="flex: 1">
+        <div class="d-flex align-items-center">
+          <span
+            class="mr-2 font-weight-bold text-info"
+            style="text-decoration: underline"
+          >
+            Funzione corrente:
+          </span>
+        </div>
+        <vue-mathjax :formula="currentFunctionLatex" class="mr-2"></vue-mathjax>
+        <b-button
+          variant="outline-secondary"
+          size="sm"
+          title="Copia formula latex"
+        >
+          <b-icon-files></b-icon-files>
+        </b-button>
+      </div>
+      <div class="d-flex justify-content-end">
         <div class="d-grid gap-3">
           <!-- TODO: gestire popup istruzioni e keymap-->
+
           <b-button v-b-modal.instruction-modal>Istruzioni</b-button>
           <ChartInstructionModal modal-id="instruction-modal" />
           <b-button v-b-modal.keymap-modal>Keymap</b-button>
@@ -80,6 +99,7 @@ export default {
       favoriteItems: [],
       currentCustomizableItems: [],
       favoritesBarRefreshKey: 0,
+      currentFunctionLatex: "$$f(x) = \\frac{3}{4}$$",
     };
   },
   created() {
