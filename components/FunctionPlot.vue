@@ -99,7 +99,6 @@ import functionPlot from "function-plot";
 import * as Tone from "tone";
 import _ from "lodash";
 import Diff from "text-diff";
-// import { ConvertFunction } from "../plugins/validate-function.mjs";
 
 export default {
   data() {
@@ -202,8 +201,7 @@ export default {
         this.lastInsertedLatexFunction = latexAfterDeletion;
         this.$announcer.assertive(`cancellato ${deletedText}`);
       }
-
-      // var converted = ConvertFunction(evt.target.value);
+      
       var converted = this.$validateFunction(evt.target.value);
       if (converted == null) {
         console.log("formula is not Valid...");
