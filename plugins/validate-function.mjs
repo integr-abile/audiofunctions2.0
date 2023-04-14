@@ -1,6 +1,7 @@
 function ConvertFunction(value) {
   //converti tutto lowercase per evitare conflitti
   value = value.toLowerCase();
+  console.log(value);
 
   //traduci left e right
   value = value.replaceAll("\\left", "(");
@@ -23,8 +24,8 @@ function ConvertFunction(value) {
   //traduce le funzioni esponenziali
   value = value.replaceAll("\\exp", "exp");
 
-  //traduce le funzioni di base
-  value = value.replaceAll("\\sqrt", "sqrt");
+  //traduce le radici
+  value = SubstituteRoot(value);
 
   //traduce \frac
   value = SubstituteFrac(value);
@@ -151,6 +152,71 @@ function SubstituteAbs(value) {
       value.substring(end1 + 2);
     start1 = value.indexOf("(|");
   }
+  return value;
+}
+
+function SubstituteRoot(value){
+  //quando trovi \sqrt + aperta quadra, vai alla chiusa quadra
+  //e sostituisci con nthRoot()
+
+  //posizione dell'inizio del primo blocco
+  var start1 = value.indexOf("\\sqrt[");
+  while (start1 > -1) {
+    //posizione della fine del primo blocco
+    var end1;
+
+    var diff = 1;
+    for (end1 = start1 + 6; end1 < value.length; end1++) {
+      if (value[end1] == "[") {
+        diff++;
+      }
+      if (value[end1] == "]") {
+        diff--;
+      }
+      if (diff == 0) {
+        break;
+      }
+    }
+    if (end1 >= value.length) {
+      break;
+    }
+
+    //posizione dell'inizio del secondo blocco
+    var start2 = end1 + 1;
+
+    //posizione della fine del secondo blocco
+    var end2;
+
+    diff = 1;
+    for (end2 = start2 + 1; end2 < value.length; end2++) {
+      if (value[end2] == "{") {
+        diff++;
+      }
+      if (value[end2] == "}") {
+        diff--;
+      }
+      if (diff == 0) {
+        break;
+      }
+    }
+    if (end2 >= value.length) {
+      break;
+    }
+
+    //sostituisci
+    value =
+      value.substring(0, start1) +
+      "nthRoot(" +
+      value.substring(start2 + 1, end2) +
+      "," +
+      value.substring(start1 + 6, end1) +
+      ")" +
+      value.substring(end2 + 1);
+    start1 = value.indexOf("\\sqrt[");
+  }
+
+  //sostituisci le restanti radici quadrate
+  value = value.replaceAll("\\sqrt", "sqrt");
   return value;
 }
 
