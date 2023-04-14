@@ -329,8 +329,6 @@ export default {
       }
     },
     updateFunctionChart() {
-      // debugger;
-
       const fnPlotInstance = functionPlot({
         target: "#root",
         width: this.fnContainerWidth,
@@ -340,7 +338,7 @@ export default {
           {
             fn: this.fun,
             derivative: {
-              fn: "2 * x",
+              fn: this.$math.derivative(this.fun,"x").toString(),
               updateOnMouseMove: true,
             },
           },
