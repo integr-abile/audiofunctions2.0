@@ -27,8 +27,15 @@ import functionPlot from "function-plot";
 import _ from "lodash";
 
 export default {
-  emits: ["needNotifyStatus", "needPlayEarcon"],
-  props: ["fn", "actionRequest", "sonificationStep", "domXRange", "domYRange"],
+  emits: ["needNotifyStatus", "needPlayEarcon", "needNotifyMessage"],
+  props: [
+    "fn",
+    "actionRequest",
+    "sonificationStep",
+    "domXRange",
+    "domYRange",
+    "ttsOptions", //è un oggetto del tipo {TextToSpeechOption:{canPlayAutomatically:true,canPlayOnDemand:true}}
+  ],
   computed: {
     doesFunctionExists() {
       return !_.isNil(this.fn);
@@ -67,6 +74,8 @@ export default {
       currentFnXValue: 0,
       currentFnYValue: 0,
       fnPlotInstance: null,
+      fnDerivative: null,
+      fnSecondDerivative: null,
       yMousePointer: 0,
       canEmitEventsForSonification: false,
       isBatchExplorationInProgress: false,
@@ -188,6 +197,8 @@ export default {
       }
     },
     fn(val) {
+      this.fnDerivative = this.$math.derivative(val, "x");
+      this.fnSecondDerivative = this.$math.derivative(this.fnDerivative, "x");
       this.updateFunctionChart();
     },
     domXRange(val) {
@@ -201,6 +212,33 @@ export default {
         return;
       }
       const y = this.calculateYGivenX(val);
+      if (_.isNil(this.fnSecondDerivative) || _.isNil(this.fnDerivative)) {
+        return;
+      }
+      const firstDerivativeValueAtX = this.fnDerivative.evaluate({ x: val });
+      const firstDerivativeTolerance = 0.03; //serve questa tolleranza perchè dal punto di vista della libreria che renderizza la funzione, l'asse x è comunque discretizzato e quindi difficilmente avrà tra i suoi valori esattamente == 0
+
+      console.log("valore derivata prima " + firstDerivativeValueAtX);
+      if (
+        firstDerivativeValueAtX > -firstDerivativeTolerance &&
+        firstDerivativeValueAtX < firstDerivativeTolerance
+      ) {
+        const secondDerivativeValueAtX = this.fnSecondDerivative.evaluate({
+          x: val,
+        });
+        if (_.isNil(this.ttsOptions)) {
+          return;
+        }
+        if (
+          this.ttsOptions[this.$TextToSpeechOption.maxMin].canPlayAutomatically
+        ) {
+          this.$emit(
+            "needNotifyMessage",
+            secondDerivativeValueAtX > 0 ? "minimo" : "massimo"
+          );
+        }
+        console.log("valore derivata seconda " + secondDerivativeValueAtX);
+      }
     },
   },
   methods: {
@@ -229,6 +267,12 @@ export default {
         data: [
           {
             fn: this.fn,
+            derivative: {
+              fn: _.isNil(this.fnDerivative)
+                ? "0"
+                : this.fnDerivative.toString(),
+              updateOnMouseMove: true,
+            },
           },
         ],
       };
@@ -246,12 +290,12 @@ export default {
           graphType: "polyline",
         });
       }
+
       // debugger;
       return config;
     },
 
     updateFunctionChart() {
-      //TODO: ripulire SVG con l'eventuale seconda funzione già disegnata
       if (!_.isNil(this.fnPlotInstance)) {
         const svg = document.querySelector("#root svg");
         if (!_.isNil(svg)) {

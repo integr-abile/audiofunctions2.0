@@ -104,7 +104,7 @@ export default {
         {
           identifier: "function",
           data: {
-            fn: "x",
+            fn: "sin(x)",
           },
           isFavorite: true,
         },

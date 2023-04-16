@@ -17,9 +17,23 @@ const AudioSample = {
   noYAtX: "/audio/no_y.mp3",
   displayedChartBorder: "/audio/chart_border.mp3",
 };
+const FunctionVoiceMessageFormat = {
+  localMax: "max",
+  localMin: "min",
+  intersectX: "x",
+  intersectY: "y",
+  currentCoordinates: "x: {x}, y: {y}", //da completare con format-unicorn
+};
+const TextToSpeechOption = {
+  maxMin: "massimi-e-minimi", //poi da dividere gli spazi per ottenere la descrizione
+  coordinates: "coordinate",
+  axisIntersections: "intersezioni-con-gli-assi",
+};
 
 export default ({ app }, inject) => {
   inject("FunctionAction", FunctionAction);
   inject("KeyboardKey", KeyboardKey);
   inject("AudioSample", AudioSample);
+  inject("TextToSpeechOption", TextToSpeechOption);
+  inject("FunctionVoiceMessageFormat", FunctionVoiceMessageFormat);
 };
