@@ -86,8 +86,8 @@ export default {
         {
           identifier: "xDomain",
           data: {
-            xMin: 1,
-            xMax: 3,
+            xMin: -16, //stessi di geogebra
+            xMax: 16, //stessi di geogebra
             step: 1,
           },
           isFavorite: false,
@@ -95,8 +95,8 @@ export default {
         {
           identifier: "yDomain",
           data: {
-            yMin: 2,
-            yMax: 3,
+            yMin: -9, //stessi di geogebra
+            yMax: 9, //stessi di geogebra
             step: 1,
           },
           isFavorite: false,

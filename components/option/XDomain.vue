@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h2>Dominio asse X</h2>
+    <h2>Intervallo asse X</h2>
     <b-form>
       <div class="d-flex mb-2">
         <label for="min-x-domain-value" class="sr-only"

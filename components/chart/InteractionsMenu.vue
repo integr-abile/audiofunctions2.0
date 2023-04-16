@@ -5,12 +5,7 @@
       id="enableFnCheckbox"
       v-model="isFunctionInteractionModeEnabled"
     />
-    <label for="enableFnCheckbox"
-      >Interazione tramite tastiera
-      {{
-        isFunctionInteractionModeEnabled ? "abilitata" : "disabilitata"
-      }}</label
-    >
+    <label for="enableFnCheckbox">Interazione tramite tastiera</label>
   </div>
 </template>
 
