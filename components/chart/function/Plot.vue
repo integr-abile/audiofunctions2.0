@@ -28,14 +28,7 @@ import _ from "lodash";
 
 export default {
   emits: ["needNotifyStatus", "needPlayEarcon", "needNotifyMessage"],
-  props: [
-    "fn",
-    "actionRequest",
-    "sonificationStep",
-    "domXRange",
-    "domYRange",
-    "ttsOptions", //è un oggetto del tipo {TextToSpeechOption:{canPlayAutomatically:true,canPlayOnDemand:true}}
-  ],
+  props: ["fn", "actionRequest", "sonificationStep", "domXRange", "domYRange"],
   computed: {
     doesFunctionExists() {
       return !_.isNil(this.fn);
@@ -215,10 +208,12 @@ export default {
       if (_.isNil(this.fnSecondDerivative) || _.isNil(this.fnDerivative)) {
         return;
       }
+      const stepTolerance = 0.05;
+      //Calcolo se a questo X abbiamo un minimo o un massimo locale
       const firstDerivativeValueAtX = this.fnDerivative.evaluate({ x: val });
-      const firstDerivativeTolerance = 0.03; //serve questa tolleranza perchè dal punto di vista della libreria che renderizza la funzione, l'asse x è comunque discretizzato e quindi difficilmente avrà tra i suoi valori esattamente == 0
+      const firstDerivativeTolerance = stepTolerance; //serve questa tolleranza trovata empiricamente perchè dal punto di vista della libreria che renderizza la funzione, l'asse x è comunque discretizzato e quindi difficilmente avrà tra i suoi valori esattamente == al mio valore
 
-      console.log("valore derivata prima " + firstDerivativeValueAtX);
+      // console.log("valore derivata prima " + firstDerivativeValueAtX);
       if (
         firstDerivativeValueAtX > -firstDerivativeTolerance &&
         firstDerivativeValueAtX < firstDerivativeTolerance
@@ -226,18 +221,34 @@ export default {
         const secondDerivativeValueAtX = this.fnSecondDerivative.evaluate({
           x: val,
         });
-        if (_.isNil(this.ttsOptions)) {
-          return;
-        }
-        if (
-          this.ttsOptions[this.$TextToSpeechOption.maxMin].canPlayAutomatically
-        ) {
-          this.$emit(
-            "needNotifyMessage",
-            secondDerivativeValueAtX > 0 ? "minimo" : "massimo"
-          );
-        }
+        this.$emit(
+          "needNotifyMessage",
+          secondDerivativeValueAtX > 0
+            ? this.$FunctionVoiceMessageFormat.localMin
+            : this.$FunctionVoiceMessageFormat.localMax
+        );
         console.log("valore derivata seconda " + secondDerivativeValueAtX);
+      }
+      //Controllo se abbiamo un'intersezione con l'asse X o Y
+      const checkXAxisIntersection = y > -stepTolerance && y < stepTolerance;
+      const checkYAxisIntersection =
+        val > -stepTolerance && val < stepTolerance;
+      if (checkXAxisIntersection || checkYAxisIntersection) {
+        var message = "";
+        if (checkXAxisIntersection) {
+          message += this.$FunctionVoiceMessageFormat.intersectX;
+          if (checkYAxisIntersection) {
+            message += ` e ${this.$FunctionVoiceMessageFormat.intersectY}`;
+          }
+          this.$emit("needNotifyMessage", message);
+        } else {
+          if (checkYAxisIntersection) {
+            this.$emit(
+              "needNotifyMessage",
+              this.$FunctionVoiceMessageFormat.intersectY
+            );
+          }
+        }
       }
     },
   },

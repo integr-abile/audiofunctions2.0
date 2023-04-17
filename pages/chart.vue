@@ -25,10 +25,12 @@
       <ChartFunctionPlot
         v-bind="functionOptions"
         :actionRequest="functionActionRequest"
+        :ttsOptions="ttsOptions"
         id="fnPlot"
         class="h-100"
         @needNotifyStatus="handleFunctionStateNotification"
         @needPlayEarcon="(earconObj) => (earconToNotifyObj = earconObj)"
+        @needNotifyMessage="handleFunctionMessageEvent"
       />
     </main>
   </div>
@@ -46,6 +48,7 @@ export default {
       functionOptions: {},
       initialConfiguration: [],
       functionActionRequest: null, //oggetto del tipo {requestType: enum, repetition: 1}
+      ttsOptions: null, //oggetto di configurazione che dice cosa può dire e quando il TTS
       lastFunctionActionRequestType: null,
       functionSonificationData: {},
       functionSonificationOptions: {},
@@ -116,6 +119,28 @@ export default {
             isEnabled: true,
           },
           isFavorite: false,
+        },
+        {
+          identifier: "tts",
+          data: {
+            speechPermissions: [
+              {
+                identifier: this.$TextToSpeechOption.maxMin,
+                canPlayAutomatically: true,
+                canPlayOnDemand: true,
+              },
+              {
+                identifier: this.$TextToSpeechOption.coordinates,
+                canPlayAutomatically: true,
+                canPlayOnDemand: true,
+              },
+              {
+                identifier: this.$TextToSpeechOption.axisIntersections,
+                canPlayAutomatically: true,
+                canPlayOnDemand: true,
+              },
+            ],
+          },
         },
       ];
     },
@@ -188,6 +213,9 @@ export default {
     },
     handleFunctionStateNotification(functionState) {
       this.functionSonificationData = functionState;
+    },
+    handleFunctionMessageEvent(functionMessageEvent) {
+      console.log(`function message event: ${functionMessageEvent}`);
     },
   },
 };
