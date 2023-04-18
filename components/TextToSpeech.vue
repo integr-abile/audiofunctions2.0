@@ -1,5 +1,6 @@
 <template>
   <vue-web-speech-synth
+    v-if="isEnabled"
     v-model="shouldRead"
     :text="textToRead"
     :voice="ttsVoice"
@@ -16,6 +17,7 @@ export default {
     lang: String,
     textToRead: String,
     ttsVoice: null,
+    isEnabled: false,
   },
   data() {
     return {

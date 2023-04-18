@@ -10,6 +10,7 @@
       :earconObj="earconToNotifyObj"
     />
     <TextToSpeech
+      :isEnabled="isTTSEnabled"
       :text-to-read="textToRead"
       lang="it-IT"
       @on-voices-loaded="onVoicesLoaded"
@@ -17,8 +18,12 @@
     <header>
       <ChartActionsMenu
         :customizableItems="initialConfiguration"
+        :initialIsTTSEnabled="isTTSEnabled"
         @saveChanges="onOptionsChangesSaved"
         @userInteraction="handleFunctionActionRequest"
+        @ttsEnableStatusChange="
+          (isTextToSpeechEnabled) => (isTTSEnabled = isTextToSpeechEnabled)
+        "
       />
     </header>
     <main class="h-100">
@@ -49,6 +54,7 @@ export default {
       initialConfiguration: [],
       functionActionRequest: null, //oggetto del tipo {requestType: enum, repetition: 1}
       ttsOptions: null, //oggetto di configurazione che dice cosa può dire e quando il TTS
+      isTTSEnabled: true,
       lastFunctionActionRequestType: null,
       functionSonificationData: {},
       functionSonificationOptions: {},
@@ -127,20 +133,15 @@ export default {
               {
                 identifier: this.$TextToSpeechOption.maxMin,
                 canPlayAutomatically: true,
-                canPlayOnDemand: true,
               },
-              {
-                identifier: this.$TextToSpeechOption.coordinates,
-                canPlayAutomatically: true,
-                canPlayOnDemand: true,
-              },
+
               {
                 identifier: this.$TextToSpeechOption.axisIntersections,
                 canPlayAutomatically: true,
-                canPlayOnDemand: true,
               },
             ],
           },
+          isFavorite: false,
         },
       ];
     },

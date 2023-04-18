@@ -45,9 +45,14 @@
       :initial-is-function-interaction-mode-enabled="
         isFunctionInteractionModeEnabled
       "
+      :initialIsTTSEnabled="initialIsTTSEnabled"
       @onFunctionInteractionModeChange="
         (isInteractionEnabled) =>
           (isFunctionInteractionModeEnabled = isInteractionEnabled)
+      "
+      @onTTSEnabledChange="
+        (isTextToSpeechEnabled) =>
+          $emit('ttsEnableStatusChange', isTextToSpeechEnabled)
       "
     />
     <ChartFavoritesBar
@@ -69,10 +74,11 @@ import OptionXDomain from "../option/XDomain.vue";
 import OptionYDomain from "../option/YDomain.vue";
 import OptionFunction from "../option/Function.vue";
 import OptionSonification from "../option/Sonification.vue";
+import OptionTTS from "../option/TTS.vue";
 import _ from "lodash";
 
 export default {
-  emits: ["saveChanges", "userInteraction"],
+  emits: ["saveChanges", "userInteraction", "ttsEnableStatusChange"],
   props: {
     customizableItems: {
       //ogni elemento sarà tipo {identifier:"optionId",data:{}, isFavorite: true}
@@ -81,6 +87,7 @@ export default {
         return [];
       },
     },
+    initialIsTTSEnabled: false,
   },
   computed: {
     mapTypeComponent() {
@@ -89,6 +96,7 @@ export default {
         yDomain: OptionYDomain,
         function: OptionFunction,
         sonification: OptionSonification,
+        tts: OptionTTS,
       };
     },
     sortedFavorites() {
