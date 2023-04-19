@@ -50,6 +50,7 @@ export default {
           ].canPlayAutomatically = true;
         }.bind(this)
       );
+      this.$emit("optionDataChange", this.currentOptionData);
     },
   },
 
