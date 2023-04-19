@@ -221,8 +221,8 @@ export default {
         const secondDerivativeValueAtX = this.fnSecondDerivative.evaluate({
           x: val,
         });
-        this.$emit(
-          "needNotifyMessage",
+        this.notifyTextMessage(
+          this.$TextToSpeechOption.maxMin,
           secondDerivativeValueAtX > 0
             ? this.$FunctionVoiceMessageFormat.localMin
             : this.$FunctionVoiceMessageFormat.localMax
@@ -240,13 +240,21 @@ export default {
           if (checkYAxisIntersection) {
             message += ` e ${this.$FunctionVoiceMessageFormat.intersectY}`;
           }
-          this.$emit("needNotifyMessage", message);
+          this.notifyTextMessage(
+            this.$TextToSpeechOption.axisIntersections,
+            message
+          );
+          // this.$emit("needNotifyMessage", message);
         } else {
           if (checkYAxisIntersection) {
-            this.$emit(
-              "needNotifyMessage",
+            this.notifyTextMessage(
+              this.$TextToSpeechOption.axisIntersections,
               this.$FunctionVoiceMessageFormat.intersectY
             );
+            // this.$emit(
+            //   "needNotifyMessage",
+            //   this.$FunctionVoiceMessageFormat.intersectY
+            // );
           }
         }
       }
@@ -256,6 +264,12 @@ export default {
     handleResize({ width, height }) {
       this.fnContainerWidth = width;
       this.fnContainerHeight = height;
+    },
+    notifyTextMessage(type, message) {
+      this.$emit("needNotifyMessage", {
+        type: type,
+        message: message,
+      });
     },
     createFnConfigObject() {
       let config = {

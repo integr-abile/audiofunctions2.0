@@ -34,6 +34,9 @@ export default {
     },
     textToRead(newText, oldText) {
       this.shouldRead = newText != oldText;
+      if (this.shouldRead) {
+        console.log(`devo leggere TTS ${newText}`);
+      }
     },
     voicesAvailableForSelection(newVoices) {
       this.$emit("onVoicesLoaded", newVoices);

@@ -150,8 +150,9 @@ export default {
     onVoicesLoaded(voices) {},
     onOptionsChangesSaved(optionsChanged) {
       //[{"identifier": "xDomain","data": {}]
-      console.log(`options changed to: ${optionsChanged}`);
 
+      console.log(`options changed to: ${optionsChanged}`);
+      //TODO: gestire salvataggio opzioni per TTS a questo livello
       this.valorizeFunctionParamsFromOptions(optionsChanged);
     },
     valorizeFunctionParamsFromOptions(options) {
@@ -175,7 +176,12 @@ export default {
           return item.identifier == "sonification";
         })
       );
-
+      const ttsData = _.head(
+        _.filter(options, function (item) {
+          return item.identifier == "tts";
+        })
+      );
+      // debugger;
       this.functionOptions = {
         fn: _.isNil(functionData)
           ? this.functionOptions.fn
@@ -201,6 +207,11 @@ export default {
         domXRange: this.functionOptions.domXRange,
         domYRange: this.functionOptions.domYRange,
       };
+      this.ttsOptions = {
+        speechPermissions: _.isNil(ttsData)
+          ? this.ttsOptions.speechPermissions
+          : ttsData.data.speechPermissions,
+      };
     },
     handleFunctionActionRequest(requestType) {
       this.functionActionRequest = {
@@ -216,7 +227,26 @@ export default {
       this.functionSonificationData = functionState;
     },
     handleFunctionMessageEvent(functionMessageEvent) {
-      console.log(`function message event: ${functionMessageEvent}`);
+      console.log(
+        `function message event: Tipo -> ${functionMessageEvent.type}, messaggio -> ${functionMessageEvent.message}`
+      );
+      const permissionIndex = _.findIndex(this.ttsOptions.speechPermissions, {
+        identifier: functionMessageEvent.type,
+      });
+      if (permissionIndex == -1) {
+        return;
+      }
+      if (
+        this.ttsOptions.speechPermissions[permissionIndex].canPlayAutomatically
+      ) {
+        console.log(
+          "function message devo leggere AT " + functionMessageEvent.message
+        );
+        this.$announcer.assertive(functionMessageEvent.message);
+        if (this.isTTSEnabled) {
+          this.textToRead = functionMessageEvent.message;
+        }
+      }
     },
   },
 };
