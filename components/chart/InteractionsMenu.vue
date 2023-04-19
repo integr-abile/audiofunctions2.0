@@ -29,6 +29,10 @@ export default {
       type: Boolean,
       default: false,
     },
+    isFunctionInteractionEnabled: {
+      type: Boolean,
+      default: false,
+    },
   },
   data() {
     return {

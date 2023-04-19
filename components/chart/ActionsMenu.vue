@@ -78,7 +78,12 @@ import OptionTTS from "../option/TTS.vue";
 import _ from "lodash";
 
 export default {
-  emits: ["saveChanges", "userInteraction", "ttsEnableStatusChange"],
+  emits: [
+    "saveChanges",
+    "userInteraction",
+    "ttsEnableStatusChange",
+    "functionInteractionEnableStatusChange",
+  ],
   props: {
     customizableItems: {
       //ogni elemento sarà tipo {identifier:"optionId",data:{}, isFavorite: true}
@@ -111,6 +116,11 @@ export default {
       favoritesBarRefreshKey: 0,
       currentFunctionLatex: "$$f(x) = \\frac{3}{4}$$",
     };
+  },
+  watch: {
+    isFunctionInteractionModeEnabled(val) {
+      this.$emit("functionInteractionEnableStatusChange", val);
+    },
   },
   created() {
     this.currentCustomizableItems = _.cloneDeep(this.customizableItems); //bisognare fare un deep clone altrimenti non mi fa una copia anche degli elementi contenuti nell'array

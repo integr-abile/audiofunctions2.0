@@ -24,6 +24,10 @@
         @ttsEnableStatusChange="
           (isTextToSpeechEnabled) => (isTTSEnabled = isTextToSpeechEnabled)
         "
+        @functionInteractionEnableStatusChange="
+          (isFunctionInteractionEnabled) =>
+            (isFnInteractionEnabled = isFunctionInteractionEnabled)
+        "
       />
     </header>
     <main class="h-100">
@@ -32,6 +36,7 @@
         :actionRequest="functionActionRequest"
         :ttsOptions="ttsOptions"
         id="fnPlot"
+        ref="fnPlot"
         class="h-100"
         @needNotifyStatus="handleFunctionStateNotification"
         @needPlayEarcon="(earconObj) => (earconToNotifyObj = earconObj)"
@@ -43,7 +48,6 @@
 
 <script>
 import _ from "lodash";
-import * as Tone from "tone";
 
 export default {
   layout: "fullscreen",
@@ -55,11 +59,19 @@ export default {
       functionActionRequest: null, //oggetto del tipo {requestType: enum, repetition: 1}
       ttsOptions: null, //oggetto di configurazione che dice cosa può dire e quando il TTS
       isTTSEnabled: true,
+      isFnInteractionEnabled: false,
       lastFunctionActionRequestType: null,
       functionSonificationData: {},
       functionSonificationOptions: {},
       earconToNotifyObj: {},
     };
+  },
+  watch: {
+    isFnInteractionEnabled(val) {
+      if (val) {
+        this.$refs.fnPlot.setFocusOnFunction();
+      }
+    },
   },
   created() {
     //Deserializzazione URL per configurazione iniziale
@@ -147,6 +159,9 @@ export default {
     },
   },
   methods: {
+    focusFunction() {
+      this.$refs.fnPlot.focus();
+    },
     onVoicesLoaded(voices) {},
     onOptionsChangesSaved(optionsChanged) {
       //[{"identifier": "xDomain","data": {}]

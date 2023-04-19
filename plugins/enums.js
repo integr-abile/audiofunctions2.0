@@ -7,11 +7,17 @@ const FunctionAction = {
   goToBegin: `${fnCommandPrefix}_goToBegin`,
   goToEnd: `${fnCommandPrefix}_goToEnd`,
   batchExploration: `${fnCommandPrefix}_batchExploration`,
+  currentCoordinatesRequest: `${fnCommandPrefix}_currentCoordinatesRequest`,
+  currentXIntervalRequest: `${fnCommandPrefix}_currentXIntervalRequest`,
+  currentYIntervalRequest: `${fnCommandPrefix}_currentYIntervalRequest`,
 };
 const KeyboardKey = {
   arrowRight: 39,
   arrowLeft: 37,
   b: 66,
+  x: 88,
+  y: 89,
+  i: 73,
 };
 const AudioSample = {
   noYAtX: "/audio/no_y.mp3",
@@ -23,11 +29,13 @@ const FunctionVoiceMessageFormat = {
   intersectX: "x",
   intersectY: "y",
   currentCoordinates: "x: {x}, y: {y}", //da completare con format-unicorn
+  interval: "Asse {axis}, da {min} a {max}", //da completare con format-unicorn
 };
 const TextToSpeechOption = {
   maxMin: "massimi-e-minimi", //poi da dividere gli spazi per ottenere la descrizione
   coordinates: "coordinate",
   axisIntersections: "intersezioni-con-gli-assi",
+  intervals: "intervalli-visualizzati",
 };
 
 export default ({ app }, inject) => {

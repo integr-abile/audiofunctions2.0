@@ -9,7 +9,12 @@
       <div class="w-100 h-100" style="position: relative">
         <resize-observer @notify="handleResize" :emitOnMount="true" />
 
-        <div role="application" tabindex="0" aria-label="area del grafico">
+        <div
+          ref="chartarea"
+          role="application"
+          tabindex="0"
+          aria-label="area del grafico"
+        >
           <div id="root" aria-hidden="true"></div>
         </div>
       </div>
@@ -25,6 +30,7 @@
 <script>
 import functionPlot from "function-plot";
 import _ from "lodash";
+require("format-unicorn");
 
 export default {
   emits: ["needNotifyStatus", "needPlayEarcon", "needNotifyMessage"],
@@ -186,6 +192,37 @@ export default {
             }
           }.bind(this);
           sonifyTick();
+          break;
+        case this.$FunctionAction.currentCoordinatesRequest:
+          this.notifyTextMessage(
+            this.$TextToSpeechOption.coordinates,
+            this.$FunctionVoiceMessageFormat.currentCoordinates.formatUnicorn({
+              x: `${this.currentFnXValue}`,
+              y: `${this.currentFnYValue}`,
+            })
+          );
+          break;
+        case this.$FunctionAction.currentXIntervalRequest:
+          this.notifyTextMessage(
+            this.$TextToSpeechOption.intervals,
+            this.$FunctionVoiceMessageFormat.interval.formatUnicorn({
+              axis: "x",
+              min: this.domXRange[0],
+              max: this.domXRange[1],
+            })
+          );
+          break;
+        case this.$FunctionAction.currentYIntervalRequest:
+          this.notifyTextMessage(
+            this.$TextToSpeechOption.intervals,
+            this.$FunctionVoiceMessageFormat.interval.formatUnicorn({
+              axis: "y",
+              min: this.domYRange[0],
+              max: this.domYRange[1],
+            })
+          );
+          break;
+        default:
           break;
       }
     },
@@ -412,6 +449,9 @@ export default {
         });
         // this.$soundFactory.playSample(this.$AudioSample.noYAtX);
       }
+    },
+    setFocusOnFunction() {
+      this.$refs.chartarea.focus();
     },
   },
 };
