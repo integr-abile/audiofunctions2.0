@@ -197,8 +197,8 @@ export default {
           this.notifyTextMessage(
             this.$TextToSpeechOption.coordinates,
             this.$FunctionVoiceMessageFormat.currentCoordinates.formatUnicorn({
-              x: `${this.currentFnXValue}`,
-              y: `${this.currentFnYValue}`,
+              x: `${this.currentFnXValue.toFixed(2)}`,
+              y: `${this.currentFnYValue.toFixed(2)}`,
             })
           );
           break;
