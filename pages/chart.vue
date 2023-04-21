@@ -10,10 +10,11 @@
       :earconObj="earconToNotifyObj"
     />
     <TextToSpeech
+      v-bind="ttsOptions"
       :isEnabled="isTTSEnabled"
       :text-to-read="textToRead"
       lang="it-IT"
-      @on-voices-loaded="onVoicesLoaded"
+      @onVoicesLoaded="onVoicesLoaded"
     />
     <header>
       <ChartActionsMenu
@@ -34,7 +35,6 @@
       <ChartFunctionPlot
         v-bind="functionOptions"
         :actionRequest="functionActionRequest"
-        :ttsOptions="ttsOptions"
         id="fnPlot"
         ref="fnPlot"
         class="h-100"
@@ -59,6 +59,7 @@ export default {
       functionActionRequest: null, //oggetto del tipo {requestType: enum, repetition: 1}
       ttsOptions: null, //oggetto di configurazione che dice cosa può dire e quando il TTS
       isTTSEnabled: true,
+      availableTTSVoices: [],
       isFnInteractionEnabled: false,
       lastFunctionActionRequestType: null,
       functionSonificationData: {},
@@ -98,6 +99,20 @@ export default {
   watch: {
     initialConfiguration(val) {
       this.valorizeFunctionParamsFromOptions(val);
+    },
+    availableTTSVoices(val) {
+      if (_.isNil(this.ttsOptions)) {
+        return;
+      }
+      const ttsData = _.head(
+        _.filter(this.initialConfiguration, function (item) {
+          return item.identifier == "tts";
+        })
+      );
+      if (!_.isNil(ttsData)) {
+        ttsData.data.availableVoices = val;
+        this.initialConfiguration = _.cloneDeep(this.initialConfiguration); //x trigger aggiornamento data
+      }
     },
   },
   computed: {
@@ -152,6 +167,8 @@ export default {
                 canPlayAutomatically: true,
               },
             ],
+            availableVoices: [],
+            selectedVoice: null,
           },
           isFavorite: false,
         },
@@ -162,7 +179,10 @@ export default {
     focusFunction() {
       this.$refs.fnPlot.focus();
     },
-    onVoicesLoaded(voices) {},
+    onVoicesLoaded(voices) {
+      console.log("Caricamento voci completato");
+      this.availableTTSVoices = voices;
+    },
     onOptionsChangesSaved(optionsChanged) {
       //[{"identifier": "xDomain","data": {}]
 
@@ -226,6 +246,9 @@ export default {
         speechPermissions: _.isNil(ttsData)
           ? this.ttsOptions.speechPermissions
           : ttsData.data.speechPermissions,
+        voice: _.isNil(ttsData)
+          ? this.ttsOptions.voice
+          : ttsData.data.selectedVoice,
       };
     },
     handleFunctionActionRequest(requestType) {

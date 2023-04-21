@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h2>Messaggi Info funzione automatici</h2>
+    <h2>Messaggi Info funzione</h2>
     <div class=".d-flex flex-column">
       <b-form-group>
         <b-form-checkbox-group
@@ -9,6 +9,12 @@
           :options="options"
         >
         </b-form-checkbox-group>
+        <b-form-select
+          id="voice-type"
+          v-model="selectedVoice"
+          :options="availableVoicesDescription"
+        >
+        </b-form-select>
       </b-form-group>
     </div>
   </div>
@@ -26,7 +32,15 @@ export default {
       currentOptionData: {},
       currentCheckSelected: [],
       options: [],
+      selectedVoice: null,
     };
+  },
+  computed: {
+    availableVoicesDescription() {
+      return _.map(this.optionData.availableVoices, function (voiceObj) {
+        return `${voiceObj.name} [${voiceObj.lang}]`;
+      });
+    },
   },
   watch: {
     currentCheckSelected(val) {
@@ -52,6 +66,11 @@ export default {
       );
       this.$emit("optionDataChange", this.currentOptionData);
     },
+    selectedVoice(val) {
+      console.log("selezionata voce " + val);
+      this.currentOptionData.selectedVoice = val;
+      this.$emit("optionDataChange", this.currentOptionData);
+    },
   },
 
   created() {
@@ -73,6 +92,7 @@ export default {
           };
         }.bind(this)
       );
+      this.selectedVoice = currentValues.selectedVoice;
     },
   },
 };

@@ -121,15 +121,22 @@ export default {
     isFunctionInteractionModeEnabled(val) {
       this.$emit("functionInteractionEnableStatusChange", val);
     },
+    customizableItems(val) {
+      this.updateCurrentCustomizableItems(val);
+    },
   },
   created() {
-    this.currentCustomizableItems = _.cloneDeep(this.customizableItems); //bisognare fare un deep clone altrimenti non mi fa una copia anche degli elementi contenuti nell'array
-    this.favoriteItems = _.filter(this.currentCustomizableItems, {
-      isFavorite: true,
-    });
+    this.updateCurrentCustomizableItems(this.customizableItems);
+
     // debugger;
   },
   methods: {
+    updateCurrentCustomizableItems(newConfiguration) {
+      this.currentCustomizableItems = _.cloneDeep(newConfiguration); //bisognare fare un deep clone altrimenti non mi fa una copia anche degli elementi contenuti nell'array
+      this.favoriteItems = _.filter(this.currentCustomizableItems, {
+        isFavorite: true,
+      });
+    },
     handleSaveChanges(optionIdentifiers) {
       console.log(`handleSaveChanges for ${optionIdentifiers}`);
       const itemsSaved = _.filter(
