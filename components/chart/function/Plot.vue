@@ -91,6 +91,7 @@ export default {
       batchSonificationTimer: null,
       currentEarconToPlay: null,
       explorationIndicatorColor: "#e86432", //rossiccio
+      pendingUserInteractionTimer: null,
     };
   },
   watch: {
@@ -413,6 +414,7 @@ export default {
           this.yMousePointer = event.y;
         }.bind(this)
       );
+
       this.fnPlotInstance.on(
         "all:zoom",
         function (event) {
@@ -422,26 +424,34 @@ export default {
           const newXAxisDomain = this.fnPlotInstance.meta.xScale.domain();
           const newYAxisDomain = this.fnPlotInstance.meta.yScale.domain();
 
-          this.$emit("domainManuallyChanged", [
-            {
-              identifier: "xDomain",
-              data: {
-                xMin: newXAxisDomain[0],
-                xMax: newXAxisDomain[1],
-              },
-            },
-            {
-              identifier: "yDomain",
-              data: {
-                yMin: newYAxisDomain[0],
-                yMax: newYAxisDomain[1],
-              },
-            },
-          ]);
-
-          console.log(
-            `new x axis domain: ${newXAxisDomain}; y domain: ${newYAxisDomain}`
+          if (!_.isNil(this.pendingUserInteractionTimer)) {
+            clearTimeout(this.pendingUserInteractionTimer);
+          }
+          this.pendingUserInteractionTimer = setTimeout(
+            function () {
+              console.log(
+                `evt ${event.type}. new x axis domain: ${newXAxisDomain}; y domain: ${newYAxisDomain}`
+              );
+              this.$emit("domainManuallyChanged", [
+                {
+                  identifier: "xDomain",
+                  data: {
+                    xMin: newXAxisDomain[0],
+                    xMax: newXAxisDomain[1],
+                  },
+                },
+                {
+                  identifier: "yDomain",
+                  data: {
+                    yMin: newYAxisDomain[0],
+                    yMax: newYAxisDomain[1],
+                  },
+                },
+              ]);
+            }.bind(this),
+            1000
           );
+
           // debugger;
         }.bind(this)
       );

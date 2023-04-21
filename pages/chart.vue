@@ -208,7 +208,7 @@ export default {
       newFunctionSonificationOptions.domXRange = this.functionOptions.domXRange;
       newFunctionSonificationOptions.domYRange = this.functionOptions.domYRange;
       this.functionSonificationOptions = newFunctionSonificationOptions;
-      //TODO: aggiornare anche initial configuration con un'approssimazione intera dell'intervallo
+      //TODO: aggiornare anche la configurazione che va nella sidebar con un'approssimazione intera dell'intervallo
     },
     onOptionsChangesSaved(optionsChanged) {
       //[{"identifier": "xDomain","data": {}]
