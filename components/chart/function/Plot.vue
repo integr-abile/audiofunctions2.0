@@ -33,7 +33,12 @@ import _ from "lodash";
 require("format-unicorn");
 
 export default {
-  emits: ["needNotifyStatus", "needPlayEarcon", "needNotifyMessage"],
+  emits: [
+    "needNotifyStatus",
+    "needPlayEarcon",
+    "needNotifyMessage",
+    "domainManuallyChanged",
+  ],
   props: ["fn", "actionRequest", "sonificationStep", "domXRange", "domYRange"],
   computed: {
     doesFunctionExists() {
@@ -408,10 +413,38 @@ export default {
           this.yMousePointer = event.y;
         }.bind(this)
       );
-      this.fnPlotInstance.on("all:zoom", function (event) {
-        //scale o translation
-        //TODO: implement
-      });
+      this.fnPlotInstance.on(
+        "all:zoom",
+        function (event) {
+          //scale o translation
+
+          // const newXAxisDomain = this.fnPlotInstance.meta.xDomain;
+          const newXAxisDomain = this.fnPlotInstance.meta.xScale.domain();
+          const newYAxisDomain = this.fnPlotInstance.meta.yScale.domain();
+
+          this.$emit("domainManuallyChanged", [
+            {
+              identifier: "xDomain",
+              data: {
+                xMin: newXAxisDomain[0],
+                xMax: newXAxisDomain[1],
+              },
+            },
+            {
+              identifier: "yDomain",
+              data: {
+                yMin: newYAxisDomain[0],
+                yMax: newYAxisDomain[1],
+              },
+            },
+          ]);
+
+          console.log(
+            `new x axis domain: ${newXAxisDomain}; y domain: ${newYAxisDomain}`
+          );
+          // debugger;
+        }.bind(this)
+      );
     },
     notifyCurrentXYPositionIfNeeded() {
       if (this.canEmitEventsForSonification) {

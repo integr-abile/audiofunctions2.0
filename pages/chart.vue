@@ -41,6 +41,7 @@
         @needNotifyStatus="handleFunctionStateNotification"
         @needPlayEarcon="(earconObj) => (earconToNotifyObj = earconObj)"
         @needNotifyMessage="handleFunctionMessageEvent"
+        @domainManuallyChanged="handleDomainManuallyChanged"
       />
     </main>
   </div>
@@ -182,6 +183,32 @@ export default {
     onVoicesLoaded(voices) {
       console.log("Caricamento voci completato");
       this.availableTTSVoices = voices;
+    },
+    handleDomainManuallyChanged(changes) {
+      // console.log("dominio cambiato " + changes);
+      const newDomX = _.head(
+        _.filter(changes, function (item) {
+          return item.identifier == "xDomain";
+        })
+      );
+      const newDomY = _.head(
+        _.filter(changes, function (item) {
+          return item.identifier == "yDomain";
+        })
+      );
+      this.functionOptions = {
+        fn: this.functionOptions.fn,
+        sonificationStep: this.functionOptions.sonificationStep,
+        domXRange: [newDomX.data.xMin, newDomX.data.xMax],
+        domYRange: [newDomY.data.yMin, newDomY.data.yMax],
+      };
+      const newFunctionSonificationOptions = _.cloneDeep(
+        this.functionSonificationOptions
+      );
+      newFunctionSonificationOptions.domXRange = this.functionOptions.domXRange;
+      newFunctionSonificationOptions.domYRange = this.functionOptions.domYRange;
+      this.functionSonificationOptions = newFunctionSonificationOptions;
+      //TODO: aggiornare anche initial configuration con un'approssimazione intera dell'intervallo
     },
     onOptionsChangesSaved(optionsChanged) {
       //[{"identifier": "xDomain","data": {}]
