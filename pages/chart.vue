@@ -208,6 +208,31 @@ export default {
       newFunctionSonificationOptions.domXRange = this.functionOptions.domXRange;
       newFunctionSonificationOptions.domYRange = this.functionOptions.domYRange;
       this.functionSonificationOptions = newFunctionSonificationOptions;
+      const currentConfig = _.cloneDeep(this.initialConfiguration);
+      const newConfig = _.map(currentConfig, (item) => {
+        if (item.identifier == "xDomain") {
+          return {
+            ...item,
+            data: {
+              ...item.data,
+              xMax: newDomX.data.xMax,
+              xMin: newDomX.data.xMin,
+            },
+          };
+        } else if (item.identifier == "yDomain") {
+          return {
+            ...item,
+            data: {
+              ...item.data,
+              yMax: newDomY.data.yMax,
+              yMin: newDomY.data.yMin,
+            },
+          };
+        } else {
+          return item;
+        }
+      });
+      this.initialConfiguration = newConfig;
       //TODO: aggiornare anche la configurazione che va nella sidebar con un'approssimazione intera dell'intervallo
     },
     onOptionsChangesSaved(optionsChanged) {

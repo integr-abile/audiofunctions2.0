@@ -7,14 +7,20 @@
           id="tts-checks"
           v-model="currentCheckSelected"
           :options="options"
+          class="mb-2"
         >
         </b-form-checkbox-group>
-        <b-form-select
-          id="voice-type"
-          v-model="selectedVoice"
-          :options="availableVoicesDescription"
-        >
-        </b-form-select>
+        <div class="d-flex">
+          <div class="d-flex align-items-center">
+            <label for="voice-type" class="mr-2">Voce: </label>
+            <b-form-select
+              id="voice-type"
+              v-model="selectedVoice"
+              :options="availableVoicesDescription"
+            >
+            </b-form-select>
+          </div>
+        </div>
       </b-form-group>
     </div>
   </div>
