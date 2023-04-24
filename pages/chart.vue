@@ -49,12 +49,14 @@
 
 <script>
 import _ from "lodash";
+import { Queue } from "@datastructures-js/queue";
 
 export default {
   layout: "fullscreen",
   data() {
     return {
       textToRead: "",
+      lastPendingMessageToRead: "",
       functionOptions: {},
       initialConfiguration: [],
       functionActionRequest: null, //oggetto del tipo {requestType: enum, repetition: 1}
@@ -66,6 +68,7 @@ export default {
       functionSonificationData: {},
       functionSonificationOptions: {},
       earconToNotifyObj: {},
+      messageQueue: new Queue(),
     };
   },
   watch: {
@@ -95,6 +98,7 @@ export default {
     }
   },
   async mounted() {
+    this.startMonitoringMessageQueue();
     this.isSonificationEnabled = await this.$soundFactory.enableSonifier();
   },
   watch: {
@@ -233,7 +237,6 @@ export default {
         }
       });
       this.initialConfiguration = newConfig;
-      //TODO: aggiornare anche la configurazione che va nella sidebar con un'approssimazione intera dell'intervallo
     },
     onOptionsChangesSaved(optionsChanged) {
       //[{"identifier": "xDomain","data": {}]
@@ -332,11 +335,30 @@ export default {
         console.log(
           "function message devo leggere AT " + functionMessageEvent.message
         );
-        this.$announcer.assertive(functionMessageEvent.message);
-        if (this.isTTSEnabled) {
-          this.textToRead = functionMessageEvent.message;
+        if (functionMessageEvent.message != this.lastPendingMessageToRead) {
+          console.log("Messo in coda " + functionMessageEvent.message);
+          this.messageQueue.enqueue(functionMessageEvent.message);
+          this.lastPendingMessageToRead = functionMessageEvent.message;
         }
+
+        // this.$announcer.assertive(functionMessageEvent.message);
+        // if (this.isTTSEnabled) {
+        //   this.textToRead = functionMessageEvent.message;
+        // }
       }
+    },
+    startMonitoringMessageQueue() {
+      setInterval(() => {
+        console.log("controllo coda messaggi...");
+        if (this.messageQueue.isEmpty()) {
+          return;
+        }
+        const message = this.messageQueue.dequeue();
+        this.$announcer.assertive(message);
+        if (this.isTTSEnabled) {
+          this.textToRead = message;
+        }
+      }, 1000); //TODO: rendere variabile d'ambiente
     },
   },
 };

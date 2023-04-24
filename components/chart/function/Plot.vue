@@ -78,6 +78,8 @@ export default {
       currentFnXValue: 0,
       currentFnYValue: 0,
       fnPlotInstance: null,
+      fnSamples: 0,
+      fnSamplesInDeltaX: 0,
       fnDerivative: null,
       fnSecondDerivative: null,
       yMousePointer: 0,
@@ -97,6 +99,7 @@ export default {
   watch: {
     fnContainerWidth: {
       handler(newVal) {
+        this.fnSamples = this.estimateFunctionNumberOfSamples();
         this.updateFunctionChart();
       },
       immediate: true,
@@ -106,6 +109,27 @@ export default {
         this.updateFunctionChart();
       },
       immediate: true,
+    },
+    fnSamples(val) {
+      this.fnSamplesInDeltaX = this.calculateNumberOfSamplesInDeltaX(
+        this.fnSamplesInDeltaX,
+        this.domXRange,
+        val
+      );
+    },
+    domXRange(val) {
+      this.fnSamplesInDeltaX = this.calculateNumberOfSamplesInDeltaX(
+        this.fnSamplesInDeltaX,
+        val,
+        this.fnSamples
+      );
+    },
+    sonificationStep(val) {
+      this.fnSamplesInDeltaX = this.calculateNumberOfSamplesInDeltaX(
+        val,
+        this.domXRange,
+        this.fnSamples
+      );
     },
     actionRequest(val) {
       console.log(`richiesta azione ${val.requestType}`);
@@ -123,7 +147,6 @@ export default {
           break;
         case this.$FunctionAction.incrementStep:
           this.currentFnXValue += this.sonificationStep;
-
           this.calculateYForXAndNotify(this.currentFnXValue);
           this.updateFunctionChart();
 
@@ -134,6 +157,16 @@ export default {
             });
             //se la x nuova sonificata è però fuori range riporto la X ad essere dentro il range e notifico il bordo del grafico
             this.currentFnXValue -= this.sonificationStep;
+          } else {
+            const xStep = this.sonificationStep / this.fnSamplesInDeltaX;
+            const initialXToCheck =
+              this.currentFnXValue - this.sonificationStep;
+            var currentCheckedX = initialXToCheck;
+            var intervalMessage = "";
+            while (currentCheckedX < this.currentFnXValue) {
+              //TODO: calcolare se ci sono intersezioni, massimi e minimi
+              currentCheckedX += xStep;
+            }
           }
 
           break;
@@ -247,22 +280,47 @@ export default {
       if (_.isNil(this.fnPlotInstance)) {
         return;
       }
-      const y = this.calculateYGivenX(val);
+      this.calculateAndNotifyRelevantValuesForX(val);
+    },
+  },
+  methods: {
+    handleResize({ width, height }) {
+      this.fnContainerWidth = width;
+      this.fnContainerHeight = height;
+    },
+    notifyTextMessage(type, message) {
+      this.$emit("needNotifyMessage", {
+        type: type,
+        message: message,
+      });
+      return message;
+    },
+    estimateFunctionNumberOfSamples() {
+      const pixelDensity = window.devicePixelRatio || 1;
+      const estimation = this.fnContainerWidth * pixelDensity;
+      return estimation + (estimation / 100) * 20; //Aggiungo un 20% per sicurezza ad una stima che già dovrebbe essere sufficiente
+    },
+    calculateNumberOfSamplesInDeltaX(deltaX, domX, totalNumberOfSamples) {
+      return (deltaX / (domX[1] - domX[0])) * totalNumberOfSamples;
+    },
+    calculateAndNotifyRelevantValuesForX(x) {
+      const y = this.calculateYGivenX(x);
       if (_.isNil(this.fnSecondDerivative) || _.isNil(this.fnDerivative)) {
         return;
       }
       const stepTolerance = 0.05;
       //Calcolo se a questo X abbiamo un minimo o un massimo locale
-      const firstDerivativeValueAtX = this.fnDerivative.evaluate({ x: val });
+      const firstDerivativeValueAtX = this.fnDerivative.evaluate({ x: x });
       const firstDerivativeTolerance = stepTolerance; //serve questa tolleranza trovata empiricamente perchè dal punto di vista della libreria che renderizza la funzione, l'asse x è comunque discretizzato e quindi difficilmente avrà tra i suoi valori esattamente == al mio valore
 
       // console.log("valore derivata prima " + firstDerivativeValueAtX);
+
       if (
         firstDerivativeValueAtX > -firstDerivativeTolerance &&
         firstDerivativeValueAtX < firstDerivativeTolerance
       ) {
         const secondDerivativeValueAtX = this.fnSecondDerivative.evaluate({
-          x: val,
+          x: x,
         });
         this.notifyTextMessage(
           this.$TextToSpeechOption.maxMin,
@@ -274,8 +332,7 @@ export default {
       }
       //Controllo se abbiamo un'intersezione con l'asse X o Y
       const checkXAxisIntersection = y > -stepTolerance && y < stepTolerance;
-      const checkYAxisIntersection =
-        val > -stepTolerance && val < stepTolerance;
+      const checkYAxisIntersection = x > -stepTolerance && x < stepTolerance;
       if (checkXAxisIntersection || checkYAxisIntersection) {
         var message = "";
         if (checkXAxisIntersection) {
@@ -302,18 +359,6 @@ export default {
         }
       }
     },
-  },
-  methods: {
-    handleResize({ width, height }) {
-      this.fnContainerWidth = width;
-      this.fnContainerHeight = height;
-    },
-    notifyTextMessage(type, message) {
-      this.$emit("needNotifyMessage", {
-        type: type,
-        message: message,
-      });
-    },
     createFnConfigObject() {
       let config = {
         target: "#root",
@@ -335,6 +380,7 @@ export default {
         data: [
           {
             fn: this.fn,
+            nSamples: this.fnSamples,
             derivative: {
               fn: _.isNil(this.fnDerivative)
                 ? "0"
@@ -419,7 +465,9 @@ export default {
         "all:zoom",
         function (event) {
           //scale o translation
-
+          console.log(
+            "numero di campioni " + this.estimateFunctionNumberOfSamples()
+          );
           // const newXAxisDomain = this.fnPlotInstance.meta.xDomain;
           const newXAxisDomain = this.fnPlotInstance.meta.xScale.domain();
           const newYAxisDomain = this.fnPlotInstance.meta.yScale.domain();
