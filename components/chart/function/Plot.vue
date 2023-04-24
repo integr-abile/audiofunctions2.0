@@ -112,14 +112,14 @@ export default {
     },
     fnSamples(val) {
       this.fnSamplesInDeltaX = this.calculateNumberOfSamplesInDeltaX(
-        this.fnSamplesInDeltaX,
+        this.sonificationStep,
         this.domXRange,
         val
       );
     },
     domXRange(val) {
       this.fnSamplesInDeltaX = this.calculateNumberOfSamplesInDeltaX(
-        this.fnSamplesInDeltaX,
+        this.sonificationStep,
         val,
         this.fnSamples
       );
@@ -159,16 +159,15 @@ export default {
             this.currentFnXValue -= this.sonificationStep;
           } else {
             const xStep = this.sonificationStep / this.fnSamplesInDeltaX;
+            console.log("xStep: " + xStep);
             const initialXToCheck =
               this.currentFnXValue - this.sonificationStep;
             var currentCheckedX = initialXToCheck;
-            var intervalMessage = "";
             while (currentCheckedX < this.currentFnXValue) {
-              //TODO: calcolare se ci sono intersezioni, massimi e minimi
+              this.calculateAndNotifyRelevantValuesForX(currentCheckedX);
               currentCheckedX += xStep;
             }
           }
-
           break;
         case this.$FunctionAction.decrementStep:
           this.currentFnXValue -= this.sonificationStep;
@@ -181,8 +180,16 @@ export default {
             });
             //se la x nuova sonificata è però fuori range riporto la X ad essere dentro il range
             this.currentFnXValue += this.sonificationStep;
+          } else {
+            const xStep = this.sonificationStep / this.fnSamplesInDeltaX;
+            const initialXToCheck =
+              this.currentFnXValue + this.sonificationStep;
+            var currentCheckedX = initialXToCheck;
+            while (currentCheckedX > this.currentFnXValue) {
+              this.calculateAndNotifyRelevantValuesForX(currentCheckedX);
+              currentCheckedX -= xStep;
+            }
           }
-
           break;
         case this.$FunctionAction.goToBegin:
           this.currentFnXValue = this.domXRange[0];
@@ -293,7 +300,6 @@ export default {
         type: type,
         message: message,
       });
-      return message;
     },
     estimateFunctionNumberOfSamples() {
       const pixelDensity = window.devicePixelRatio || 1;
