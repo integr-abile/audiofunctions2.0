@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h2>Dominio asse Y</h2>
+    <h2>Intervallo asse Y</h2>
     <b-form inline>
       <label for="min-x-domain-value" class="sr-only"
         >valore minimo di Y mostrato sul grafico</label

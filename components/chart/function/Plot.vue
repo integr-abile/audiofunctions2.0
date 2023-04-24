@@ -9,7 +9,12 @@
       <div class="w-100 h-100" style="position: relative">
         <resize-observer @notify="handleResize" :emitOnMount="true" />
 
-        <div role="application" tabindex="0" aria-label="area del grafico">
+        <div
+          ref="chartarea"
+          role="application"
+          tabindex="0"
+          aria-label="area del grafico"
+        >
           <div id="root" aria-hidden="true"></div>
         </div>
       </div>
@@ -25,9 +30,15 @@
 <script>
 import functionPlot from "function-plot";
 import _ from "lodash";
+require("format-unicorn");
 
 export default {
-  emits: ["needNotifyStatus", "needPlayEarcon"],
+  emits: [
+    "needNotifyStatus",
+    "needPlayEarcon",
+    "needNotifyMessage",
+    "domainManuallyChanged",
+  ],
   props: ["fn", "actionRequest", "sonificationStep", "domXRange", "domYRange"],
   computed: {
     doesFunctionExists() {
@@ -67,6 +78,10 @@ export default {
       currentFnXValue: 0,
       currentFnYValue: 0,
       fnPlotInstance: null,
+      fnSamples: 0,
+      fnSamplesInDeltaX: 0,
+      fnDerivative: null,
+      fnSecondDerivative: null,
       yMousePointer: 0,
       canEmitEventsForSonification: false,
       isBatchExplorationInProgress: false,
@@ -78,11 +93,13 @@ export default {
       batchSonificationTimer: null,
       currentEarconToPlay: null,
       explorationIndicatorColor: "#e86432", //rossiccio
+      pendingUserInteractionTimer: null,
     };
   },
   watch: {
     fnContainerWidth: {
       handler(newVal) {
+        this.fnSamples = this.estimateFunctionNumberOfSamples();
         this.updateFunctionChart();
       },
       immediate: true,
@@ -92,6 +109,27 @@ export default {
         this.updateFunctionChart();
       },
       immediate: true,
+    },
+    fnSamples(val) {
+      this.fnSamplesInDeltaX = this.calculateNumberOfSamplesInDeltaX(
+        this.sonificationStep,
+        this.domXRange,
+        val
+      );
+    },
+    domXRange(val) {
+      this.fnSamplesInDeltaX = this.calculateNumberOfSamplesInDeltaX(
+        this.sonificationStep,
+        val,
+        this.fnSamples
+      );
+    },
+    sonificationStep(val) {
+      this.fnSamplesInDeltaX = this.calculateNumberOfSamplesInDeltaX(
+        val,
+        this.domXRange,
+        this.fnSamples
+      );
     },
     actionRequest(val) {
       console.log(`richiesta azione ${val.requestType}`);
@@ -109,7 +147,6 @@ export default {
           break;
         case this.$FunctionAction.incrementStep:
           this.currentFnXValue += this.sonificationStep;
-
           this.calculateYForXAndNotify(this.currentFnXValue);
           this.updateFunctionChart();
 
@@ -120,8 +157,17 @@ export default {
             });
             //se la x nuova sonificata è però fuori range riporto la X ad essere dentro il range e notifico il bordo del grafico
             this.currentFnXValue -= this.sonificationStep;
+          } else {
+            const xStep = this.sonificationStep / this.fnSamplesInDeltaX;
+            console.log("xStep: " + xStep);
+            const initialXToCheck =
+              this.currentFnXValue - this.sonificationStep;
+            var currentCheckedX = initialXToCheck;
+            while (currentCheckedX < this.currentFnXValue) {
+              this.calculateAndNotifyRelevantValuesForX(currentCheckedX);
+              currentCheckedX += xStep;
+            }
           }
-
           break;
         case this.$FunctionAction.decrementStep:
           this.currentFnXValue -= this.sonificationStep;
@@ -134,8 +180,16 @@ export default {
             });
             //se la x nuova sonificata è però fuori range riporto la X ad essere dentro il range
             this.currentFnXValue += this.sonificationStep;
+          } else {
+            const xStep = this.sonificationStep / this.fnSamplesInDeltaX;
+            const initialXToCheck =
+              this.currentFnXValue + this.sonificationStep;
+            var currentCheckedX = initialXToCheck;
+            while (currentCheckedX > this.currentFnXValue) {
+              this.calculateAndNotifyRelevantValuesForX(currentCheckedX);
+              currentCheckedX -= xStep;
+            }
           }
-
           break;
         case this.$FunctionAction.goToBegin:
           this.currentFnXValue = this.domXRange[0];
@@ -185,9 +239,42 @@ export default {
           }.bind(this);
           sonifyTick();
           break;
+        case this.$FunctionAction.currentCoordinatesRequest:
+          this.notifyTextMessage(
+            this.$TextToSpeechOption.coordinates,
+            this.$FunctionVoiceMessageFormat.currentCoordinates.formatUnicorn({
+              x: `${this.currentFnXValue.toFixed(2)}`,
+              y: `${this.currentFnYValue.toFixed(2)}`,
+            })
+          );
+          break;
+        case this.$FunctionAction.currentXIntervalRequest:
+          this.notifyTextMessage(
+            this.$TextToSpeechOption.intervals,
+            this.$FunctionVoiceMessageFormat.interval.formatUnicorn({
+              axis: "x",
+              min: this.domXRange[0],
+              max: this.domXRange[1],
+            })
+          );
+          break;
+        case this.$FunctionAction.currentYIntervalRequest:
+          this.notifyTextMessage(
+            this.$TextToSpeechOption.intervals,
+            this.$FunctionVoiceMessageFormat.interval.formatUnicorn({
+              axis: "y",
+              min: this.domYRange[0],
+              max: this.domYRange[1],
+            })
+          );
+          break;
+        default:
+          break;
       }
     },
     fn(val) {
+      this.fnDerivative = this.$math.derivative(val, "x");
+      this.fnSecondDerivative = this.$math.derivative(this.fnDerivative, "x");
       this.updateFunctionChart();
     },
     domXRange(val) {
@@ -200,13 +287,83 @@ export default {
       if (_.isNil(this.fnPlotInstance)) {
         return;
       }
-      const y = this.calculateYGivenX(val);
+      this.calculateAndNotifyRelevantValuesForX(val);
     },
   },
   methods: {
     handleResize({ width, height }) {
       this.fnContainerWidth = width;
       this.fnContainerHeight = height;
+    },
+    notifyTextMessage(type, message) {
+      this.$emit("needNotifyMessage", {
+        type: type,
+        message: message,
+      });
+    },
+    estimateFunctionNumberOfSamples() {
+      const pixelDensity = window.devicePixelRatio || 1;
+      const estimation = this.fnContainerWidth * pixelDensity;
+      return estimation + (estimation / 100) * 20; //Aggiungo un 20% per sicurezza ad una stima che già dovrebbe essere sufficiente
+    },
+    calculateNumberOfSamplesInDeltaX(deltaX, domX, totalNumberOfSamples) {
+      return (deltaX / (domX[1] - domX[0])) * totalNumberOfSamples;
+    },
+    calculateAndNotifyRelevantValuesForX(x) {
+      const y = this.calculateYGivenX(x);
+      if (_.isNil(this.fnSecondDerivative) || _.isNil(this.fnDerivative)) {
+        return;
+      }
+      const stepTolerance = 0.05;
+      //Calcolo se a questo X abbiamo un minimo o un massimo locale
+      const firstDerivativeValueAtX = this.fnDerivative.evaluate({ x: x });
+      const firstDerivativeTolerance = stepTolerance; //serve questa tolleranza trovata empiricamente perchè dal punto di vista della libreria che renderizza la funzione, l'asse x è comunque discretizzato e quindi difficilmente avrà tra i suoi valori esattamente == al mio valore
+
+      // console.log("valore derivata prima " + firstDerivativeValueAtX);
+
+      if (
+        firstDerivativeValueAtX > -firstDerivativeTolerance &&
+        firstDerivativeValueAtX < firstDerivativeTolerance
+      ) {
+        const secondDerivativeValueAtX = this.fnSecondDerivative.evaluate({
+          x: x,
+        });
+        this.notifyTextMessage(
+          this.$TextToSpeechOption.maxMin,
+          secondDerivativeValueAtX > 0
+            ? this.$FunctionVoiceMessageFormat.localMin
+            : this.$FunctionVoiceMessageFormat.localMax
+        );
+        console.log("valore derivata seconda " + secondDerivativeValueAtX);
+      }
+      //Controllo se abbiamo un'intersezione con l'asse X o Y
+      const checkXAxisIntersection = y > -stepTolerance && y < stepTolerance;
+      const checkYAxisIntersection = x > -stepTolerance && x < stepTolerance;
+      if (checkXAxisIntersection || checkYAxisIntersection) {
+        var message = "";
+        if (checkXAxisIntersection) {
+          message += this.$FunctionVoiceMessageFormat.intersectX;
+          if (checkYAxisIntersection) {
+            message += ` e ${this.$FunctionVoiceMessageFormat.intersectY}`;
+          }
+          this.notifyTextMessage(
+            this.$TextToSpeechOption.axisIntersections,
+            message
+          );
+          // this.$emit("needNotifyMessage", message);
+        } else {
+          if (checkYAxisIntersection) {
+            this.notifyTextMessage(
+              this.$TextToSpeechOption.axisIntersections,
+              this.$FunctionVoiceMessageFormat.intersectY
+            );
+            // this.$emit(
+            //   "needNotifyMessage",
+            //   this.$FunctionVoiceMessageFormat.intersectY
+            // );
+          }
+        }
+      }
     },
     createFnConfigObject() {
       let config = {
@@ -229,6 +386,13 @@ export default {
         data: [
           {
             fn: this.fn,
+            nSamples: this.fnSamples,
+            derivative: {
+              fn: _.isNil(this.fnDerivative)
+                ? "0"
+                : this.fnDerivative.toString(),
+              updateOnMouseMove: true,
+            },
           },
         ],
       };
@@ -246,12 +410,12 @@ export default {
           graphType: "polyline",
         });
       }
+
       // debugger;
       return config;
     },
 
     updateFunctionChart() {
-      //TODO: ripulire SVG con l'eventuale seconda funzione già disegnata
       if (!_.isNil(this.fnPlotInstance)) {
         const svg = document.querySelector("#root svg");
         if (!_.isNil(svg)) {
@@ -302,10 +466,49 @@ export default {
           this.yMousePointer = event.y;
         }.bind(this)
       );
-      this.fnPlotInstance.on("all:zoom", function (event) {
-        //scale o translation
-        //TODO: implement
-      });
+
+      this.fnPlotInstance.on(
+        "all:zoom",
+        function (event) {
+          //scale o translation
+          console.log(
+            "numero di campioni " + this.estimateFunctionNumberOfSamples()
+          );
+          // const newXAxisDomain = this.fnPlotInstance.meta.xDomain;
+          const newXAxisDomain = this.fnPlotInstance.meta.xScale.domain();
+          const newYAxisDomain = this.fnPlotInstance.meta.yScale.domain();
+
+          if (!_.isNil(this.pendingUserInteractionTimer)) {
+            clearTimeout(this.pendingUserInteractionTimer);
+          }
+          this.pendingUserInteractionTimer = setTimeout(
+            function () {
+              console.log(
+                `evt ${event.type}. new x axis domain: ${newXAxisDomain}; y domain: ${newYAxisDomain}`
+              );
+              this.$emit("domainManuallyChanged", [
+                {
+                  identifier: "xDomain",
+                  data: {
+                    xMin: newXAxisDomain[0],
+                    xMax: newXAxisDomain[1],
+                  },
+                },
+                {
+                  identifier: "yDomain",
+                  data: {
+                    yMin: newYAxisDomain[0],
+                    yMax: newYAxisDomain[1],
+                  },
+                },
+              ]);
+            }.bind(this),
+            1000
+          );
+
+          // debugger;
+        }.bind(this)
+      );
     },
     notifyCurrentXYPositionIfNeeded() {
       if (this.canEmitEventsForSonification) {
@@ -343,6 +546,9 @@ export default {
         });
         // this.$soundFactory.playSample(this.$AudioSample.noYAtX);
       }
+    },
+    setFocusOnFunction() {
+      this.$refs.chartarea.focus();
     },
   },
 };

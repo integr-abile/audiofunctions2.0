@@ -45,9 +45,14 @@
       :initial-is-function-interaction-mode-enabled="
         isFunctionInteractionModeEnabled
       "
+      :initialIsTTSEnabled="initialIsTTSEnabled"
       @onFunctionInteractionModeChange="
         (isInteractionEnabled) =>
           (isFunctionInteractionModeEnabled = isInteractionEnabled)
+      "
+      @onTTSEnabledChange="
+        (isTextToSpeechEnabled) =>
+          $emit('ttsEnableStatusChange', isTextToSpeechEnabled)
       "
     />
     <ChartFavoritesBar
@@ -69,10 +74,16 @@ import OptionXDomain from "../option/XDomain.vue";
 import OptionYDomain from "../option/YDomain.vue";
 import OptionFunction from "../option/Function.vue";
 import OptionSonification from "../option/Sonification.vue";
+import OptionTTS from "../option/TTS.vue";
 import _ from "lodash";
 
 export default {
-  emits: ["saveChanges", "userInteraction"],
+  emits: [
+    "saveChanges",
+    "userInteraction",
+    "ttsEnableStatusChange",
+    "functionInteractionEnableStatusChange",
+  ],
   props: {
     customizableItems: {
       //ogni elemento sarà tipo {identifier:"optionId",data:{}, isFavorite: true}
@@ -81,6 +92,7 @@ export default {
         return [];
       },
     },
+    initialIsTTSEnabled: false,
   },
   computed: {
     mapTypeComponent() {
@@ -89,6 +101,7 @@ export default {
         yDomain: OptionYDomain,
         function: OptionFunction,
         sonification: OptionSonification,
+        tts: OptionTTS,
       };
     },
     sortedFavorites() {
@@ -104,14 +117,26 @@ export default {
       currentFunctionLatex: "$$f(x) = \\frac{3}{4}$$",
     };
   },
+  watch: {
+    isFunctionInteractionModeEnabled(val) {
+      this.$emit("functionInteractionEnableStatusChange", val);
+    },
+    customizableItems(val) {
+      this.updateCurrentCustomizableItems(val);
+    },
+  },
   created() {
-    this.currentCustomizableItems = _.cloneDeep(this.customizableItems); //bisognare fare un deep clone altrimenti non mi fa una copia anche degli elementi contenuti nell'array
-    this.favoriteItems = _.filter(this.currentCustomizableItems, {
-      isFavorite: true,
-    });
+    this.updateCurrentCustomizableItems(this.customizableItems);
+
     // debugger;
   },
   methods: {
+    updateCurrentCustomizableItems(newConfiguration) {
+      this.currentCustomizableItems = _.cloneDeep(newConfiguration); //bisognare fare un deep clone altrimenti non mi fa una copia anche degli elementi contenuti nell'array
+      this.favoriteItems = _.filter(this.currentCustomizableItems, {
+        isFavorite: true,
+      });
+    },
     handleSaveChanges(optionIdentifiers) {
       console.log(`handleSaveChanges for ${optionIdentifiers}`);
       const itemsSaved = _.filter(

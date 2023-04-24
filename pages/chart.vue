@@ -10,15 +10,25 @@
       :earconObj="earconToNotifyObj"
     />
     <TextToSpeech
+      v-bind="ttsOptions"
+      :isEnabled="isTTSEnabled"
       :text-to-read="textToRead"
       lang="it-IT"
-      @on-voices-loaded="onVoicesLoaded"
+      @onVoicesLoaded="onVoicesLoaded"
     />
     <header>
       <ChartActionsMenu
         :customizableItems="initialConfiguration"
+        :initialIsTTSEnabled="isTTSEnabled"
         @saveChanges="onOptionsChangesSaved"
         @userInteraction="handleFunctionActionRequest"
+        @ttsEnableStatusChange="
+          (isTextToSpeechEnabled) => (isTTSEnabled = isTextToSpeechEnabled)
+        "
+        @functionInteractionEnableStatusChange="
+          (isFunctionInteractionEnabled) =>
+            (isFnInteractionEnabled = isFunctionInteractionEnabled)
+        "
       />
     </header>
     <main class="h-100">
@@ -26,9 +36,12 @@
         v-bind="functionOptions"
         :actionRequest="functionActionRequest"
         id="fnPlot"
+        ref="fnPlot"
         class="h-100"
         @needNotifyStatus="handleFunctionStateNotification"
         @needPlayEarcon="(earconObj) => (earconToNotifyObj = earconObj)"
+        @needNotifyMessage="handleFunctionMessageEvent"
+        @domainManuallyChanged="handleDomainManuallyChanged"
       />
     </main>
   </div>
@@ -36,21 +49,34 @@
 
 <script>
 import _ from "lodash";
-import * as Tone from "tone";
+import { Queue } from "@datastructures-js/queue";
 
 export default {
   layout: "fullscreen",
   data() {
     return {
       textToRead: "",
+      lastPendingMessageToRead: "",
       functionOptions: {},
       initialConfiguration: [],
       functionActionRequest: null, //oggetto del tipo {requestType: enum, repetition: 1}
+      ttsOptions: null, //oggetto di configurazione che dice cosa può dire e quando il TTS
+      isTTSEnabled: true,
+      availableTTSVoices: [],
+      isFnInteractionEnabled: false,
       lastFunctionActionRequestType: null,
       functionSonificationData: {},
       functionSonificationOptions: {},
       earconToNotifyObj: {},
+      messageQueue: new Queue(),
     };
+  },
+  watch: {
+    isFnInteractionEnabled(val) {
+      if (val) {
+        this.$refs.fnPlot.setFocusOnFunction();
+      }
+    },
   },
   created() {
     //Deserializzazione URL per configurazione iniziale
@@ -72,11 +98,26 @@ export default {
     }
   },
   async mounted() {
+    this.startMonitoringMessageQueue();
     this.isSonificationEnabled = await this.$soundFactory.enableSonifier();
   },
   watch: {
     initialConfiguration(val) {
       this.valorizeFunctionParamsFromOptions(val);
+    },
+    availableTTSVoices(val) {
+      if (_.isNil(this.ttsOptions)) {
+        return;
+      }
+      const ttsData = _.head(
+        _.filter(this.initialConfiguration, function (item) {
+          return item.identifier == "tts";
+        })
+      );
+      if (!_.isNil(ttsData)) {
+        ttsData.data.availableVoices = val;
+        this.initialConfiguration = _.cloneDeep(this.initialConfiguration); //x trigger aggiornamento data
+      }
     },
   },
   computed: {
@@ -86,8 +127,8 @@ export default {
         {
           identifier: "xDomain",
           data: {
-            xMin: 1,
-            xMax: 3,
+            xMin: -16, //stessi di geogebra
+            xMax: 16, //stessi di geogebra
             step: 1,
           },
           isFavorite: false,
@@ -95,8 +136,8 @@ export default {
         {
           identifier: "yDomain",
           data: {
-            yMin: 2,
-            yMax: 3,
+            yMin: -9, //stessi di geogebra
+            yMax: 9, //stessi di geogebra
             step: 1,
           },
           isFavorite: false,
@@ -104,7 +145,7 @@ export default {
         {
           identifier: "function",
           data: {
-            fn: "x",
+            fn: "sin(x)",
           },
           isFavorite: true,
         },
@@ -117,15 +158,95 @@ export default {
           },
           isFavorite: false,
         },
+        {
+          identifier: "tts",
+          data: {
+            speechPermissions: [
+              {
+                identifier: this.$TextToSpeechOption.maxMin,
+                canPlayAutomatically: true,
+              },
+
+              {
+                identifier: this.$TextToSpeechOption.axisIntersections,
+                canPlayAutomatically: true,
+              },
+              {
+                identifier: this.$TextToSpeechOption.coordinates,
+                // canPlayAutomatically: false,
+              },
+            ],
+            availableVoices: [],
+            selectedVoice: null,
+          },
+          isFavorite: false,
+        },
       ];
     },
   },
   methods: {
-    onVoicesLoaded(voices) {},
+    focusFunction() {
+      this.$refs.fnPlot.focus();
+    },
+    onVoicesLoaded(voices) {
+      console.log("Caricamento voci completato");
+      this.availableTTSVoices = voices;
+    },
+    handleDomainManuallyChanged(changes) {
+      // console.log("dominio cambiato " + changes);
+      const newDomX = _.head(
+        _.filter(changes, function (item) {
+          return item.identifier == "xDomain";
+        })
+      );
+      const newDomY = _.head(
+        _.filter(changes, function (item) {
+          return item.identifier == "yDomain";
+        })
+      );
+      this.functionOptions = {
+        fn: this.functionOptions.fn,
+        sonificationStep: this.functionOptions.sonificationStep,
+        domXRange: [newDomX.data.xMin, newDomX.data.xMax],
+        domYRange: [newDomY.data.yMin, newDomY.data.yMax],
+      };
+      const newFunctionSonificationOptions = _.cloneDeep(
+        this.functionSonificationOptions
+      );
+      newFunctionSonificationOptions.domXRange = this.functionOptions.domXRange;
+      newFunctionSonificationOptions.domYRange = this.functionOptions.domYRange;
+      this.functionSonificationOptions = newFunctionSonificationOptions;
+      const currentConfig = _.cloneDeep(this.initialConfiguration);
+      const newConfig = _.map(currentConfig, (item) => {
+        if (item.identifier == "xDomain") {
+          return {
+            ...item,
+            data: {
+              ...item.data,
+              xMax: newDomX.data.xMax,
+              xMin: newDomX.data.xMin,
+            },
+          };
+        } else if (item.identifier == "yDomain") {
+          return {
+            ...item,
+            data: {
+              ...item.data,
+              yMax: newDomY.data.yMax,
+              yMin: newDomY.data.yMin,
+            },
+          };
+        } else {
+          return item;
+        }
+      });
+      this.initialConfiguration = newConfig;
+    },
     onOptionsChangesSaved(optionsChanged) {
       //[{"identifier": "xDomain","data": {}]
-      console.log(`options changed to: ${optionsChanged}`);
 
+      console.log(`options changed to: ${optionsChanged}`);
+      //TODO: gestire salvataggio opzioni per TTS a questo livello
       this.valorizeFunctionParamsFromOptions(optionsChanged);
     },
     valorizeFunctionParamsFromOptions(options) {
@@ -149,7 +270,12 @@ export default {
           return item.identifier == "sonification";
         })
       );
-
+      const ttsData = _.head(
+        _.filter(options, function (item) {
+          return item.identifier == "tts";
+        })
+      );
+      // debugger;
       this.functionOptions = {
         fn: _.isNil(functionData)
           ? this.functionOptions.fn
@@ -175,6 +301,14 @@ export default {
         domXRange: this.functionOptions.domXRange,
         domYRange: this.functionOptions.domYRange,
       };
+      this.ttsOptions = {
+        speechPermissions: _.isNil(ttsData)
+          ? this.ttsOptions.speechPermissions
+          : ttsData.data.speechPermissions,
+        voice: _.isNil(ttsData)
+          ? this.ttsOptions.voice
+          : ttsData.data.selectedVoice,
+      };
     },
     handleFunctionActionRequest(requestType) {
       this.functionActionRequest = {
@@ -188,6 +322,47 @@ export default {
     },
     handleFunctionStateNotification(functionState) {
       this.functionSonificationData = functionState;
+    },
+    handleFunctionMessageEvent(functionMessageEvent) {
+      console.log(
+        `function message event: Tipo -> ${functionMessageEvent.type}, messaggio -> ${functionMessageEvent.message}`
+      );
+      const permissionIndex = _.findIndex(this.ttsOptions.speechPermissions, {
+        identifier: functionMessageEvent.type,
+      });
+      if (permissionIndex == -1) {
+        return;
+      }
+      if (
+        this.ttsOptions.speechPermissions[permissionIndex].canPlayAutomatically
+      ) {
+        console.log(
+          "function message devo leggere AT " + functionMessageEvent.message
+        );
+        if (functionMessageEvent.message != this.lastPendingMessageToRead) {
+          console.log("Messo in coda " + functionMessageEvent.message);
+          this.messageQueue.enqueue(functionMessageEvent.message);
+          this.lastPendingMessageToRead = functionMessageEvent.message;
+        }
+
+        // this.$announcer.assertive(functionMessageEvent.message);
+        // if (this.isTTSEnabled) {
+        //   this.textToRead = functionMessageEvent.message;
+        // }
+      }
+    },
+    startMonitoringMessageQueue() {
+      setInterval(() => {
+        // console.log("controllo coda messaggi...");
+        if (this.messageQueue.isEmpty()) {
+          return;
+        }
+        const message = this.messageQueue.dequeue();
+        this.$announcer.assertive(message);
+        if (this.isTTSEnabled) {
+          this.textToRead = message;
+        }
+      }, process.env.TEXT_TO_SPEECH_MONITOR_QUEUE_INTERVAL_MS); //TODO: rendere variabile d'ambiente
     },
   },
 };

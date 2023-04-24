@@ -1,8 +1,9 @@
 <template>
   <vue-web-speech-synth
+    v-if="isEnabled"
     v-model="shouldRead"
     :text="textToRead"
-    :voice="ttsVoice"
+    :voice="concreteVoice"
     @list-voices="listVoices"
   />
 </template>
@@ -15,7 +16,9 @@ export default {
   props: {
     lang: String,
     textToRead: String,
-    ttsVoice: null,
+    voice: null,
+    isEnabled: false,
+    speechPermissions: null,
   },
   data() {
     return {
@@ -32,9 +35,28 @@ export default {
     },
     textToRead(newText, oldText) {
       this.shouldRead = newText != oldText;
+      if (this.shouldRead) {
+        console.log(`devo leggere TTS ${newText}`);
+      }
     },
     voicesAvailableForSelection(newVoices) {
       this.$emit("onVoicesLoaded", newVoices);
+    },
+  },
+  computed: {
+    concreteVoice() {
+      if (_.isNil(this.voice)) {
+        return null;
+      }
+      return this.voicesAvailableForSelection[
+        this.availableVoicesDescription.indexOf(this.voice)
+      ];
+    },
+    availableVoicesDescription() {
+      ///Stesso algoritmo presente in OptionTTS in modo da ricostruire allo stesso modo le descrizioni degli oggetti TTS
+      return _.map(this.voicesAvailableForSelection, function (voiceObj) {
+        return `${voiceObj.name} [${voiceObj.lang}]`;
+      });
     },
   },
 
