@@ -358,7 +358,7 @@ export default {
         if (this.isTTSEnabled) {
           this.textToRead = message;
         }
-      }, 1000); //TODO: rendere variabile d'ambiente
+      }, process.env.TEXT_TO_SPEECH_MONITOR_QUEUE_INTERVAL_MS); //TODO: rendere variabile d'ambiente
     },
   },
 };
