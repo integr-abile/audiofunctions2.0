@@ -171,6 +171,10 @@ export default {
                 identifier: this.$TextToSpeechOption.axisIntersections,
                 canPlayAutomatically: true,
               },
+              {
+                identifier: this.$TextToSpeechOption.coordinates,
+                // canPlayAutomatically: false,
+              },
             ],
             availableVoices: [],
             selectedVoice: null,
@@ -349,7 +353,7 @@ export default {
     },
     startMonitoringMessageQueue() {
       setInterval(() => {
-        console.log("controllo coda messaggi...");
+        // console.log("controllo coda messaggi...");
         if (this.messageQueue.isEmpty()) {
           return;
         }

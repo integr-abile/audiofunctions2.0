@@ -89,12 +89,17 @@ export default {
         this.currentOptionData.speechPermissions,
         function (permission) {
           //   debugger;
-          if (permission.canPlayAutomatically) {
+          if (
+            permission.canPlayAutomatically ||
+            !_.has(permission, "canPlayAutomatically") //metto questa logica perchè assumo che se un permesso non ha quella chiave è abilitato, ma da gestire su trigger manuale. Se non ho il permesso non lo vedo nemmeno nella lista
+          ) {
             this.currentCheckSelected.push(permission.identifier);
           }
+          //   debugger;
           return {
             text: permission.identifier.replaceAll("-", " "),
             value: permission.identifier,
+            disabled: !_.has(permission, "canPlayAutomatically"),
           };
         }.bind(this)
       );

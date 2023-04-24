@@ -9,6 +9,7 @@ export default {
     SONIFICATION_MIN_TICK_TIME_SECONDS: 0.2, //TODO: valutare bene questo numero. lower bound per non andare incontro principio di indeterminazione tonale
     SONIFICATION_BATCH_SONIFICATION_TIME_SECONDS: 1, //TODO: valutare bene questo numero. lower bound per non andare incontro principio di indeterminazione tonale
     INTERACTION_SONIFICATION_HOLD_KEY_TICK_TIME_SECONDS: 1,
+    TEXT_TO_SPEECH_MONITOR_QUEUE_INTERVAL_MS: 300,
   },
 
   // Global page headers: https://go.nuxtjs.dev/config-head
