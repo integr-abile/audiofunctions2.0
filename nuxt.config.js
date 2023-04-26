@@ -37,13 +37,11 @@ export default {
 
   // Plugins to run before rendering page: https://go.nuxtjs.dev/config-plugins
   plugins: [
-    // "~/plugins/vue-speech.js",
-    /*{ src: "~/plugins/chart.js", ssr: false }*/
     { src: "~/plugins/vue-speech.js", mode: "client" },
     { src: "~/plugins/vue-resize.js", mode: "client" },
     { src: "~/plugins/mathlive-input.js", mode: "client" },
     { src: "~/plugins/vue-a11y-announcer.js", mode: "client" },
-    { src: "~/plugins/validate-function.mjs", mode: "client" },
+    { src: "~/plugins/validate-function.js", mode: "client" },
     { src: "~/plugins/enums.js", mode: "client" },
     { src: "~/plugins/session-data-serializer.js", mode: "client" },
     { src: "~/plugins/sound.js", mode: "client" },

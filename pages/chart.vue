@@ -81,7 +81,7 @@ export default {
   created() {
     //Deserializzazione URL per configurazione iniziale
     const sessionDataSerializer = this.$sessionDataSerializer;
-
+    this.startMonitoringMessageQueue();
     const initialEncodedConfiguration =
       this.$route.query[sessionDataSerializer.sessionDataQueryParamKey];
     if (initialEncodedConfiguration == null) {
@@ -98,7 +98,6 @@ export default {
     }
   },
   async mounted() {
-    this.startMonitoringMessageQueue();
     this.isSonificationEnabled = await this.$soundFactory.enableSonifier();
   },
   watch: {
@@ -352,6 +351,7 @@ export default {
       }
     },
     startMonitoringMessageQueue() {
+      console.log("inizio monitoraggio coda messaggi TTS");
       setInterval(() => {
         // console.log("controllo coda messaggi...");
         if (this.messageQueue.isEmpty()) {

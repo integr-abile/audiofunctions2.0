@@ -9,7 +9,10 @@
         role="presentation"
         :options="{
           virtualKeyboardMode: 'manual',
+          virtualKeyboards: 'numeric',
           keypressSound: 'none',
+          smartFence: false,
+          mode: 'math',
         }"
         :value="stableInputFunctionLatex"
         class="border w-100"
@@ -52,6 +55,7 @@ export default {
   watch: {
     stableInputFunctionLatex(val) {
       this.currentOptionData.fn = val;
+      this.validateFormula(val);
       this.$emit("optionDataChange", this.currentOptionData);
     },
   },
@@ -66,6 +70,10 @@ export default {
     updateOptionData(currentValues) {
       this.currentOptionData = currentValues;
       this.stableInputFunctionLatex = `${currentValues.fn}`;
+      this.lastInsertedLatexFunction = this.stableInputFunctionLatex;
+    },
+    validateFormula(latexFormula) {
+      this.$functionValidator.validate(latexFormula);
     },
     readMathExpression(event, notRead = false) {
       // debugger;
@@ -97,11 +105,23 @@ export default {
       const mathField = this.$refs.mathfield.$el;
       mathField.addEventListener("change", (evt) => {
         //Return o enter premuto
+        this.lastInsertedLatexFunction = evt.target.value;
         this.stableInputFunctionLatex = this.lastInsertedLatexFunction;
         console.log(`focus-out. Latex: ${evt.target.value}`);
       });
-
+      mathField.addEventListener("beforeinput", (evt) => {
+        if (evt.target.value === "" && evt.inputType != "insertText") {
+          console.log(
+            "il campo è già vuoto. Ignoro cancellazione per evento " +
+              evt.inputType
+          );
+          evt.preventDefault(); //necessario questo listener per via di un bug di mathfield nel quale se cerco di cancellare e il campo è già vuoto, il componente crasha
+        }
+      });
+      //Math shortcut: https://cortexjs.io/mathlive/reference/keybindings/
       mathField.addEventListener("input", (evt) => {
+        // console.log("inserito char math");
+        // debugger;
         // const locale = evt.target.getOptions("locale");
         if (evt.inputType == "insertText") {
           this.lastInsertedLatexFunction = evt.target.value;
@@ -109,7 +129,9 @@ export default {
           console.log(insertedChar);
           this.$announcer.assertive(`inserito ${insertedChar}`);
         } else if (evt.inputType == "deleteContentBackward") {
+          console.log("cancellato");
           const latexAfterDeletion = evt.target.value;
+
           const diff = new Diff();
           const textDiff = diff.main(
             this.lastInsertedLatexFunction,
@@ -133,6 +155,7 @@ export default {
 
       mathField.addEventListener("focus-out", (evt) => {
         //Quando col tab lascio il campo di input
+        this.lastInsertedLatexFunction = evt.target.value;
         this.stableInputFunctionLatex = this.lastInsertedLatexFunction;
         console.log(`focus-out. Latex: ${evt.target.value}`);
         this.$announcer.assertive("");

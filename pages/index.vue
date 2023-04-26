@@ -1,9 +1,6 @@
 <template>
   <div id="app" class="p-2 border border-gray-500 d-flex flex-column">
-    <label class="block mb-2 font-bold"> Prova grafico </label>
-    <FunctionPlot id="fnPlot" class="h-100 d-flex flex-column" />
-
-    <!-- <button @click="changeChartData">Change data</button> -->
+    <h1>Welcome to the Jungle</h1>
   </div>
 </template>
 
