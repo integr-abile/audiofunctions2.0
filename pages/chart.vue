@@ -144,7 +144,7 @@ export default {
         {
           identifier: "function",
           data: {
-            fn: "sin(x)",
+            fn: "sin(x)", //formato interval arithmetic
           },
           isFavorite: true,
         },

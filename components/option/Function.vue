@@ -54,9 +54,15 @@ export default {
   },
   watch: {
     stableInputFunctionLatex(val) {
-      this.currentOptionData.fn = val;
-      this.validateFormula(val);
-      this.$emit("optionDataChange", this.currentOptionData);
+      // this.currentOptionData.fn = val;
+      const { error, forFnPlotFormula } = this.validateFormula(val);
+      // debugger;
+      if (_.isNil(error)) {
+        this.currentOptionData.fn = forFnPlotFormula;
+        this.$emit("optionDataChange", this.currentOptionData);
+      } else {
+        //TODO: gestire errore
+      }
     },
   },
   components: {
@@ -69,11 +75,12 @@ export default {
   methods: {
     updateOptionData(currentValues) {
       this.currentOptionData = currentValues;
-      this.stableInputFunctionLatex = `${currentValues.fn}`;
+      const latexFormula = this.$functionValidator.toLatex(currentValues.fn); //fn dev'essere in formato interval-arithmetic
+      this.stableInputFunctionLatex = latexFormula;
       this.lastInsertedLatexFunction = this.stableInputFunctionLatex;
     },
     validateFormula(latexFormula) {
-      this.$functionValidator.validate(latexFormula);
+      return this.$functionValidator.validate(latexFormula);
     },
     readMathExpression(event, notRead = false) {
       // debugger;

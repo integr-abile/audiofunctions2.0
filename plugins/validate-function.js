@@ -11,11 +11,24 @@ class FunctionValidator {
       const compileRes = fnCompiler(res);
       compileRes.eval({ x: 0 });
       console.log("formula compilation success");
+      return {
+        error: null,
+        forFnPlotFormula: res,
+      };
     } catch {
       console.error("Failed to compile");
+      return {
+        error: "Formula inserita non valida",
+        forFnPlotFormula: null,
+      };
     }
     // const eLatex = lescape(latexFnString);
     // console.log("da valutare escaped " + eLatex);
+  }
+
+  toLatex(textFormula) {
+    const expression = MathExpression.fromText(textFormula);
+    return expression.toLatex();
   }
 }
 
