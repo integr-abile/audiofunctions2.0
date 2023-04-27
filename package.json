@@ -9,7 +9,6 @@
     "generate": "nuxt generate"
   },
   "dependencies": {
-    "@datastructures-js/queue": "^4.2.3",
     "@vue-a11y/announcer": "^2.1.0",
     "bootstrap-vue": "^2.23.1",
     "core-js": "^3.25.3",
@@ -22,6 +21,7 @@
     "mathjs": "^11.8.0",
     "mathlive": "^0.86.0",
     "nuxt": "^2.15.8",
+    "queue-fifo": "^0.2.6",
     "text-diff": "^1.0.1",
     "tone": "^14.7.77",
     "vue": "^2.7.10",

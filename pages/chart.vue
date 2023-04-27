@@ -49,7 +49,7 @@
 
 <script>
 import _ from "lodash";
-import { Queue } from "@datastructures-js/queue";
+var Queue = require("queue-fifo");
 
 export default {
   layout: "fullscreen",
@@ -69,6 +69,7 @@ export default {
       functionSonificationOptions: {},
       earconToNotifyObj: {},
       messageQueue: new Queue(),
+      ttsMessageID: null,
     };
   },
   watch: {
@@ -352,9 +353,10 @@ export default {
     },
     startMonitoringMessageQueue() {
       console.log("inizio monitoraggio coda messaggi TTS");
-      setInterval(() => {
-        // console.log("controllo coda messaggi...");
+      this.ttsMessageID = setInterval(() => {
+        console.log("controllo coda messaggi...");
         if (this.messageQueue.isEmpty()) {
+          console.log("la coda è vuota");
           return;
         }
         const message = this.messageQueue.dequeue();

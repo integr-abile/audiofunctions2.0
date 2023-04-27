@@ -61,7 +61,7 @@ export default {
         this.currentOptionData.fn = forFnPlotFormula;
         this.$emit("optionDataChange", this.currentOptionData);
       } else {
-        //TODO: gestire errore
+        //TODO: gestire errore facendo apparire un messaggio sotto il campo di testo della formula
       }
     },
   },
