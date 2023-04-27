@@ -52,7 +52,9 @@ export default {
     currentCheckSelected(val) {
       //reset
       _.forEach(this.currentOptionData.speechPermissions, function (item) {
-        item.canPlayAutomatically = false;
+        if (_.has(item, "canPlayAutomatically")) {
+          item.canPlayAutomatically = false;
+        }
       });
       //set in base ai nuovi valori
       _.forEach(
@@ -65,9 +67,16 @@ export default {
               identifier: selectedId,
             }
           );
-          this.currentOptionData.speechPermissions[
-            idxToSet
-          ].canPlayAutomatically = true;
+          if (
+            _.has(
+              this.currentOptionData.speechPermissions[idxToSet],
+              "canPlayAutomatically"
+            )
+          ) {
+            this.currentOptionData.speechPermissions[
+              idxToSet
+            ].canPlayAutomatically = true;
+          }
         }.bind(this)
       );
       this.$emit("optionDataChange", this.currentOptionData);

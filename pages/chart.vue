@@ -352,11 +352,11 @@ export default {
       }
     },
     startMonitoringMessageQueue() {
-      console.log("inizio monitoraggio coda messaggi TTS");
+      // console.log("inizio monitoraggio coda messaggi TTS");
       this.ttsMessageID = setInterval(() => {
-        console.log("controllo coda messaggi...");
+        // console.log("controllo coda messaggi...");
         if (this.messageQueue.isEmpty()) {
-          console.log("la coda è vuota");
+          // console.log("la coda è vuota");
           return;
         }
         const message = this.messageQueue.dequeue();
