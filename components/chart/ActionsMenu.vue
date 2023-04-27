@@ -3,6 +3,7 @@
     <div class="d-flex align-items-center w-100 mb-2">
       <b-button v-b-toggle.options-sidebar>Opzioni</b-button>
       <ChartOptionsSidebar
+        ref="chartOptionsSidebar"
         sidebar-id="options-sidebar"
         :customizableOptions="currentCustomizableItems"
         :mapTypeComponent="mapTypeComponent"
@@ -60,6 +61,7 @@
       v-if="favoriteItems.length > 0"
       :options="sortedFavorites"
       :mapTypeComponent="mapTypeComponent"
+      @saveChanges="handleSaveFromFavoritesBar"
     />
     <ChartFunctionShortcuts
       :isFunctionInteractionEnabled="isFunctionInteractionModeEnabled"
@@ -136,6 +138,9 @@ export default {
       this.favoriteItems = _.filter(this.currentCustomizableItems, {
         isFavorite: true,
       });
+    },
+    handleSaveFromFavoritesBar() {
+      this.$refs.chartOptionsSidebar.saveAll();
     },
     handleSaveChanges(optionIdentifiers) {
       console.log(`handleSaveChanges for ${optionIdentifiers}`);
