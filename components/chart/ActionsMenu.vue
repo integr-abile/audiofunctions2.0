@@ -26,11 +26,26 @@
             variant="outline-secondary"
             size="sm"
             title="Copia formula latex"
+            v-clipboard:copy="currentFunctionLatex"
+            v-clipboard:success="onCopy"
+            v-clipboard:error="onCopyError"
           >
             <b-icon-files></b-icon-files>
           </b-button>
         </div>
       </div>
+      <!-- Area alert-->
+      <b-alert
+        v-model="showCopyAlert"
+        :variant="lastCopyFunctionSuccess ? 'success' : 'danger'"
+        dismissible
+        aria-live="polite"
+        aria-atomic="true"
+      >
+        {{
+          this.lastCopyFunctionSuccess ? "Copiato" : "Errore durante la copia"
+        }}
+      </b-alert>
       <div class="d-flex justify-content-end">
         <div class="d-grid gap-3">
           <!-- TODO: gestire popup istruzioni e keymap-->
@@ -106,16 +121,6 @@ export default {
         tts: OptionTTS,
       };
     },
-    // currentFunctionLatex() {
-    //   if (_.isNil(this.currentFunctionIntervalArith)) {
-    //     return (
-    //       "$$f(x) = " +
-    //       this.$functionValidator.toLatex(this.currentFunctionIntervalArith) +
-    //       "$$"
-    //     );
-    //   }
-    //   return "$$f(x)=$$";
-    // },
     sortedFavorites() {
       return _.sortBy(this.favoriteItems, ["identifier"]);
     },
@@ -128,6 +133,8 @@ export default {
       favoritesBarRefreshKey: 0,
       currentFunctionLatex: "$$f(x) = $$",
       currentFunctionIntervalArith: null,
+      lastCopyFunctionSuccess: false,
+      showCopyAlert: false,
     };
   },
   watch: {
@@ -164,6 +171,16 @@ export default {
     },
     handleSaveFromFavoritesBar() {
       this.$refs.chartOptionsSidebar.saveAll();
+    },
+    onCopy(evt) {
+      this.lastCopyFunctionSuccess = true;
+      this.showCopyAlert = true;
+      console.log("copia ok " + evt.text);
+    },
+    onCopyError(evt) {
+      this.lastCopyFunctionSuccess = false;
+      this.showCopyAlert = true;
+      console.error("errore copia");
     },
     handleSaveChanges(optionIdentifiers) {
       console.log(`handleSaveChanges for ${optionIdentifiers}`);

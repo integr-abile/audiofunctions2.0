@@ -47,6 +47,7 @@ export default {
     { src: "~/plugins/sound.js", mode: "client" },
     { src: "~/plugins/math.js", mode: "client" },
     { src: "~/plugins/vue-shortkey.js", mode: "client" },
+    { src: "~/plugins/vue-clipboard.js", mode: "client" },
     { src: "~/plugins/vue-mathjax.js", mode: "client" },
 
     // { src: "~/plugins/vue-keypress.js" },
