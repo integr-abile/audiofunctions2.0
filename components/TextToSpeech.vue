@@ -4,6 +4,7 @@
     v-model="shouldRead"
     :text="textToRead"
     :voice="concreteVoice"
+    :rate="1"
     @list-voices="listVoices"
   />
 </template>
@@ -46,7 +47,11 @@ export default {
   computed: {
     concreteVoice() {
       if (_.isNil(this.voice)) {
-        return null;
+        if (_.isEmpty(this.availableVoicesDescription)) {
+          return null;
+        } else {
+          return _.head(this.voicesAvailableForSelection);
+        }
       }
       return this.voicesAvailableForSelection[
         this.availableVoicesDescription.indexOf(this.voice)

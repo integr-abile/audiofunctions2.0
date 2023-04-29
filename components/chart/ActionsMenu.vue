@@ -106,6 +106,16 @@ export default {
         tts: OptionTTS,
       };
     },
+    // currentFunctionLatex() {
+    //   if (_.isNil(this.currentFunctionIntervalArith)) {
+    //     return (
+    //       "$$f(x) = " +
+    //       this.$functionValidator.toLatex(this.currentFunctionIntervalArith) +
+    //       "$$"
+    //     );
+    //   }
+    //   return "$$f(x)=$$";
+    // },
     sortedFavorites() {
       return _.sortBy(this.favoriteItems, ["identifier"]);
     },
@@ -116,7 +126,8 @@ export default {
       favoriteItems: [],
       currentCustomizableItems: [],
       favoritesBarRefreshKey: 0,
-      currentFunctionLatex: "$$f(x) = \\frac{3}{4}$$",
+      currentFunctionLatex: "$$f(x) = $$",
+      currentFunctionIntervalArith: null,
     };
   },
   watch: {
@@ -125,6 +136,12 @@ export default {
     },
     customizableItems(val) {
       this.updateCurrentCustomizableItems(val);
+    },
+    currentFunctionIntervalArith(val) {
+      this.currentFunctionLatex =
+        "$$f(x) = " +
+        this.$functionValidator.toLatex(this.currentFunctionIntervalArith) +
+        "$$";
     },
   },
   created() {
@@ -138,6 +155,12 @@ export default {
       this.favoriteItems = _.filter(this.currentCustomizableItems, {
         isFavorite: true,
       });
+      const functionData = _.head(
+        _.filter(newConfiguration, function (item) {
+          return item.identifier == "function";
+        })
+      );
+      this.currentFunctionIntervalArith = functionData.data.fn;
     },
     handleSaveFromFavoritesBar() {
       this.$refs.chartOptionsSidebar.saveAll();
@@ -150,6 +173,7 @@ export default {
           return _.includes(optionIdentifiers, item.identifier);
         }
       );
+      this.updateCurrentCustomizableItems(this.currentCustomizableItems);
       this.$emit(
         "saveChanges",
         _.map(itemsSaved, function (obj) {

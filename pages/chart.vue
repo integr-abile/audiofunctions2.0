@@ -334,7 +334,12 @@ export default {
         return;
       }
       if (
-        this.ttsOptions.speechPermissions[permissionIndex].canPlayAutomatically
+        this.ttsOptions.speechPermissions[permissionIndex]
+          .canPlayAutomatically ||
+        !_.has(
+          this.ttsOptions.speechPermissions[permissionIndex],
+          "canPlayAutomatically"
+        )
       ) {
         console.log(
           "function message devo leggere AT " + functionMessageEvent.message
@@ -352,7 +357,7 @@ export default {
       }
     },
     startMonitoringMessageQueue() {
-      // console.log("inizio monitoraggio coda messaggi TTS");
+      console.log("inizio monitoraggio coda messaggi TTS");
       this.ttsMessageID = setInterval(() => {
         // console.log("controllo coda messaggi...");
         if (this.messageQueue.isEmpty()) {
