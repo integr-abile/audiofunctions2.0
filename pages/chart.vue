@@ -210,37 +210,40 @@ export default {
         domXRange: [newDomX.data.xMin, newDomX.data.xMax],
         domYRange: [newDomY.data.yMin, newDomY.data.yMax],
       };
-      const newFunctionSonificationOptions = _.cloneDeep(
-        this.functionSonificationOptions
-      );
-      newFunctionSonificationOptions.domXRange = this.functionOptions.domXRange;
-      newFunctionSonificationOptions.domYRange = this.functionOptions.domYRange;
-      this.functionSonificationOptions = newFunctionSonificationOptions;
-      const currentConfig = _.cloneDeep(this.initialConfiguration);
-      const newConfig = _.map(currentConfig, (item) => {
-        if (item.identifier == "xDomain") {
-          return {
-            ...item,
-            data: {
-              ...item.data,
-              xMax: newDomX.data.xMax,
-              xMin: newDomX.data.xMin,
-            },
-          };
-        } else if (item.identifier == "yDomain") {
-          return {
-            ...item,
-            data: {
-              ...item.data,
-              yMax: newDomY.data.yMax,
-              yMin: newDomY.data.yMin,
-            },
-          };
-        } else {
-          return item;
-        }
-      });
-      this.initialConfiguration = newConfig;
+      this.functionSonificationOptions = {
+        isEnabled: this.functionSonificationOptions.isEnabled,
+
+        instrument: this.functionSonificationOptions.instrument,
+
+        domXRange: this.functionOptions.domXRange,
+        domYRange: this.functionOptions.domYRange,
+      };
+
+      // const currentConfig = _.cloneDeep(this.initialConfiguration);
+      // const newConfig = _.map(currentConfig, (item) => {
+      //   if (item.identifier == "xDomain") {
+      //     return {
+      //       ...item,
+      //       data: {
+      //         ...item.data,
+      //         xMax: newDomX.data.xMax,
+      //         xMin: newDomX.data.xMin,
+      //       },
+      //     };
+      //   } else if (item.identifier == "yDomain") {
+      //     return {
+      //       ...item,
+      //       data: {
+      //         ...item.data,
+      //         yMax: newDomY.data.yMax,
+      //         yMin: newDomY.data.yMin,
+      //       },
+      //     };
+      //   } else {
+      //     return item;
+      //   }
+      // });
+      // this.initialConfiguration = newConfig;
     },
     onOptionsChangesSaved(optionsChanged) {
       //[{"identifier": "xDomain","data": {}]
