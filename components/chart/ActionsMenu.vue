@@ -25,6 +25,7 @@
           <b-button
             variant="outline-secondary"
             size="sm"
+            aria-label="Copia formula latex"
             title="Copia formula latex"
             v-clipboard:copy="currentFunctionLatex"
             v-clipboard:success="onCopy"

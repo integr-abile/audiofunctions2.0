@@ -4,9 +4,11 @@
     <h2>Funzione</h2>
     <div class="d-flex align-items-center">
       <vue-mathjax :formula="preFieldLabelText" class="mr-1"></vue-mathjax>
+      <!-- Se sono su un elemento role application devo comunque attivarlo (premere enter) prima di iniziare a scrivere -->
       <mathlive-mathfield
         ref="mathfield"
         role="application"
+        aria-label="attiva per inserire una funzione"
         :options="{
           virtualKeyboardMode: 'manual',
           virtualKeyboards: 'numeric',
@@ -46,7 +48,7 @@ export default {
       readMathKeys: [
         {
           keyCode: 81, //Q
-          modifiers: ["ctrlKey, shiftKey"],
+          modifiers: ["ctrlKey", "shiftKey"],
           preventDefault: true,
         },
       ],
@@ -134,7 +136,7 @@ export default {
           this.lastInsertedLatexFunction = evt.target.value;
           const insertedChar = evt.data;
           console.log(insertedChar);
-          this.$announcer.assertive(`inserito ${insertedChar}`);
+          // this.$announcer.assertive(`inserito ${insertedChar}`);
         } else if (evt.inputType == "deleteContentBackward") {
           console.log("cancellato");
           const latexAfterDeletion = evt.target.value;

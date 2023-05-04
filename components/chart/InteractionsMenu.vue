@@ -7,11 +7,21 @@
           id="enableFnCheckbox"
           v-model="isFunctionInteractionModeEnabled"
         />
-        <label for="enableFnCheckbox">Interazione tramite tastiera</label>
+        <label for="enableFnCheckbox" class="sr-only"
+          >Interazione tramite tastiera
+          {{
+            this.isFunctionInteractionModeEnabled ? "abilitata" : "disabilitata"
+          }}</label
+        >
+        <label aria-hidden="true">Interazione tramite tastiera</label>
       </div>
       <div>
         <input type="checkbox" id="enableTTSCheckbox" v-model="isTTSEnabled" />
-        <label for="enableTTSCheckbox">Sintesi vocale web</label>
+        <label aria-hidden="true">Sintesi vocale web</label>
+        <label for="enableTTSCheckbox" class="sr-only"
+          >Sintesi vocale web
+          {{ this.isTTSEnabled ? "abilitata" : "disabilitata" }}</label
+        >
       </div>
     </div>
   </div>

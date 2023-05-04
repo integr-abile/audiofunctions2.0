@@ -3,7 +3,9 @@
     <h2>Sonificazione</h2>
     <div class="d-flex mb-2">
       <div class="mr-2">
-        <label class="h-100 d-flex align-items-center" for="step"
+        <label
+          class="h-100 d-flex align-items-center"
+          for="sonification-instrument-type"
           >Strumento</label
         >
       </div>
@@ -15,15 +17,19 @@
     </div>
     <div class="d-flex">
       <b-form-checkbox
+        id="sonification-abilitation-check"
         v-model="status"
         value="abilitata"
         unchecked-value="disabilitata"
       >
       </b-form-checkbox>
       <div class="ml-2">
-        <label class="h-100 d-flex align-items-center" for="step"
+        <label aria-hidden="true" class="h-100 d-flex align-items-center"
           >Stato: {{ status }}</label
         >
+        <label for="sonification-abilitation-check" class="sr-only">
+          Stato sonificazione: {{ status }}
+        </label>
       </div>
     </div>
   </div>

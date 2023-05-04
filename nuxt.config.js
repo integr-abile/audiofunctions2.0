@@ -14,7 +14,7 @@ export default {
 
   // Global page headers: https://go.nuxtjs.dev/config-head
   head: {
-    title: "af20",
+    title: "AudioFunctions 2.0",
     htmlAttrs: {
       lang: "it-IT",
     },

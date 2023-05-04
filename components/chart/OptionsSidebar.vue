@@ -3,6 +3,7 @@
     @shown="(evt) => (refreshKey += 1)"
     ref="sidebar"
     backdrop
+    close-label="Chiudi"
     :id="sidebarId"
     title="Opzioni"
     width="400px"
