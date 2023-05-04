@@ -6,7 +6,6 @@
       <vue-mathjax :formula="preFieldLabelText" class="mr-1"></vue-mathjax>
       <mathlive-mathfield
         ref="mathfield"
-        role="presentation"
         :options="{
           virtualKeyboardMode: 'manual',
           virtualKeyboards: 'numeric',
