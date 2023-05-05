@@ -101,6 +101,7 @@ export default {
     "userInteraction",
     "ttsEnableStatusChange",
     "functionInteractionEnableStatusChange",
+    "customizableItemsConfigurationChange",
   ],
   props: {
     customizableItems: {
@@ -145,6 +146,9 @@ export default {
     customizableItems(val) {
       this.updateCurrentCustomizableItems(val);
     },
+    currentCustomizableItems(val) {
+      this.$emit("customizableItemsConfigurationChange", val);
+    },
     currentFunctionIntervalArith(val) {
       this.currentFunctionLatex =
         "$$f(x) = " +
@@ -168,7 +172,9 @@ export default {
           return item.identifier == "function";
         })
       );
-      this.currentFunctionIntervalArith = functionData.data.fn;
+      if (!_.isNil(functionData)) {
+        this.currentFunctionIntervalArith = functionData.data.fn;
+      }
     },
     handleSaveFromFavoritesBar() {
       this.$refs.chartOptionsSidebar.saveAll();

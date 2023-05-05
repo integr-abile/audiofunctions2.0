@@ -29,6 +29,9 @@
           (isFunctionInteractionEnabled) =>
             (isFnInteractionEnabled = isFunctionInteractionEnabled)
         "
+        @customizableItemsConfigurationChange="
+          (newConfig) => (currentConfiguration = newConfig)
+        "
       />
     </header>
     <main class="h-100">
@@ -56,9 +59,11 @@ export default {
   data() {
     return {
       textToRead: "",
+      chartActionMenuRefreshKey: 0,
       lastPendingMessageToRead: "",
       functionOptions: {},
       initialConfiguration: [],
+      currentConfiguration: [],
       functionActionRequest: null, //oggetto del tipo {requestType: enum, repetition: 1}
       ttsOptions: null, //oggetto di configurazione che dice cosa può dire e quando il TTS
       isTTSEnabled: true,
@@ -103,6 +108,7 @@ export default {
   },
   watch: {
     initialConfiguration(val) {
+      this.currentConfiguration = val;
       this.valorizeFunctionParamsFromOptions(val);
     },
     availableTTSVoices(val) {
@@ -204,22 +210,35 @@ export default {
           return item.identifier == "yDomain";
         })
       );
-      this.functionOptions = {
-        fn: this.functionOptions.fn,
-        sonificationStep: this.functionOptions.sonificationStep,
-        domXRange: [newDomX.data.xMin, newDomX.data.xMax],
-        domYRange: [newDomY.data.yMin, newDomY.data.yMax],
-      };
-      this.functionSonificationOptions = {
-        isEnabled: this.functionSonificationOptions.isEnabled,
+      // this.functionOptions = {
+      //   fn: this.functionOptions.fn,
+      //   sonificationStep: this.functionOptions.sonificationStep,
+      //   domXRange: [newDomX.data.xMin, newDomX.data.xMax],
+      //   domYRange: [newDomY.data.yMin, newDomY.data.yMax],
+      // };
+      const newFunctionOptions = _.cloneDeep(this.functionOptions);
+      newFunctionOptions.domXRange = [newDomX.data.xMin, newDomX.data.xMax];
+      newFunctionOptions.domYRange = [newDomY.data.yMin, newDomY.data.yMax];
+      this.functionOptions = newFunctionOptions;
 
-        instrument: this.functionSonificationOptions.instrument,
+      const newFunctionSonificationOptions = _.cloneDeep(
+        this.functionSonificationOptions
+      );
+      newFunctionSonificationOptions.domXRange = this.functionOptions.domXRange;
+      newFunctionSonificationOptions.domYRange = this.functionOptions.domYRange;
+      this.functionSonificationOptions = newFunctionSonificationOptions;
 
-        domXRange: this.functionOptions.domXRange,
-        domYRange: this.functionOptions.domYRange,
-      };
+      const idxOfXDomain = _.findIndex(this.currentConfiguration, {
+        identifier: "xDomain",
+      });
+      const idxOfYDomain = _.findIndex(this.currentConfiguration, {
+        identifier: "yDomain",
+      });
 
-      // const currentConfig = _.cloneDeep(this.initialConfiguration);
+      this.currentConfiguration[idxOfXDomain].data.xMax = newDomX.data.xMax;
+      this.currentConfiguration[idxOfXDomain].data.xMin = newDomX.data.xMin;
+      this.currentConfiguration[idxOfYDomain].data.yMax = newDomY.data.yMax;
+      this.currentConfiguration[idxOfYDomain].data.yMin = newDomY.data.yMin;
       // const newConfig = _.map(currentConfig, (item) => {
       //   if (item.identifier == "xDomain") {
       //     return {
@@ -243,7 +262,7 @@ export default {
       //     return item;
       //   }
       // });
-      // this.initialConfiguration = newConfig;
+      // this.initialConfiguration = currentConfig;
     },
     onOptionsChangesSaved(optionsChanged) {
       //[{"identifier": "xDomain","data": {}]
