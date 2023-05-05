@@ -319,7 +319,7 @@ export default {
       const firstDerivativeValueAtX = this.fnDerivative.evaluate({ x: x });
       const firstDerivativeTolerance = stepTolerance; //serve questa tolleranza trovata empiricamente perchè dal punto di vista della libreria che renderizza la funzione, l'asse x è comunque discretizzato e quindi difficilmente avrà tra i suoi valori esattamente == al mio valore
 
-      // console.log("valore derivata prima " + firstDerivativeValueAtX);
+      console.log("valore derivata prima " + firstDerivativeValueAtX);
 
       if (
         firstDerivativeValueAtX > -firstDerivativeTolerance &&
@@ -385,6 +385,8 @@ export default {
         grid: true,
         data: [
           {
+            // force the use of builtIn math, altrimenti su funzioni definite con function(scope) salta tutto
+            graphType: "polyline",
             fn: this.fn,
             nSamples: this.fnSamples,
             derivative: {

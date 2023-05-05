@@ -75,6 +75,7 @@ export default {
       earconToNotifyObj: {},
       messageQueue: new Queue(),
       ttsMessageID: null,
+      messageQueueMaxCapacity: 2, //non voglio tenere in coda messaggi troppo vecchi
     };
   },
   watch: {
@@ -210,12 +211,7 @@ export default {
           return item.identifier == "yDomain";
         })
       );
-      // this.functionOptions = {
-      //   fn: this.functionOptions.fn,
-      //   sonificationStep: this.functionOptions.sonificationStep,
-      //   domXRange: [newDomX.data.xMin, newDomX.data.xMax],
-      //   domYRange: [newDomY.data.yMin, newDomY.data.yMax],
-      // };
+
       const newFunctionOptions = _.cloneDeep(this.functionOptions);
       newFunctionOptions.domXRange = [newDomX.data.xMin, newDomX.data.xMax];
       newFunctionOptions.domYRange = [newDomY.data.yMin, newDomY.data.yMax];
@@ -239,30 +235,6 @@ export default {
       this.currentConfiguration[idxOfXDomain].data.xMin = newDomX.data.xMin;
       this.currentConfiguration[idxOfYDomain].data.yMax = newDomY.data.yMax;
       this.currentConfiguration[idxOfYDomain].data.yMin = newDomY.data.yMin;
-      // const newConfig = _.map(currentConfig, (item) => {
-      //   if (item.identifier == "xDomain") {
-      //     return {
-      //       ...item,
-      //       data: {
-      //         ...item.data,
-      //         xMax: newDomX.data.xMax,
-      //         xMin: newDomX.data.xMin,
-      //       },
-      //     };
-      //   } else if (item.identifier == "yDomain") {
-      //     return {
-      //       ...item,
-      //       data: {
-      //         ...item.data,
-      //         yMax: newDomY.data.yMax,
-      //         yMin: newDomY.data.yMin,
-      //       },
-      //     };
-      //   } else {
-      //     return item;
-      //   }
-      // });
-      // this.initialConfiguration = currentConfig;
     },
     onOptionsChangesSaved(optionsChanged) {
       //[{"identifier": "xDomain","data": {}]
@@ -385,6 +357,15 @@ export default {
         if (this.messageQueue.isEmpty()) {
           // console.log("la coda è vuota");
           return;
+        }
+        const messageQueueCurrentSize = this.messageQueue.size();
+        if (messageQueueCurrentSize > this.messageQueueMaxCapacity) {
+          _.times(
+            messageQueueCurrentSize - this.messageQueueMaxCapacity,
+            () => {
+              this.messageQueue.dequeue(); //tolgo gli elementi in eccesso dalla coda a partire dal più vecchio
+            }
+          );
         }
         const message = this.messageQueue.dequeue();
         this.$announcer.assertive(message);

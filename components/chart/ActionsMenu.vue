@@ -172,9 +172,7 @@ export default {
           return item.identifier == "function";
         })
       );
-      if (!_.isNil(functionData)) {
-        this.currentFunctionIntervalArith = functionData.data.fn;
-      }
+      this.currentFunctionIntervalArith = functionData.data.fn;
     },
     handleSaveFromFavoritesBar() {
       this.$refs.chartOptionsSidebar.saveAll();
