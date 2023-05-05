@@ -94,6 +94,9 @@ export default {
       currentEarconToPlay: null,
       explorationIndicatorColor: "#e86432", //rossiccio
       pendingUserInteractionTimer: null,
+      lastFirstDerivativeSign: null,
+      lastXSign: null,
+      lastYSign: null,
     };
   },
   watch: {
@@ -314,17 +317,22 @@ export default {
       if (_.isNil(this.fnSecondDerivative) || _.isNil(this.fnDerivative)) {
         return;
       }
-      const stepTolerance = 0.05;
+      // const stepTolerance = 0.05;
       //Calcolo se a questo X abbiamo un minimo o un massimo locale
       const firstDerivativeValueAtX = this.fnDerivative.evaluate({ x: x });
-      const firstDerivativeTolerance = stepTolerance; //serve questa tolleranza trovata empiricamente perchè dal punto di vista della libreria che renderizza la funzione, l'asse x è comunque discretizzato e quindi difficilmente avrà tra i suoi valori esattamente == al mio valore
+
+      const currentDerivativeSign = this.$math.sign(firstDerivativeValueAtX);
+      if (_.isNil(this.lastFirstDerivativeSign)) {
+        this.lastFirstDerivativeSign = currentDerivativeSign;
+      }
+      const hasDerivativeChangedSign =
+        this.lastFirstDerivativeSign != currentDerivativeSign;
+
+      // const firstDerivativeTolerance = stepTolerance; //serve questa tolleranza trovata empiricamente perchè dal punto di vista della libreria che renderizza la funzione, l'asse x è comunque discretizzato e quindi difficilmente avrà tra i suoi valori esattamente == al mio valore
 
       console.log("valore derivata prima " + firstDerivativeValueAtX);
 
-      if (
-        firstDerivativeValueAtX > -firstDerivativeTolerance &&
-        firstDerivativeValueAtX < firstDerivativeTolerance
-      ) {
+      if (hasDerivativeChangedSign) {
         const secondDerivativeValueAtX = this.fnSecondDerivative.evaluate({
           x: x,
         });
@@ -337,8 +345,19 @@ export default {
         console.log("valore derivata seconda " + secondDerivativeValueAtX);
       }
       //Controllo se abbiamo un'intersezione con l'asse X o Y
-      const checkXAxisIntersection = y > -stepTolerance && y < stepTolerance;
-      const checkYAxisIntersection = x > -stepTolerance && x < stepTolerance;
+      const currentYSign = this.$math.sign(y);
+      const currentXSign = this.$math.sign(x);
+      if (_.isNil(this.lastXSign)) {
+        this.lastXSign = currentXSign;
+      }
+      if (_.isNil(this.lastYSign)) {
+        this.lastYSign = currentYSign;
+      }
+      const checkXAxisIntersection = this.lastYSign != currentYSign;
+      const checkYAxisIntersection = this.lastXSign != currentXSign;
+
+      // const checkXAxisIntersection = y > -stepTolerance && y < stepTolerance;
+      // const checkYAxisIntersection = x > -stepTolerance && x < stepTolerance;
       if (checkXAxisIntersection || checkYAxisIntersection) {
         var message = "";
         if (checkXAxisIntersection) {
@@ -364,6 +383,9 @@ export default {
           }
         }
       }
+      this.lastFirstDerivativeSign = currentDerivativeSign;
+      this.lastXSign = currentXSign;
+      this.lastYSign = currentYSign;
     },
     createFnConfigObject() {
       let config = {
