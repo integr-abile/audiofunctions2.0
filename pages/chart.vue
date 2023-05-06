@@ -34,7 +34,7 @@
         "
       />
     </header>
-    <main class="h-100">
+    <main class="h-100" aria-label="Grafico della funzione">
       <ChartFunctionPlot
         v-bind="functionOptions"
         :actionRequest="functionActionRequest"

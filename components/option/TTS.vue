@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h2>Messaggi Info funzione</h2>
+    <h2>Informazioni sulla funzione</h2>
     <div class=".d-flex flex-column">
       <b-form-group>
         <b-form-checkbox-group

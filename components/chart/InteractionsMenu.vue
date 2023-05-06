@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="d-flex">
+    <div aria-label="Controlli rapidi" role="toolbar" class="d-flex">
       <div class="mr-3">
         <input
           type="checkbox"
@@ -8,10 +8,7 @@
           v-model="isFunctionInteractionModeEnabled"
         />
         <label for="enableFnCheckbox" class="sr-only"
-          >Interazione tramite tastiera
-          {{
-            this.isFunctionInteractionModeEnabled ? "abilitata" : "disabilitata"
-          }}</label
+          >Interazione con la funzione tramite tastiera</label
         >
         <label aria-hidden="true">Interazione tramite tastiera</label>
       </div>
@@ -19,8 +16,8 @@
         <input type="checkbox" id="enableTTSCheckbox" v-model="isTTSEnabled" />
         <label aria-hidden="true">Sintesi vocale web</label>
         <label for="enableTTSCheckbox" class="sr-only"
-          >Sintesi vocale web
-          {{ this.isTTSEnabled ? "abilitata" : "disabilitata" }}</label
+          >Sintesi vocale web. Se hai uno screen reader attivo disabilita questa
+          opzione per evitare una sovrapposizione di voci</label
         >
       </div>
     </div>

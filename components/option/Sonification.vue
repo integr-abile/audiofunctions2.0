@@ -28,7 +28,7 @@
           >Stato: {{ status }}</label
         >
         <label for="sonification-abilitation-check" class="sr-only">
-          Stato sonificazione: {{ status }}
+          Stato sonificazione:
         </label>
       </div>
     </div>

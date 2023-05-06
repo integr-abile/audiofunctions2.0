@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div role="toolbar" aria-label="Preferiti">
     <div class="d-flex flex-wrap justify-content-evenly">
       <div
         v-for="(item, index) in options"
