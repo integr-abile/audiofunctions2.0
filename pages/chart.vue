@@ -80,13 +80,6 @@ export default {
       messageQueueMaxCapacity: 2, //non voglio tenere in coda messaggi troppo vecchi
     };
   },
-  watch: {
-    isFnInteractionEnabled(val) {
-      if (val) {
-        this.$refs.fnPlot.setFocusOnFunction();
-      }
-    },
-  },
   created() {
     //Deserializzazione URL per configurazione iniziale
     const sessionDataSerializer = this.$sessionDataSerializer;

@@ -571,9 +571,6 @@ export default {
         // this.$soundFactory.playSample(this.$AudioSample.noYAtX);
       }
     },
-    setFocusOnFunction() {
-      this.$refs.chartarea.focus();
-    },
   },
 };
 </script>

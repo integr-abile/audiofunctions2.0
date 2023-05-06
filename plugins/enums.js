@@ -37,6 +37,11 @@ const TextToSpeechOption = {
   axisIntersections: "intersezioni-con-gli-assi",
   intervals: "intervalli-visualizzati",
 };
+const MathSymbolsStringRepresentation = {
+  "+": "più",
+  "-": "meno",
+  "\\cdot": "per",
+};
 
 export default ({ app }, inject) => {
   inject("FunctionAction", FunctionAction);
@@ -44,4 +49,5 @@ export default ({ app }, inject) => {
   inject("AudioSample", AudioSample);
   inject("TextToSpeechOption", TextToSpeechOption);
   inject("FunctionVoiceMessageFormat", FunctionVoiceMessageFormat);
+  inject("MathSymbolsStringRepresentation", MathSymbolsStringRepresentation);
 };
