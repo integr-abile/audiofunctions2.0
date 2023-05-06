@@ -1,5 +1,7 @@
 <template>
   <div>
+    <VueAnnouncer />
+    <h2 class="sr-only">Controlli rapidi</h2>
     <div aria-label="Controlli rapidi" role="toolbar" class="d-flex">
       <div class="mr-3">
         <input
@@ -53,6 +55,11 @@ export default {
       handler(newVal) {
         // console.log(`emit ${newVal}`);
         this.$emit("onFunctionInteractionModeChange", newVal);
+        this.$announcer.assertive(
+          newVal
+            ? "Ora quando esplori il grafico funzione potrai interagire con la tastiera"
+            : ""
+        );
       },
     },
     isTTSEnabled: {

@@ -140,12 +140,15 @@ export default {
         case this.$FunctionAction.beginExploration:
           this.isBatchExplorationInProgress = false;
           this.isManualExplorationInProgress = true;
+          this.canEmitEventsForSonification = true;
           this.currentFnXValue = this.currentFnXValue ?? this.domXRange[0];
           this.calculateYForXAndNotify(this.currentFnXValue);
           this.updateFunctionChart();
           break;
         case this.$FunctionAction.endExploration:
           this.isManualExplorationInProgress = false;
+          this.canEmitEventsForSonification = false;
+          this.$emit("needNotifyStatus", this.functionStatus);
           this.updateFunctionChart();
           break;
         case this.$FunctionAction.incrementStep:

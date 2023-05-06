@@ -97,16 +97,7 @@ export default {
       if (_.isEmpty(this.lastInsertedLatexFunction)) {
         this.currentToSpeakFunction = "Nessuna formula presente";
       }
-      // const repeatPrefix = "Ripeto: ";
-      // if (this.currentToSpeakFunction == this.lastSpokenFunction) {
-      //   this.currentToSpeakFunction = `${
-      //     this.lastSpokenFunction.startsWith(repeatPrefix) ? "" : repeatPrefix
-      //   }${this.lastSpokenFunction}`;
-      // }
 
-      // if (!notRead) {
-      //   this.$announcer.assertive(this.currentToSpeakFunction);
-      // }
       this.$announcer.assertive(this.currentToSpeakFunction);
       console.log(`mathexpr: ${this.currentToSpeakFunction}`);
     },

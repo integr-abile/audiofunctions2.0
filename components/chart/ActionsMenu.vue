@@ -129,7 +129,7 @@ export default {
   },
   data() {
     return {
-      isFunctionInteractionModeEnabled: false,
+      isFunctionInteractionModeEnabled: true, //default
       favoriteItems: [],
       currentCustomizableItems: [],
       favoritesBarRefreshKey: 0,

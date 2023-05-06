@@ -155,7 +155,7 @@ export default {
           identifier: "sonification",
           data: {
             availableInstruments: this.$soundFactory.getAllInstrumentsName(),
-            selectedInstrument: null,
+            selectedInstrument: "clarinet",
             isEnabled: true,
           },
           isFavorite: false,

@@ -2,11 +2,12 @@
   <div>
     <h2>Informazioni sulla funzione</h2>
     <div class=".d-flex flex-column">
-      <b-form-group>
+      <b-form-group v-slot="{ ariaDescribedby }">
         <b-form-checkbox-group
           id="tts-checks"
           v-model="currentCheckSelected"
           :options="options"
+          :aria-describedby="ariaDescribedby"
           class="mb-2"
         >
         </b-form-checkbox-group>
