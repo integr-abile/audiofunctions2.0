@@ -14,7 +14,7 @@
       >
       </b-form-input>
       <span class="mr-1 text-center">
-        <vue-mathjax :formula="formula"></vue-mathjax>
+        <vue-mathjax :formula="formula" aria-hidden="true"></vue-mathjax>
       </span>
 
       <label for="max-y-domain-value" class="sr-only"

@@ -5,6 +5,9 @@
     <div class="d-flex align-items-center">
       <vue-mathjax :formula="preFieldLabelText" class="mr-1"></vue-mathjax>
       <!-- Se sono su un elemento role application devo comunque attivarlo (premere enter) prima di iniziare a scrivere -->
+      <h3 class="sr-only">
+        Attiva la funzione (premi "Invio" su "applicazione")
+      </h3>
       <mathlive-mathfield
         ref="mathfield"
         role="application"

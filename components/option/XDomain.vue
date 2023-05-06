@@ -14,7 +14,7 @@
           v-model="xMin"
         >
         </b-form-input>
-        <vue-mathjax :formula="formula"></vue-mathjax>
+        <vue-mathjax :formula="formula" aria-hidden="true"></vue-mathjax>
 
         <label for="max-x-domain-value" class="sr-only"
           >Valore massimo di x mostrato sul grafico</label
