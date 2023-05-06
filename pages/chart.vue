@@ -75,6 +75,8 @@ export default {
       earconToNotifyObj: {},
       messageQueue: new Queue(),
       ttsMessageID: null,
+      lastTimeAMessageIsInsertedIntoQueue: null,
+      blockInsertIntoQueueTimeoutSeconds: 5,
       messageQueueMaxCapacity: 2, //non voglio tenere in coda messaggi troppo vecchi
     };
   },
@@ -338,10 +340,19 @@ export default {
         console.log(
           "function message devo leggere AT " + functionMessageEvent.message
         );
-        if (functionMessageEvent.message != this.lastPendingMessageToRead) {
+        const now = new Date();
+        if (_.isNil(this.lastTimeAMessageIsInsertedIntoQueue)) {
+          this.lastTimeAMessageIsInsertedIntoQueue = now;
+        }
+        if (
+          functionMessageEvent.message != this.lastPendingMessageToRead ||
+          (now - this.lastTimeAMessageIsInsertedIntoQueue) / 1000 >
+            this.blockInsertIntoQueueTimeoutSeconds
+        ) {
           console.log("Messo in coda " + functionMessageEvent.message);
           this.messageQueue.enqueue(functionMessageEvent.message);
           this.lastPendingMessageToRead = functionMessageEvent.message;
+          this.lastTimeAMessageIsInsertedIntoQueue = now;
         }
 
         // this.$announcer.assertive(functionMessageEvent.message);

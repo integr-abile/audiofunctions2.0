@@ -2,7 +2,7 @@
   <vue-web-speech-synth
     v-if="isEnabled"
     v-model="shouldRead"
-    :text="textToRead"
+    :text="effectiveTextToRead"
     :voice="concreteVoice"
     :rate="1"
     @list-voices="listVoices"
@@ -26,6 +26,7 @@ export default {
       shouldRead: false,
       voices: [],
       voicesAvailableForSelection: [],
+      effectiveTextToRead: "",
     };
   },
   watch: {
@@ -35,7 +36,15 @@ export default {
       }
     },
     textToRead(newText, oldText) {
-      this.shouldRead = newText != oldText;
+      if (newText == oldText) {
+        this.effectiveTextToRead = "Ripeto: " + newText;
+      } else {
+        this.effectiveTextToRead = newText;
+      }
+      this.shouldRead = true;
+      //TODO: mettere effective text to read come variabile da far leggere
+
+      // this.shouldRead = newText != oldText;
       if (this.shouldRead) {
         console.log(`devo leggere TTS ${newText}`);
       }
