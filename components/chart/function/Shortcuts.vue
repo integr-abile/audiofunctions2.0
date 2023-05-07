@@ -72,6 +72,7 @@ export default {
   data() {
     return {
       holdKeyTimer: null,
+
       // fnBatchExplorationMultipleKeys: [
       //   {
       //     keyCode: this.$KeyboardKey.b,

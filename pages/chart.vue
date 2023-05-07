@@ -386,27 +386,30 @@ export default {
     },
     startMonitoringMessageQueue() {
       console.log("inizio monitoraggio coda messaggi TTS");
-      this.ttsMessageID = setInterval(() => {
-        // console.log("controllo coda messaggi...");
-        if (this.messageQueue.isEmpty()) {
-          // console.log("la coda è vuota");
-          return;
-        }
-        const messageQueueCurrentSize = this.messageQueue.size();
-        if (messageQueueCurrentSize > this.messageQueueMaxCapacity) {
-          _.times(
-            messageQueueCurrentSize - this.messageQueueMaxCapacity,
-            () => {
-              this.messageQueue.dequeue(); //tolgo gli elementi in eccesso dalla coda a partire dal più vecchio
-            }
-          );
-        }
-        const message = this.messageQueue.dequeue();
-        this.$announcer.assertive(message);
-        if (this.isTTSEnabled) {
-          this.textToRead = message;
-        }
-      }, process.env.TEXT_TO_SPEECH_MONITOR_QUEUE_INTERVAL_MS); //TODO: rendere variabile d'ambiente
+      this.ttsMessageID = setInterval(
+        function () {
+          // console.log("controllo coda messaggi...");
+          if (this.messageQueue.isEmpty()) {
+            // console.log("la coda è vuota");
+            return;
+          }
+          const messageQueueCurrentSize = this.messageQueue.size();
+          if (messageQueueCurrentSize > this.messageQueueMaxCapacity) {
+            _.times(
+              messageQueueCurrentSize - this.messageQueueMaxCapacity,
+              () => {
+                this.messageQueue.dequeue(); //tolgo gli elementi in eccesso dalla coda a partire dal più vecchio
+              }
+            );
+          }
+          const message = this.messageQueue.dequeue();
+          this.$announcer.assertive(message);
+          if (this.isTTSEnabled) {
+            this.textToRead = message;
+          }
+        }.bind(this),
+        process.env.TEXT_TO_SPEECH_MONITOR_QUEUE_INTERVAL_MS
+      ); //TODO: rendere variabile d'ambiente
     },
   },
 };
