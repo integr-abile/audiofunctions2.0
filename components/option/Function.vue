@@ -9,6 +9,7 @@
         Attiva la funzione (premi "Invio" su "applicazione")
       </h3>
       <mathlive-mathfield
+        id="mathlive-mathfield"
         ref="mathfield"
         role="application"
         aria-label="attiva per inserire una funzione"
@@ -61,11 +62,13 @@ export default {
   },
   watch: {
     stableInputFunctionLatex(val) {
+      // debugger;
       // this.currentOptionData.fn = val;
       const { error, forFnPlotFormula } = this.validateFormula(val);
       // debugger;
       if (_.isNil(error)) {
         this.currentOptionData.fn = forFnPlotFormula;
+
         this.$emit("optionDataChange", this.currentOptionData);
       } else {
         //TODO: gestire errore facendo apparire un messaggio sotto il campo di testo della formula

@@ -13,7 +13,7 @@
           ref="chartarea"
           role="application"
           tabindex="0"
-          aria-label="area del grafico"
+          :aria-label="chartAriaLabel"
         >
           <div id="root" aria-hidden="true"></div>
         </div>
@@ -39,10 +39,25 @@ export default {
     "needNotifyMessage",
     "domainManuallyChanged",
   ],
-  props: ["fn", "actionRequest", "sonificationStep", "domXRange", "domYRange"],
+  props: [
+    "fn",
+    "actionRequest",
+    "sonificationStep",
+    "domXRange",
+    "domYRange",
+    "isKeyboardInteractionEnabled",
+    "fnAsText",
+  ],
   computed: {
     doesFunctionExists() {
       return !_.isNil(this.fn);
+    },
+    chartAriaLabel() {
+      return `area del grafico.${this.fnAsText}.${
+        this.isKeyboardInteractionEnabled
+          ? ""
+          : "L'interazione da tastiera è disabilitata. Non puoi esplorare il grafico coi comandi da tastiera"
+      }`;
     },
     functionStatus() {
       return {
@@ -134,7 +149,7 @@ export default {
         this.fnSamples
       );
     },
-    actionRequest(val) {
+    async actionRequest(val) {
       console.log(`richiesta azione ${val.requestType}`);
       switch (val.requestType) {
         case this.$FunctionAction.beginExploration:
@@ -144,6 +159,7 @@ export default {
           this.currentFnXValue = this.currentFnXValue ?? this.domXRange[0];
           this.calculateYForXAndNotify(this.currentFnXValue);
           this.updateFunctionChart();
+          await this.$soundFactory.enableSonifier();
           break;
         case this.$FunctionAction.endExploration:
           this.isManualExplorationInProgress = false;
@@ -235,6 +251,7 @@ export default {
             } else {
               clearTimeout(this.batchSonificationTimer);
               this.isBatchExplorationInProgress = false;
+              this.canEmitEventsForSonification = false;
               this.updateFunctionChart();
               this.$emit("needNotifyStatus", this.functionStatus);
               this.$emit("needPlayEarcon", {

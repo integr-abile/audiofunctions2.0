@@ -18,6 +18,7 @@ const KeyboardKey = {
   x: 88,
   y: 89,
   i: 73,
+  c: 67,
 };
 const AudioSample = {
   noYAtX: "/audio/no_y.mp3",

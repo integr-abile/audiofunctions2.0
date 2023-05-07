@@ -18,6 +18,7 @@
     />
     <header>
       <ChartActionsMenu
+        ref="actionMenu"
         :customizableItems="initialConfiguration"
         :initialIsTTSEnabled="isTTSEnabled"
         @saveChanges="onOptionsChangesSaved"
@@ -34,10 +35,17 @@
         "
       />
     </header>
-    <main class="h-100" aria-label="Grafico della funzione">
+    <main
+      class="h-100"
+      aria-label="Grafico della funzione"
+      tabindex="0"
+      @focus="requestFnAsText"
+    >
       <ChartFunctionPlot
         v-bind="functionOptions"
         :actionRequest="functionActionRequest"
+        :isKeyboardInteractionEnabled="isFnInteractionEnabled"
+        :fnAsText="fnTextRepresentation"
         id="fnPlot"
         ref="fnPlot"
         class="h-100"
@@ -66,9 +74,10 @@ export default {
       currentConfiguration: [],
       functionActionRequest: null, //oggetto del tipo {requestType: enum, repetition: 1}
       ttsOptions: null, //oggetto di configurazione che dice cosa può dire e quando il TTS
-      isTTSEnabled: true,
+      isTTSEnabled: true, //questa variabile dev'essere mantenuta sincronizzata con quella nell'interaction bar come valore di default
+      fnTextRepresentation: "",
       availableTTSVoices: [],
-      isFnInteractionEnabled: false,
+      isFnInteractionEnabled: true, //questa variabile dev'essere mantenuta sincronizzata con quella nell'interaction bar come valore di default
       lastFunctionActionRequestType: null,
       functionSonificationData: {},
       functionSonificationOptions: {},
@@ -81,6 +90,8 @@ export default {
     };
   },
   created() {
+    window.addEventListener("keydown", this.handleEvent);
+    window.addEventListener("mousedown", this.handleEvent);
     //Deserializzazione URL per configurazione iniziale
     const sessionDataSerializer = this.$sessionDataSerializer;
     this.startMonitoringMessageQueue();
@@ -99,8 +110,12 @@ export default {
       alert(e.message);
     }
   },
-  async mounted() {
-    this.isSonificationEnabled = await this.$soundFactory.enableSonifier();
+  destroyed() {
+    window.removeEventListener("keydown", this.handleEvent);
+    window.removeEventListener("mousedown", this.handleEvent);
+  },
+  mounted() {
+    this.isSonificationEnabled = true;
   },
   watch: {
     initialConfiguration(val) {
@@ -187,8 +202,20 @@ export default {
     },
   },
   methods: {
-    focusFunction() {
-      this.$refs.fnPlot.focus();
+    requestFnAsText() {
+      // debugger;
+      this.fnTextRepresentation = document
+        .getElementById("mathlive-mathfield")
+        .getValue("spoken-text");
+      console.log(
+        "richiedo formula parlata " +
+          document.getElementById("mathlive-mathfield").getValue("spoken-text")
+      );
+    },
+    async handleEvent(evt) {
+      if (!this.$soundFactory.isToneEngineStarted()) {
+        this.$soundFactory.enableSonifier();
+      }
     },
     onVoicesLoaded(voices) {
       console.log("Caricamento voci completato");
@@ -269,6 +296,9 @@ export default {
         fn: _.isNil(functionData)
           ? this.functionOptions.fn
           : functionData.data.fn,
+        fnAsText: _.isNil(functionData)
+          ? this.functionOptions.fnAsText
+          : functionData.data.fnAsText,
         sonificationStep: _.isNil(xDomainData)
           ? this.functionOptions.sonificationStep
           : parseInt(xDomainData.data.step),
