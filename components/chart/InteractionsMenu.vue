@@ -1,17 +1,26 @@
 <template>
   <div>
-    <div class="d-flex">
+    <VueAnnouncer />
+    <h2 class="sr-only">Controlli rapidi</h2>
+    <div aria-label="Controlli rapidi" role="toolbar" class="d-flex">
       <div class="mr-3">
         <input
           type="checkbox"
           id="enableFnCheckbox"
           v-model="isFunctionInteractionModeEnabled"
         />
-        <label for="enableFnCheckbox">Interazione tramite tastiera</label>
+        <label for="enableFnCheckbox" class="sr-only"
+          >Interazione con la funzione tramite tastiera</label
+        >
+        <label aria-hidden="true">Interazione tramite tastiera</label>
       </div>
       <div>
         <input type="checkbox" id="enableTTSCheckbox" v-model="isTTSEnabled" />
-        <label for="enableTTSCheckbox">Sintesi vocale web</label>
+        <label aria-hidden="true">Sintesi vocale web</label>
+        <label for="enableTTSCheckbox" class="sr-only"
+          >Sintesi vocale web. Se hai uno screen reader attivo disabilita questa
+          opzione per evitare una sovrapposizione di voci</label
+        >
       </div>
     </div>
   </div>
@@ -46,6 +55,11 @@ export default {
       handler(newVal) {
         // console.log(`emit ${newVal}`);
         this.$emit("onFunctionInteractionModeChange", newVal);
+        this.$announcer.assertive(
+          newVal
+            ? "Ora quando esplori il grafico funzione potrai interagire con la tastiera"
+            : ""
+        );
       },
     },
     isTTSEnabled: {

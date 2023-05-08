@@ -4,26 +4,24 @@
     <b-form>
       <div class="d-flex mb-2">
         <label for="min-x-domain-value" class="sr-only"
-          >valore minimo di X mostrato sul grafico</label
+          >Valore minimo di x mostrato sul grafico</label
         >
         <b-form-input
           id="min-x-domain-value"
           class="mr-1"
           type="number"
-          placeholder="0"
           style="width: 80px"
           v-model="xMin"
         >
         </b-form-input>
-        <vue-mathjax :formula="formula"></vue-mathjax>
+        <vue-mathjax :formula="formula" aria-hidden="true"></vue-mathjax>
 
-        <label for="min-x-domain-value" class="sr-only"
-          >valore massimo di X mostrato sul grafico</label
+        <label for="max-x-domain-value" class="sr-only"
+          >Valore massimo di x mostrato sul grafico</label
         >
         <b-form-input
-          id="min-x-domain-value"
+          id="max-x-domain-value"
           type="number"
-          placeholder="0"
           style="width: 80px"
           v-model="xMax"
         >
@@ -38,7 +36,6 @@
         <b-form-input
           id="step"
           type="number"
-          placeholder="0"
           style="width: 80px"
           v-model="step"
         ></b-form-input>
@@ -55,7 +52,7 @@ export default {
   },
   data() {
     return {
-      formula: "$$<= x <=$$",
+      formula: "$$\\le x \\le$$",
       currentOptionData: {},
       xMin: "",
       xMax: "",

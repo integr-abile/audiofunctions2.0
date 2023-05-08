@@ -181,6 +181,9 @@ export default ({ app }, inject) => {
       await Tone.start();
       return true;
     }
+    isToneEngineStarted() {
+      return Tone.context.state === "running";
+    }
 
     getInstrumentTypeFrom(instrumentId) {
       return this.getInstrumentFrom(instrumentId).instrumentType;

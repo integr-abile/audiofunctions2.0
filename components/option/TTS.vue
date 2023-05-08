@@ -1,12 +1,13 @@
 <template>
   <div>
-    <h2>Messaggi Info funzione</h2>
+    <h2>Informazioni sulla funzione</h2>
     <div class=".d-flex flex-column">
-      <b-form-group>
+      <b-form-group v-slot="{ ariaDescribedby }">
         <b-form-checkbox-group
           id="tts-checks"
           v-model="currentCheckSelected"
           :options="options"
+          :aria-describedby="ariaDescribedby"
           class="mb-2"
         >
         </b-form-checkbox-group>
@@ -52,7 +53,9 @@ export default {
     currentCheckSelected(val) {
       //reset
       _.forEach(this.currentOptionData.speechPermissions, function (item) {
-        item.canPlayAutomatically = false;
+        if (_.has(item, "canPlayAutomatically")) {
+          item.canPlayAutomatically = false;
+        }
       });
       //set in base ai nuovi valori
       _.forEach(
@@ -65,9 +68,16 @@ export default {
               identifier: selectedId,
             }
           );
-          this.currentOptionData.speechPermissions[
-            idxToSet
-          ].canPlayAutomatically = true;
+          if (
+            _.has(
+              this.currentOptionData.speechPermissions[idxToSet],
+              "canPlayAutomatically"
+            )
+          ) {
+            this.currentOptionData.speechPermissions[
+              idxToSet
+            ].canPlayAutomatically = true;
+          }
         }.bind(this)
       );
       this.$emit("optionDataChange", this.currentOptionData);

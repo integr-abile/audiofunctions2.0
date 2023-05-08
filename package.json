@@ -9,26 +9,29 @@
     "generate": "nuxt generate"
   },
   "dependencies": {
-    "@datastructures-js/queue": "^4.2.3",
     "@vue-a11y/announcer": "^2.1.0",
     "bootstrap-vue": "^2.23.1",
     "core-js": "^3.25.3",
+    "escape-latex": "^1.2.0",
     "format-unicorn": "^1.1.1",
     "function-plot": "^1.23.2",
+    "interval-arithmetic-eval": "^0.5.1",
     "lodash": "^4.17.21",
+    "math-expressions": "^2.0.0-alpha60",
     "mathjs": "^11.8.0",
     "mathlive": "^0.86.0",
     "nuxt": "^2.15.8",
+    "queue-fifo": "^0.2.6",
     "text-diff": "^1.0.1",
     "tone": "^14.7.77",
     "vue": "^2.7.10",
+    "vue-clipboard2": "^0.3.3",
     "vue-keypress": "^2.1.2",
     "vue-mathjax": "^0.1.1",
     "vue-resize": "^1.0.1",
     "vue-server-renderer": "^2.7.10",
     "vue-shortkey": "^3.1.7",
-    "vue-template-compiler": "^2.7.10",
-    "vue-web-speech": "^0.2.3"
+    "vue-template-compiler": "^2.7.10"
   },
   "devDependencies": {
     "postcss": "^8.4.17",

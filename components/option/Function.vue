@@ -4,12 +4,22 @@
     <h2>Funzione</h2>
     <div class="d-flex align-items-center">
       <vue-mathjax :formula="preFieldLabelText" class="mr-1"></vue-mathjax>
+      <!-- Se sono su un elemento role application devo comunque attivarlo (premere enter) prima di iniziare a scrivere -->
+      <h3 class="sr-only">
+        Attiva la funzione (premi "Invio" su "applicazione")
+      </h3>
       <mathlive-mathfield
+        id="mathlive-mathfield"
         ref="mathfield"
-        role="presentation"
+        role="application"
+        aria-label="attiva per inserire una funzione"
         :options="{
           virtualKeyboardMode: 'manual',
+          virtualKeyboards: 'numeric',
           keypressSound: 'none',
+          smartFence: false,
+          smartMode: false,
+          mode: 'math',
         }"
         :value="stableInputFunctionLatex"
         class="border w-100"
@@ -39,11 +49,12 @@ export default {
       preFieldLabelText: "$$f(x) = $$",
       stableInputFunctionLatex: "",
       lastInsertedLatexFunction: "",
+      currentToSpeakFunction: "",
       currentOptionData: {},
       readMathKeys: [
         {
           keyCode: 81, //Q
-          modifiers: ["ctrlKey, shiftKey"],
+          modifiers: ["ctrlKey", "shiftKey"],
           preventDefault: true,
         },
       ],
@@ -51,65 +62,88 @@ export default {
   },
   watch: {
     stableInputFunctionLatex(val) {
-      this.currentOptionData.fn = val;
-      this.$emit("optionDataChange", this.currentOptionData);
+      // debugger;
+      // this.currentOptionData.fn = val;
+      const { error, forFnPlotFormula } = this.validateFormula(val);
+      // debugger;
+      if (_.isNil(error)) {
+        this.currentOptionData.fn = forFnPlotFormula;
+
+        this.$emit("optionDataChange", this.currentOptionData);
+      } else {
+        //TODO: gestire errore facendo apparire un messaggio sotto il campo di testo della formula
+      }
     },
   },
   components: {
     Keypress: () => import("vue-keypress"),
   },
   mounted() {
-    this.updateOptionData(this.optionData);
     this.setupMathField();
+    this.updateOptionData(this.optionData);
   },
   methods: {
     updateOptionData(currentValues) {
       this.currentOptionData = currentValues;
-      this.stableInputFunctionLatex = `${currentValues.fn}`;
+      const latexFormula = this.$functionValidator.toLatex(currentValues.fn); //fn dev'essere in formato interval-arithmetic
+      this.stableInputFunctionLatex = latexFormula;
+      this.lastInsertedLatexFunction = this.stableInputFunctionLatex;
+    },
+    validateFormula(latexFormula) {
+      return this.$functionValidator.validate(latexFormula);
     },
     readMathExpression(event, notRead = false) {
-      // debugger;
-      const formula = this.$refs.mathfield.getValue("spoken-text");
-      const repeatPrefix = "Ripeto: ";
-      var toRead = formula;
-      if (_.isEmpty(toRead)) {
-        toRead = "Nessuna formula presente";
+      if (_.isEmpty(this.currentToSpeakFunction)) {
+        this.currentToSpeakFunction =
+          this.$refs.mathfield.getValue("spoken-text");
+      }
+      if (_.isEmpty(this.lastInsertedLatexFunction)) {
+        this.currentToSpeakFunction = "Nessuna formula presente";
       }
 
-      if (notRead) {
-        return toRead;
-      }
-
-      if (formula === this.lastA11ySpokenFormulaText) {
-        toRead = `${
-          this.lastA11yCompleteSpokenFormulaText.startsWith(repeatPrefix)
-            ? ""
-            : repeatPrefix
-        }${toRead}`;
-      }
-      this.lastA11yCompleteSpokenFormulaText = toRead;
-      this.lastA11ySpokenFormulaText = formula;
-      this.$announcer.assertive(`${toRead}`);
-      // this.$announcer.polite("");
-      console.log(`mathexpr: ${toRead}`);
+      this.$announcer.assertive(this.currentToSpeakFunction);
+      console.log(`mathexpr: ${this.currentToSpeakFunction}`);
     },
     setupMathField() {
       const mathField = this.$refs.mathfield.$el;
       mathField.addEventListener("change", (evt) => {
         //Return o enter premuto
+        this.lastInsertedLatexFunction = evt.target.value;
         this.stableInputFunctionLatex = this.lastInsertedLatexFunction;
         console.log(`focus-out. Latex: ${evt.target.value}`);
       });
-
+      mathField.addEventListener("beforeinput", (evt) => {
+        if (evt.target.value === "" && evt.inputType != "insertText") {
+          console.log(
+            "il campo è già vuoto. Ignoro cancellazione per evento " +
+              evt.inputType
+          );
+          evt.preventDefault(); //necessario questo listener per via di un bug di mathfield nel quale se cerco di cancellare e il campo è già vuoto, il componente crasha
+        }
+      });
+      //Math shortcut: https://cortexjs.io/mathlive/reference/keybindings/
+      mathField.addEventListener(
+        "keydown",
+        (evt) => {
+          if (evt.key === "\\" || evt.key === "Escape") {
+            evt.preventDefault();
+          }
+        },
+        { capture: true }
+      );
       mathField.addEventListener("input", (evt) => {
+        // console.log("inserito char math");
+        // debugger;
         // const locale = evt.target.getOptions("locale");
         if (evt.inputType == "insertText") {
           this.lastInsertedLatexFunction = evt.target.value;
           const insertedChar = evt.data;
           console.log(insertedChar);
-          this.$announcer.assertive(`inserito ${insertedChar}`);
+          this.$announcer.assertive(`${insertedChar}`);
         } else if (evt.inputType == "deleteContentBackward") {
+          // console.log("cancellato");
           const latexAfterDeletion = evt.target.value;
+
           const diff = new Diff();
           const textDiff = diff.main(
             this.lastInsertedLatexFunction,
@@ -126,23 +160,25 @@ export default {
 
         // this.stableInputFunctionLatex = evt.target.value;
         // console.log("Locale:", locale);
-        console.log(`direi ${evt.target.getValue("spoken-text")}`);
-
+        const spokenFormula = evt.target.getValue("spoken-text");
+        console.log(`direi ${spokenFormula}`);
+        this.currentToSpeakFunction = spokenFormula;
         // evt.target.executeCommand("speak");
       });
 
       mathField.addEventListener("focus-out", (evt) => {
         //Quando col tab lascio il campo di input
+        this.lastInsertedLatexFunction = evt.target.value;
         this.stableInputFunctionLatex = this.lastInsertedLatexFunction;
         console.log(`focus-out. Latex: ${evt.target.value}`);
         this.$announcer.assertive("");
       });
       mathField.addEventListener("focus", (evt) => {
         console.log("focused");
-        const formulaToRead = this.readMathExpression(evt, true);
-        this.$announcer.assertive(
-          `Formula attuale: ${formulaToRead}. Campo di input della formula matematica. Scrivi una formula`
-        );
+        // const formulaToRead = this.readMathExpression(evt, true);
+        // this.$announcer.assertive(
+        //   `Formula attuale: ${formulaToRead}. Campo di input della formula matematica. Scrivi una formula`
+        // );
       });
     },
   },

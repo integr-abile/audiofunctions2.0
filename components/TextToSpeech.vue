@@ -1,11 +1,15 @@
-<template>
+<!-- <template>
   <vue-web-speech-synth
     v-if="isEnabled"
     v-model="shouldRead"
-    :text="textToRead"
+    :text="effectiveTextToRead"
     :voice="concreteVoice"
+    :rate="1"
     @list-voices="listVoices"
   />
+</template> -->
+<template>
+  <div></div>
 </template>
 
 <script>
@@ -22,22 +26,40 @@ export default {
   },
   data() {
     return {
-      shouldRead: false,
+      synth: window.speechSynthesis,
       voices: [],
       voicesAvailableForSelection: [],
+      utteraceToRead: new window.SpeechSynthesisUtterance(),
     };
   },
+  // mounted() {
+  // debugger;
+  // this.voices = this.synth.getVoices();
+  // this.voicesAvailableForSelection = _.filter(this.voices, function (voice) {
+  //   if (this.lang === null) {
+  //     return true;
+  //   }
+  //   return voice.lang === this.lang;
+  // });
+  // },
   watch: {
-    lang(newLang, oldLang) {
-      if (newLang != oldLang) {
-        this.voicesAvailableForSelection = _.filter(collection, predicate);
-      }
-    },
-    textToRead(newText, oldText) {
-      this.shouldRead = newText != oldText;
-      if (this.shouldRead) {
-        console.log(`devo leggere TTS ${newText}`);
-      }
+    // lang(newLang, oldLang) {
+    //   if (newLang != oldLang) {
+    //     this.voicesAvailableForSelection = _.filter(collection, predicate);
+    //   }
+    // },
+    textToRead(newText) {
+      // if (newText == oldText) {
+      //   this.effectiveTextToRead = "Ripeto: " + newText;
+      // } else {
+      //   this.effectiveTextToRead = newText;
+      // }
+      // this.shouldRead = true;
+
+      // this.shouldRead = newText != oldText;
+
+      console.log(`devo leggere TTS ${newText}`);
+      this.speak(newText);
     },
     voicesAvailableForSelection(newVoices) {
       this.$emit("onVoicesLoaded", newVoices);
@@ -46,7 +68,11 @@ export default {
   computed: {
     concreteVoice() {
       if (_.isNil(this.voice)) {
-        return null;
+        if (_.isEmpty(this.availableVoicesDescription)) {
+          return null;
+        } else {
+          return _.head(this.voicesAvailableForSelection);
+        }
       }
       return this.voicesAvailableForSelection[
         this.availableVoicesDescription.indexOf(this.voice)
@@ -61,18 +87,41 @@ export default {
   },
 
   methods: {
-    listVoices(list) {
-      this.voices = list;
+    speak(text) {
+      this.utteraceToRead.text = text;
+      this.utteraceToRead.voice = this.concreteVoice;
+      this.synth.speak(this.utteraceToRead);
+    },
+    getVoicesIfNeeded() {
+      if (!_.isEmpty(this.voices)) {
+        return;
+      }
+      this.fetchVoices();
+    },
+    fetchVoices() {
+      this.voices = this.synth.getVoices();
       this.voicesAvailableForSelection = _.filter(
         this.voices,
         function (voice) {
-          if (this.lang === null) {
+          if (_.isNil(this.lang)) {
             return true;
           }
           return voice.lang === this.lang;
-        }.bind(this) //necessario bindare il this all'istanza vue, se no da dentro la cbk si perde il this
+        }.bind(this)
       );
     },
+    // listVoices(list) {
+    //   this.voices = list;
+    //   this.voicesAvailableForSelection = _.filter(
+    //     this.voices,
+    //     function (voice) {
+    //       if (this.lang === null) {
+    //         return true;
+    //       }
+    //       return voice.lang === this.lang;
+    //     }.bind(this) //necessario bindare il this all'istanza vue, se no da dentro la cbk si perde il this
+    //   );
+    // },
   },
 };
 </script>

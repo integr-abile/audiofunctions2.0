@@ -3,6 +3,7 @@
     <div class="d-flex align-items-center w-100 mb-2">
       <b-button v-b-toggle.options-sidebar>Opzioni</b-button>
       <ChartOptionsSidebar
+        ref="chartOptionsSidebar"
         sidebar-id="options-sidebar"
         :customizableOptions="currentCustomizableItems"
         :mapTypeComponent="mapTypeComponent"
@@ -24,12 +25,28 @@
           <b-button
             variant="outline-secondary"
             size="sm"
+            aria-label="Copia formula latex"
             title="Copia formula latex"
+            v-clipboard:copy="currentFunctionLatex"
+            v-clipboard:success="onCopy"
+            v-clipboard:error="onCopyError"
           >
             <b-icon-files></b-icon-files>
           </b-button>
         </div>
       </div>
+      <!-- Area alert-->
+      <b-alert
+        v-model="showCopyAlert"
+        :variant="lastCopyFunctionSuccess ? 'success' : 'danger'"
+        dismissible
+        aria-live="polite"
+        aria-atomic="true"
+      >
+        {{
+          this.lastCopyFunctionSuccess ? "Copiato" : "Errore durante la copia"
+        }}
+      </b-alert>
       <div class="d-flex justify-content-end">
         <div class="d-grid gap-3">
           <!-- TODO: gestire popup istruzioni e keymap-->
@@ -60,6 +77,7 @@
       v-if="favoriteItems.length > 0"
       :options="sortedFavorites"
       :mapTypeComponent="mapTypeComponent"
+      @saveChanges="handleSaveFromFavoritesBar"
     />
     <ChartFunctionShortcuts
       :isFunctionInteractionEnabled="isFunctionInteractionModeEnabled"
@@ -83,6 +101,7 @@ export default {
     "userInteraction",
     "ttsEnableStatusChange",
     "functionInteractionEnableStatusChange",
+    "customizableItemsConfigurationChange",
   ],
   props: {
     customizableItems: {
@@ -110,11 +129,14 @@ export default {
   },
   data() {
     return {
-      isFunctionInteractionModeEnabled: false,
+      isFunctionInteractionModeEnabled: true, //default
       favoriteItems: [],
       currentCustomizableItems: [],
       favoritesBarRefreshKey: 0,
-      currentFunctionLatex: "$$f(x) = \\frac{3}{4}$$",
+      currentFunctionLatex: "$$f(x) = $$",
+      currentFunctionIntervalArith: null,
+      lastCopyFunctionSuccess: false,
+      showCopyAlert: false,
     };
   },
   watch: {
@@ -123,6 +145,15 @@ export default {
     },
     customizableItems(val) {
       this.updateCurrentCustomizableItems(val);
+    },
+    currentCustomizableItems(val) {
+      this.$emit("customizableItemsConfigurationChange", val);
+    },
+    currentFunctionIntervalArith(val) {
+      this.currentFunctionLatex =
+        "$$f(x) = " +
+        this.$functionValidator.toLatex(this.currentFunctionIntervalArith) +
+        "$$";
     },
   },
   created() {
@@ -136,6 +167,25 @@ export default {
       this.favoriteItems = _.filter(this.currentCustomizableItems, {
         isFavorite: true,
       });
+      const functionData = _.head(
+        _.filter(newConfiguration, function (item) {
+          return item.identifier == "function";
+        })
+      );
+      this.currentFunctionIntervalArith = functionData.data.fn;
+    },
+    handleSaveFromFavoritesBar() {
+      this.$refs.chartOptionsSidebar.saveAll();
+    },
+    onCopy(evt) {
+      this.lastCopyFunctionSuccess = true;
+      this.showCopyAlert = true;
+      console.log("copia ok " + evt.text);
+    },
+    onCopyError(evt) {
+      this.lastCopyFunctionSuccess = false;
+      this.showCopyAlert = true;
+      console.error("errore copia");
     },
     handleSaveChanges(optionIdentifiers) {
       console.log(`handleSaveChanges for ${optionIdentifiers}`);
@@ -145,6 +195,7 @@ export default {
           return _.includes(optionIdentifiers, item.identifier);
         }
       );
+      this.updateCurrentCustomizableItems(this.currentCustomizableItems);
       this.$emit(
         "saveChanges",
         _.map(itemsSaved, function (obj) {

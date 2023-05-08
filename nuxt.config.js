@@ -7,16 +7,16 @@ export default {
   },
   env: {
     SONIFICATION_MIN_TICK_TIME_SECONDS: 0.2, //TODO: valutare bene questo numero. lower bound per non andare incontro principio di indeterminazione tonale
-    SONIFICATION_BATCH_SONIFICATION_TIME_SECONDS: 1, //TODO: valutare bene questo numero. lower bound per non andare incontro principio di indeterminazione tonale
+    SONIFICATION_BATCH_SONIFICATION_TIME_SECONDS: 10, //TODO: valutare bene questo numero. lower bound per non andare incontro principio di indeterminazione tonale
     INTERACTION_SONIFICATION_HOLD_KEY_TICK_TIME_SECONDS: 1,
-    TEXT_TO_SPEECH_MONITOR_QUEUE_INTERVAL_MS: 300,
+    TEXT_TO_SPEECH_MONITOR_QUEUE_INTERVAL_MS: 100,
   },
 
   // Global page headers: https://go.nuxtjs.dev/config-head
   head: {
-    title: "af20",
+    title: "AudioFunctions 2.0",
     htmlAttrs: {
-      lang: "en",
+      lang: "it-IT",
     },
     meta: [
       { charset: "utf-8" },
@@ -37,18 +37,16 @@ export default {
 
   // Plugins to run before rendering page: https://go.nuxtjs.dev/config-plugins
   plugins: [
-    // "~/plugins/vue-speech.js",
-    /*{ src: "~/plugins/chart.js", ssr: false }*/
-    { src: "~/plugins/vue-speech.js", mode: "client" },
     { src: "~/plugins/vue-resize.js", mode: "client" },
     { src: "~/plugins/mathlive-input.js", mode: "client" },
     { src: "~/plugins/vue-a11y-announcer.js", mode: "client" },
-    { src: "~/plugins/validate-function.mjs", mode: "client" },
+    { src: "~/plugins/validate-function.js", mode: "client" },
     { src: "~/plugins/enums.js", mode: "client" },
     { src: "~/plugins/session-data-serializer.js", mode: "client" },
     { src: "~/plugins/sound.js", mode: "client" },
     { src: "~/plugins/math.js", mode: "client" },
     { src: "~/plugins/vue-shortkey.js", mode: "client" },
+    { src: "~/plugins/vue-clipboard.js", mode: "client" },
     { src: "~/plugins/vue-mathjax.js", mode: "client" },
 
     // { src: "~/plugins/vue-keypress.js" },

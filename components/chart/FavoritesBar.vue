@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div role="toolbar" aria-label="Preferiti">
     <div class="d-flex flex-wrap justify-content-evenly">
       <div
         v-for="(item, index) in options"
@@ -14,12 +14,16 @@
           :optionIdentifier="item.identifier"
         />
       </div>
+      <div class="d-flex align-items-center">
+        <b-button @click="(evtData) => $emit('saveChanges')">Salva</b-button>
+      </div>
     </div>
   </div>
 </template>
 
 <script>
 export default {
+  emits: ["saveChanges"],
   props: {
     options: {
       type: Array,

@@ -13,7 +13,7 @@
           ref="chartarea"
           role="application"
           tabindex="0"
-          aria-label="area del grafico"
+          :aria-label="chartAriaLabel"
         >
           <div id="root" aria-hidden="true"></div>
         </div>
@@ -39,10 +39,25 @@ export default {
     "needNotifyMessage",
     "domainManuallyChanged",
   ],
-  props: ["fn", "actionRequest", "sonificationStep", "domXRange", "domYRange"],
+  props: [
+    "fn",
+    "actionRequest",
+    "sonificationStep",
+    "domXRange",
+    "domYRange",
+    "isKeyboardInteractionEnabled",
+    "fnAsText",
+  ],
   computed: {
     doesFunctionExists() {
       return !_.isNil(this.fn);
+    },
+    chartAriaLabel() {
+      return `area del grafico.${this.fnAsText}.${
+        this.isKeyboardInteractionEnabled
+          ? ""
+          : "L'interazione da tastiera è disabilitata. Non puoi esplorare il grafico coi comandi da tastiera"
+      }`;
     },
     functionStatus() {
       return {
@@ -94,6 +109,9 @@ export default {
       currentEarconToPlay: null,
       explorationIndicatorColor: "#e86432", //rossiccio
       pendingUserInteractionTimer: null,
+      lastFirstDerivativeSign: null,
+      lastXSign: null,
+      lastYSign: null,
     };
   },
   watch: {
@@ -131,18 +149,22 @@ export default {
         this.fnSamples
       );
     },
-    actionRequest(val) {
+    async actionRequest(val) {
       console.log(`richiesta azione ${val.requestType}`);
       switch (val.requestType) {
         case this.$FunctionAction.beginExploration:
           this.isBatchExplorationInProgress = false;
           this.isManualExplorationInProgress = true;
+          this.canEmitEventsForSonification = true;
           this.currentFnXValue = this.currentFnXValue ?? this.domXRange[0];
-          this.calculateYForXAndNotify(this.currentFnXValue);
           this.updateFunctionChart();
+          this.calculateYForXAndNotify(this.currentFnXValue);
+          await this.$soundFactory.enableSonifier();
           break;
         case this.$FunctionAction.endExploration:
           this.isManualExplorationInProgress = false;
+          this.canEmitEventsForSonification = false;
+          this.$emit("needNotifyStatus", this.functionStatus);
           this.updateFunctionChart();
           break;
         case this.$FunctionAction.incrementStep:
@@ -221,7 +243,9 @@ export default {
             ) {
               this.calculateYForXAndNotify(this.currentFnXValue);
               this.updateFunctionChart();
+
               this.currentFnXValue += this.sonificationStep;
+
               this.batchSonificationTimer = setTimeout(
                 sonifyTick,
                 notificationIntervalTimeSeconds * 1000
@@ -229,6 +253,7 @@ export default {
             } else {
               clearTimeout(this.batchSonificationTimer);
               this.isBatchExplorationInProgress = false;
+              this.canEmitEventsForSonification = false;
               this.updateFunctionChart();
               this.$emit("needNotifyStatus", this.functionStatus);
               this.$emit("needPlayEarcon", {
@@ -266,6 +291,12 @@ export default {
               min: this.domYRange[0],
               max: this.domYRange[1],
             })
+          );
+          break;
+        case this.$FunctionAction.readCurrentExpression:
+          this.notifyTextMessage(
+            this.$TextToSpeechOption.currentFunction,
+            this.fnAsText
           );
           break;
         default:
@@ -314,17 +345,22 @@ export default {
       if (_.isNil(this.fnSecondDerivative) || _.isNil(this.fnDerivative)) {
         return;
       }
-      const stepTolerance = 0.05;
+      // const stepTolerance = 0.05;
       //Calcolo se a questo X abbiamo un minimo o un massimo locale
       const firstDerivativeValueAtX = this.fnDerivative.evaluate({ x: x });
-      const firstDerivativeTolerance = stepTolerance; //serve questa tolleranza trovata empiricamente perchè dal punto di vista della libreria che renderizza la funzione, l'asse x è comunque discretizzato e quindi difficilmente avrà tra i suoi valori esattamente == al mio valore
 
-      // console.log("valore derivata prima " + firstDerivativeValueAtX);
+      const currentDerivativeSign = this.$math.sign(firstDerivativeValueAtX);
+      if (_.isNil(this.lastFirstDerivativeSign)) {
+        this.lastFirstDerivativeSign = currentDerivativeSign;
+      }
+      const hasDerivativeChangedSign =
+        this.lastFirstDerivativeSign != currentDerivativeSign;
 
-      if (
-        firstDerivativeValueAtX > -firstDerivativeTolerance &&
-        firstDerivativeValueAtX < firstDerivativeTolerance
-      ) {
+      // const firstDerivativeTolerance = stepTolerance; //serve questa tolleranza trovata empiricamente perchè dal punto di vista della libreria che renderizza la funzione, l'asse x è comunque discretizzato e quindi difficilmente avrà tra i suoi valori esattamente == al mio valore
+
+      console.log("valore derivata prima " + firstDerivativeValueAtX);
+
+      if (hasDerivativeChangedSign) {
         const secondDerivativeValueAtX = this.fnSecondDerivative.evaluate({
           x: x,
         });
@@ -337,8 +373,19 @@ export default {
         console.log("valore derivata seconda " + secondDerivativeValueAtX);
       }
       //Controllo se abbiamo un'intersezione con l'asse X o Y
-      const checkXAxisIntersection = y > -stepTolerance && y < stepTolerance;
-      const checkYAxisIntersection = x > -stepTolerance && x < stepTolerance;
+      const currentYSign = this.$math.sign(y);
+      const currentXSign = this.$math.sign(x);
+      if (_.isNil(this.lastXSign)) {
+        this.lastXSign = currentXSign;
+      }
+      if (_.isNil(this.lastYSign)) {
+        this.lastYSign = currentYSign;
+      }
+      const checkXAxisIntersection = this.lastYSign != currentYSign;
+      const checkYAxisIntersection = this.lastXSign != currentXSign;
+
+      // const checkXAxisIntersection = y > -stepTolerance && y < stepTolerance;
+      // const checkYAxisIntersection = x > -stepTolerance && x < stepTolerance;
       if (checkXAxisIntersection || checkYAxisIntersection) {
         var message = "";
         if (checkXAxisIntersection) {
@@ -364,6 +411,9 @@ export default {
           }
         }
       }
+      this.lastFirstDerivativeSign = currentDerivativeSign;
+      this.lastXSign = currentXSign;
+      this.lastYSign = currentYSign;
     },
     createFnConfigObject() {
       let config = {
@@ -385,6 +435,8 @@ export default {
         grid: true,
         data: [
           {
+            // force the use of builtIn math, altrimenti su funzioni definite con function(scope) salta tutto
+            graphType: "polyline",
             fn: this.fn,
             nSamples: this.fnSamples,
             derivative: {
@@ -546,9 +598,6 @@ export default {
         });
         // this.$soundFactory.playSample(this.$AudioSample.noYAtX);
       }
-    },
-    setFocusOnFunction() {
-      this.$refs.chartarea.focus();
     },
   },
 };

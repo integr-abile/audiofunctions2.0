@@ -20,11 +20,7 @@
       </div>
     </div>
     <div class="d-flex justify-content-end">
-      <b-button
-        size="sm"
-        @click="(evtData) => $emit('saveChanges', [this.optionIdentifier])"
-        >Applica</b-button
-      >
+      <b-button size="sm" @click="salvaModifiche">Applica</b-button>
     </div>
   </div>
 </template>
@@ -78,6 +74,9 @@ export default {
         isFavorite: this.isFavorite,
         optionIdentifier: this.optionIdentifier,
       });
+    },
+    salvaModifiche() {
+      this.$emit("saveChanges", [this.optionIdentifier]);
     },
   },
 };

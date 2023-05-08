@@ -10,6 +10,7 @@
       :earconObj="earconToNotifyObj"
     />
     <TextToSpeech
+      ref="tts"
       v-bind="ttsOptions"
       :isEnabled="isTTSEnabled"
       :text-to-read="textToRead"
@@ -18,6 +19,7 @@
     />
     <header>
       <ChartActionsMenu
+        ref="actionMenu"
         :customizableItems="initialConfiguration"
         :initialIsTTSEnabled="isTTSEnabled"
         @saveChanges="onOptionsChangesSaved"
@@ -29,12 +31,22 @@
           (isFunctionInteractionEnabled) =>
             (isFnInteractionEnabled = isFunctionInteractionEnabled)
         "
+        @customizableItemsConfigurationChange="
+          (newConfig) => (currentConfiguration = newConfig)
+        "
       />
     </header>
-    <main class="h-100">
+    <main
+      class="h-100"
+      aria-label="Grafico della funzione"
+      tabindex="0"
+      @focus="requestFnAsText"
+    >
       <ChartFunctionPlot
         v-bind="functionOptions"
         :actionRequest="functionActionRequest"
+        :isKeyboardInteractionEnabled="isFnInteractionEnabled"
+        :fnAsText="fnTextRepresentation"
         id="fnPlot"
         ref="fnPlot"
         class="h-100"
@@ -49,39 +61,41 @@
 
 <script>
 import _ from "lodash";
-import { Queue } from "@datastructures-js/queue";
+var Queue = require("queue-fifo");
 
 export default {
   layout: "fullscreen",
   data() {
     return {
       textToRead: "",
+      chartActionMenuRefreshKey: 0,
       lastPendingMessageToRead: "",
       functionOptions: {},
       initialConfiguration: [],
+      currentConfiguration: [],
       functionActionRequest: null, //oggetto del tipo {requestType: enum, repetition: 1}
       ttsOptions: null, //oggetto di configurazione che dice cosa può dire e quando il TTS
-      isTTSEnabled: true,
+      isTTSEnabled: true, //questa variabile dev'essere mantenuta sincronizzata con quella nell'interaction bar come valore di default
+      fnTextRepresentation: "",
       availableTTSVoices: [],
-      isFnInteractionEnabled: false,
+      isFnInteractionEnabled: true, //questa variabile dev'essere mantenuta sincronizzata con quella nell'interaction bar come valore di default
       lastFunctionActionRequestType: null,
       functionSonificationData: {},
       functionSonificationOptions: {},
       earconToNotifyObj: {},
       messageQueue: new Queue(),
+      ttsMessageID: null,
+      lastTimeAMessageIsInsertedIntoQueue: null,
+      blockInsertIntoQueueTimeoutSeconds: 5,
+      messageQueueMaxCapacity: 2, //non voglio tenere in coda messaggi troppo vecchi
     };
   },
-  watch: {
-    isFnInteractionEnabled(val) {
-      if (val) {
-        this.$refs.fnPlot.setFocusOnFunction();
-      }
-    },
-  },
   created() {
+    window.addEventListener("keydown", this.handleEvent);
+    window.addEventListener("mousedown", this.handleEvent);
     //Deserializzazione URL per configurazione iniziale
     const sessionDataSerializer = this.$sessionDataSerializer;
-
+    this.startMonitoringMessageQueue();
     const initialEncodedConfiguration =
       this.$route.query[sessionDataSerializer.sessionDataQueryParamKey];
     if (initialEncodedConfiguration == null) {
@@ -97,12 +111,16 @@ export default {
       alert(e.message);
     }
   },
-  async mounted() {
-    this.startMonitoringMessageQueue();
-    this.isSonificationEnabled = await this.$soundFactory.enableSonifier();
+  destroyed() {
+    window.removeEventListener("keydown", this.handleEvent);
+    window.removeEventListener("mousedown", this.handleEvent);
+  },
+  mounted() {
+    this.isSonificationEnabled = true;
   },
   watch: {
     initialConfiguration(val) {
+      this.currentConfiguration = val;
       this.valorizeFunctionParamsFromOptions(val);
     },
     availableTTSVoices(val) {
@@ -145,7 +163,7 @@ export default {
         {
           identifier: "function",
           data: {
-            fn: "sin(x)",
+            fn: "sin(x)", //formato interval arithmetic
           },
           isFavorite: true,
         },
@@ -153,7 +171,7 @@ export default {
           identifier: "sonification",
           data: {
             availableInstruments: this.$soundFactory.getAllInstrumentsName(),
-            selectedInstrument: null,
+            selectedInstrument: "clarinet",
             isEnabled: true,
           },
           isFavorite: false,
@@ -173,7 +191,12 @@ export default {
               },
               {
                 identifier: this.$TextToSpeechOption.coordinates,
-                // canPlayAutomatically: false,
+              },
+              {
+                identifier: this.$TextToSpeechOption.intervals,
+              },
+              {
+                identifier: this.$TextToSpeechOption.currentFunction,
               },
             ],
             availableVoices: [],
@@ -185,8 +208,24 @@ export default {
     },
   },
   methods: {
-    focusFunction() {
-      this.$refs.fnPlot.focus();
+    requestFnAsText() {
+      // debugger;
+      this.fnTextRepresentation = document
+        .getElementById("mathlive-mathfield")
+        .getValue("spoken-text");
+      console.log(
+        "richiedo formula parlata " +
+          document.getElementById("mathlive-mathfield").getValue("spoken-text")
+      );
+    },
+    async handleEvent(evt) {
+      if (!this.$soundFactory.isToneEngineStarted()) {
+        this.$soundFactory.enableSonifier();
+      }
+      if (_.isEmpty(this.fnTextRepresentation)) {
+        this.requestFnAsText();
+      }
+      this.$refs.tts.getVoicesIfNeeded();
     },
     onVoicesLoaded(voices) {
       console.log("Caricamento voci completato");
@@ -204,43 +243,30 @@ export default {
           return item.identifier == "yDomain";
         })
       );
-      this.functionOptions = {
-        fn: this.functionOptions.fn,
-        sonificationStep: this.functionOptions.sonificationStep,
-        domXRange: [newDomX.data.xMin, newDomX.data.xMax],
-        domYRange: [newDomY.data.yMin, newDomY.data.yMax],
-      };
+
+      const newFunctionOptions = _.cloneDeep(this.functionOptions);
+      newFunctionOptions.domXRange = [newDomX.data.xMin, newDomX.data.xMax];
+      newFunctionOptions.domYRange = [newDomY.data.yMin, newDomY.data.yMax];
+      this.functionOptions = newFunctionOptions;
+
       const newFunctionSonificationOptions = _.cloneDeep(
         this.functionSonificationOptions
       );
       newFunctionSonificationOptions.domXRange = this.functionOptions.domXRange;
       newFunctionSonificationOptions.domYRange = this.functionOptions.domYRange;
       this.functionSonificationOptions = newFunctionSonificationOptions;
-      const currentConfig = _.cloneDeep(this.initialConfiguration);
-      const newConfig = _.map(currentConfig, (item) => {
-        if (item.identifier == "xDomain") {
-          return {
-            ...item,
-            data: {
-              ...item.data,
-              xMax: newDomX.data.xMax,
-              xMin: newDomX.data.xMin,
-            },
-          };
-        } else if (item.identifier == "yDomain") {
-          return {
-            ...item,
-            data: {
-              ...item.data,
-              yMax: newDomY.data.yMax,
-              yMin: newDomY.data.yMin,
-            },
-          };
-        } else {
-          return item;
-        }
+
+      const idxOfXDomain = _.findIndex(this.currentConfiguration, {
+        identifier: "xDomain",
       });
-      this.initialConfiguration = newConfig;
+      const idxOfYDomain = _.findIndex(this.currentConfiguration, {
+        identifier: "yDomain",
+      });
+
+      this.currentConfiguration[idxOfXDomain].data.xMax = newDomX.data.xMax;
+      this.currentConfiguration[idxOfXDomain].data.xMin = newDomX.data.xMin;
+      this.currentConfiguration[idxOfYDomain].data.yMax = newDomY.data.yMax;
+      this.currentConfiguration[idxOfYDomain].data.yMin = newDomY.data.yMin;
     },
     onOptionsChangesSaved(optionsChanged) {
       //[{"identifier": "xDomain","data": {}]
@@ -280,6 +306,9 @@ export default {
         fn: _.isNil(functionData)
           ? this.functionOptions.fn
           : functionData.data.fn,
+        fnAsText: _.isNil(functionData)
+          ? this.functionOptions.fnAsText
+          : functionData.data.fnAsText,
         sonificationStep: _.isNil(xDomainData)
           ? this.functionOptions.sonificationStep
           : parseInt(xDomainData.data.step),
@@ -331,18 +360,35 @@ export default {
         identifier: functionMessageEvent.type,
       });
       if (permissionIndex == -1) {
+        this.$announcer.assertive(
+          "Non hai il permesso di richiedere questa informazione"
+        );
         return;
       }
       if (
-        this.ttsOptions.speechPermissions[permissionIndex].canPlayAutomatically
+        this.ttsOptions.speechPermissions[permissionIndex]
+          .canPlayAutomatically ||
+        !_.has(
+          this.ttsOptions.speechPermissions[permissionIndex],
+          "canPlayAutomatically"
+        )
       ) {
         console.log(
           "function message devo leggere AT " + functionMessageEvent.message
         );
-        if (functionMessageEvent.message != this.lastPendingMessageToRead) {
+        const now = new Date();
+        if (_.isNil(this.lastTimeAMessageIsInsertedIntoQueue)) {
+          this.lastTimeAMessageIsInsertedIntoQueue = now;
+        }
+        if (
+          functionMessageEvent.message != this.lastPendingMessageToRead ||
+          (now - this.lastTimeAMessageIsInsertedIntoQueue) / 1000 >
+            this.blockInsertIntoQueueTimeoutSeconds
+        ) {
           console.log("Messo in coda " + functionMessageEvent.message);
           this.messageQueue.enqueue(functionMessageEvent.message);
           this.lastPendingMessageToRead = functionMessageEvent.message;
+          this.lastTimeAMessageIsInsertedIntoQueue = now;
         }
 
         // this.$announcer.assertive(functionMessageEvent.message);
@@ -352,17 +398,31 @@ export default {
       }
     },
     startMonitoringMessageQueue() {
-      setInterval(() => {
-        // console.log("controllo coda messaggi...");
-        if (this.messageQueue.isEmpty()) {
-          return;
-        }
-        const message = this.messageQueue.dequeue();
-        this.$announcer.assertive(message);
-        if (this.isTTSEnabled) {
-          this.textToRead = message;
-        }
-      }, process.env.TEXT_TO_SPEECH_MONITOR_QUEUE_INTERVAL_MS); //TODO: rendere variabile d'ambiente
+      console.log("inizio monitoraggio coda messaggi TTS");
+      this.ttsMessageID = setInterval(
+        function () {
+          // console.log("controllo coda messaggi...");
+          if (this.messageQueue.isEmpty()) {
+            // console.log("la coda è vuota");
+            return;
+          }
+          const messageQueueCurrentSize = this.messageQueue.size();
+          if (messageQueueCurrentSize > this.messageQueueMaxCapacity) {
+            _.times(
+              messageQueueCurrentSize - this.messageQueueMaxCapacity,
+              () => {
+                this.messageQueue.dequeue(); //tolgo gli elementi in eccesso dalla coda a partire dal più vecchio
+              }
+            );
+          }
+          const message = this.messageQueue.dequeue();
+          this.$announcer.assertive(message);
+          if (this.isTTSEnabled) {
+            this.textToRead = message;
+          }
+        }.bind(this),
+        process.env.TEXT_TO_SPEECH_MONITOR_QUEUE_INTERVAL_MS
+      ); //TODO: rendere variabile d'ambiente
     },
   },
 };

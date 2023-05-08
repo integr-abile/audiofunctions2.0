@@ -2,30 +2,28 @@
   <div>
     <h2>Intervallo asse Y</h2>
     <b-form inline>
-      <label for="min-x-domain-value" class="sr-only"
-        >valore minimo di Y mostrato sul grafico</label
+      <label for="min-y-domain-value" class="sr-only"
+        >Valore minimo di y mostrato sul grafico</label
       >
       <b-form-input
-        id="min-x-domain-value"
+        id="min-y-domain-value"
         class="mr-1"
         type="number"
-        placeholder="0"
         style="width: 80px"
         v-model="yMin"
       >
       </b-form-input>
       <span class="mr-1 text-center">
-        <vue-mathjax :formula="formula"></vue-mathjax>
+        <vue-mathjax :formula="formula" aria-hidden="true"></vue-mathjax>
       </span>
 
-      <label for="max-x-domain-value" class="sr-only"
+      <label for="max-y-domain-value" class="sr-only"
         >valore massimo di Y mostrato sul grafico</label
       >
       <b-form-input
-        id="max-x-domain-value"
+        id="max-y-domain-value"
         v-model="yMax"
         type="number"
-        placeholder="0"
         style="width: 80px"
       >
       </b-form-input>
@@ -41,7 +39,7 @@ export default {
   },
   data() {
     return {
-      formula: "$$<= y <=$$",
+      formula: "$$\\le y \\le$$",
       currentOptionData: {},
       yMin: "",
       yMax: "",
