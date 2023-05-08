@@ -10,6 +10,7 @@ const FunctionAction = {
   currentCoordinatesRequest: `${fnCommandPrefix}_currentCoordinatesRequest`,
   currentXIntervalRequest: `${fnCommandPrefix}_currentXIntervalRequest`,
   currentYIntervalRequest: `${fnCommandPrefix}_currentYIntervalRequest`,
+  readCurrentExpression: `${fnCommandPrefix}_readCurrentExpression`,
 };
 const KeyboardKey = {
   arrowRight: 39,
@@ -19,6 +20,7 @@ const KeyboardKey = {
   y: 89,
   i: 73,
   c: 67,
+  q: 81,
 };
 const AudioSample = {
   noYAtX: "/audio/no_y.mp3",
@@ -37,6 +39,7 @@ const TextToSpeechOption = {
   coordinates: "coordinate",
   axisIntersections: "intersezioni-con-gli-assi",
   intervals: "intervalli-visualizzati",
+  currentFunction: "funzione-corrente",
 };
 const MathSymbolsStringRepresentation = {
   "+": "più",

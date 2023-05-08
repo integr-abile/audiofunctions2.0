@@ -243,7 +243,9 @@ export default {
             ) {
               this.calculateYForXAndNotify(this.currentFnXValue);
               this.updateFunctionChart();
+
               this.currentFnXValue += this.sonificationStep;
+
               this.batchSonificationTimer = setTimeout(
                 sonifyTick,
                 notificationIntervalTimeSeconds * 1000
@@ -289,6 +291,12 @@ export default {
               min: this.domYRange[0],
               max: this.domYRange[1],
             })
+          );
+          break;
+        case this.$FunctionAction.readCurrentExpression:
+          this.notifyTextMessage(
+            this.$TextToSpeechOption.currentFunction,
+            this.fnAsText
           );
           break;
         default:

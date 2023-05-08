@@ -190,7 +190,12 @@ export default {
               },
               {
                 identifier: this.$TextToSpeechOption.coordinates,
-                // canPlayAutomatically: false,
+              },
+              {
+                identifier: this.$TextToSpeechOption.intervals,
+              },
+              {
+                identifier: this.$TextToSpeechOption.currentFunction,
               },
             ],
             availableVoices: [],
@@ -215,6 +220,9 @@ export default {
     async handleEvent(evt) {
       if (!this.$soundFactory.isToneEngineStarted()) {
         this.$soundFactory.enableSonifier();
+      }
+      if (_.isEmpty(this.fnTextRepresentation)) {
+        this.requestFnAsText();
       }
     },
     onVoicesLoaded(voices) {
@@ -350,6 +358,9 @@ export default {
         identifier: functionMessageEvent.type,
       });
       if (permissionIndex == -1) {
+        this.$announcer.assertive(
+          "Non hai il permesso di richiedere questa informazione"
+        );
         return;
       }
       if (

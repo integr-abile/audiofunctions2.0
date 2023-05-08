@@ -55,6 +55,11 @@
       :key-code="$KeyboardKey.c"
       @success="requestCurrentCoordinates"
     />
+    <Keypress
+      key-event="keyup"
+      :key-code="$KeyboardKey.q"
+      @success="readCurrentExpression"
+    />
     <!-- <Keypress
       key-event="keyup"
       :multiple-keys="fnCurrentCoordinatesMultipleKeys"
@@ -182,6 +187,9 @@ export default {
     },
     requestCurrentYInterval(event) {
       this.$emit("actionRequest", this.$FunctionAction.currentYIntervalRequest);
+    },
+    readCurrentExpression(event) {
+      this.$emit("actionRequest", this.$FunctionAction.readCurrentExpression);
     },
     handleKeyPress(event) {},
   },
