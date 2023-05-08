@@ -157,8 +157,8 @@ export default {
           this.isManualExplorationInProgress = true;
           this.canEmitEventsForSonification = true;
           this.currentFnXValue = this.currentFnXValue ?? this.domXRange[0];
-          this.calculateYForXAndNotify(this.currentFnXValue);
           this.updateFunctionChart();
+          this.calculateYForXAndNotify(this.currentFnXValue);
           await this.$soundFactory.enableSonifier();
           break;
         case this.$FunctionAction.endExploration:
