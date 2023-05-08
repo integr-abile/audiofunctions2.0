@@ -10,6 +10,7 @@
       :earconObj="earconToNotifyObj"
     />
     <TextToSpeech
+      ref="tts"
       v-bind="ttsOptions"
       :isEnabled="isTTSEnabled"
       :text-to-read="textToRead"
@@ -224,6 +225,7 @@ export default {
       if (_.isEmpty(this.fnTextRepresentation)) {
         this.requestFnAsText();
       }
+      this.$refs.tts.getVoicesIfNeeded();
     },
     onVoicesLoaded(voices) {
       console.log("Caricamento voci completato");

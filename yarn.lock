@@ -10120,14 +10120,6 @@ vue-template-es2015-compiler@^1.9.0:
   resolved "https://registry.yarnpkg.com/vue-template-es2015-compiler/-/vue-template-es2015-compiler-1.9.1.tgz#1ee3bc9a16ecbf5118be334bb15f9c46f82f5825"
   integrity sha512-4gDntzrifFnCEvyoO8PqyJDmguXgVPxKiIxrBKjIowvL9l+N66196+72XVYR8BBf1Uv1Fgt3bGevJ+sEmxfZzw==
 
-vue-web-speech@^0.2.3:
-  version "0.2.3"
-  resolved "https://registry.yarnpkg.com/vue-web-speech/-/vue-web-speech-0.2.3.tgz#1a0f7448097faffbea5e145d54b02fd623c00180"
-  integrity sha512-XJkKUsKL9oZ2ZSgoprLTZBW/wnTBARFnK0tltsqaugk1QKA0G+VsYSdskiLgBs/7j9jICJDmsVwz3L9pKFjkWQ==
-  dependencies:
-    core-js "^3.6.5"
-    vue "^2.6.11"
-
 vue@^2.6.11, vue@^2.7.10:
   version "2.7.14"
   resolved "https://registry.yarnpkg.com/vue/-/vue-2.7.14.tgz#3743dcd248fd3a34d421ae456b864a0246bafb17"
