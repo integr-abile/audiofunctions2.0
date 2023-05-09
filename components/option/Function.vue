@@ -15,7 +15,7 @@
         aria-label="attiva per inserire una funzione"
         :options="{
           virtualKeyboardMode: 'manual',
-          virtualKeyboards: 'numeric',
+          virtualKeyboards: 'numeric symbols',
           keypressSound: 'none',
           smartFence: false,
           smartMode: false,

@@ -36,6 +36,7 @@
         <b-form-input
           id="step"
           type="number"
+          step="0.1"
           style="width: 80px"
           v-model="step"
         ></b-form-input>

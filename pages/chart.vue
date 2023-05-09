@@ -311,7 +311,7 @@ export default {
           : functionData.data.fnAsText,
         sonificationStep: _.isNil(xDomainData)
           ? this.functionOptions.sonificationStep
-          : parseInt(xDomainData.data.step),
+          : parseFloat(xDomainData.data.step),
         domXRange: _.isNil(xDomainData)
           ? this.functionOptions.domXRange
           : [parseInt(xDomainData.data.xMin), parseInt(xDomainData.data.xMax)],
