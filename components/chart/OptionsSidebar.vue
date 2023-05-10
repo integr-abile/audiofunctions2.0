@@ -2,7 +2,8 @@
   <div>
     <VueAnnouncer />
     <b-sidebar
-      @shown="(evt) => (refreshKey += 1)"
+      @shown="handleShowSidebar"
+      @hidden="(evt) => $emit('close')"
       ref="sidebar"
       backdrop
       close-label="Chiudi"
@@ -39,7 +40,13 @@
 
 <script>
 export default {
-  emits: ["optionStateChange", "optionDataChange", "saveChanges"],
+  emits: [
+    "optionStateChange",
+    "optionDataChange",
+    "saveChanges",
+    "open",
+    "close",
+  ],
   data() {
     return {
       refreshKey: 0,
@@ -67,6 +74,10 @@ export default {
       this.$emit("saveChanges", _.map(this.customizableOptions, "identifier"));
       this.$announcer.assertive("Salvataggio effettuato");
       this.$refs.sidebar.hide();
+    },
+    handleShowSidebar() {
+      this.refreshKey += 1;
+      this.$emit("open");
     },
     saveOptions(optionIdentifiers) {
       this.$emit("saveChanges", optionIdentifiers);

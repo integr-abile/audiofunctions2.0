@@ -4,19 +4,23 @@ var fnCompiler = require("interval-arithmetic-eval");
 
 class FunctionValidator {
   validate(latexFnString) {
-    console.log("da passare latex " + latexFnString);
-    const res = MathExpression.fromLatex(latexFnString).toString();
-    console.log("da passare a function plot " + res);
+    console.log("Validate da passare latex " + latexFnString);
+
+    const mathExpression = MathExpression.fromLatex(latexFnString).toString();
+    console.log("Validate da passare math expression " + mathExpression);
+    const functionPlotFormula =
+      this.#mathExpressionToFunctionPlot(mathExpression);
+    console.log("Validate da passare a function plot " + functionPlotFormula);
     try {
-      const compileRes = fnCompiler(res);
+      const compileRes = fnCompiler(functionPlotFormula);
       compileRes.eval({ x: 0 });
-      console.log("formula compilation success");
+      console.log("Validate formula compilation success");
       return {
         error: null,
-        forFnPlotFormula: res,
+        forFnPlotFormula: functionPlotFormula,
       };
     } catch {
-      console.error("Failed to compile");
+      console.error("Validate Failed to compile");
       return {
         error: "Formula inserita non valida",
         forFnPlotFormula: null,
@@ -27,8 +31,27 @@ class FunctionValidator {
   }
 
   toLatex(textFormula) {
-    const expression = MathExpression.fromText(textFormula);
+    const mathExpression = this.#functionPlotToMathExpression(textFormula);
+    const expression = MathExpression.fromText(mathExpression);
     return expression.toLatex();
+  }
+
+  #mathExpressionToFunctionPlot(mathExpressionFormula) {
+    var toReturn = mathExpressionFormula;
+    var exponentialRegex = /e\^(.*)/g;
+    if (exponentialRegex.test(toReturn)) {
+      toReturn = toReturn.replaceAll(exponentialRegex, "exp($1)"); //sostituisco e^ con exp
+    }
+    return toReturn;
+  }
+
+  #functionPlotToMathExpression(functionPlotFormula) {
+    var toReturn = functionPlotFormula;
+    const exponentialRegex = /exp\((.*)\)/g;
+    if (exponentialRegex.test(toReturn)) {
+      toReturn = toReturn.replaceAll(exponentialRegex, "e^($1)");
+    }
+    return toReturn;
   }
 }
 

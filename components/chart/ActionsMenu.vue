@@ -10,6 +10,8 @@
         @optionStateChange="handleOptionStateChange"
         @optionDataChange="handleOptionDataChange"
         @saveChanges="handleSaveChanges"
+        @open="handleOpenSidebar"
+        @close="handleCloseSidebar"
       />
       <div class="d-flex justify-content-end mx-3" style="flex: 1">
         <div class="d-flex align-items-center">
@@ -63,10 +65,7 @@
         isFunctionInteractionModeEnabled
       "
       :initialIsTTSEnabled="initialIsTTSEnabled"
-      @onFunctionInteractionModeChange="
-        (isInteractionEnabled) =>
-          (isFunctionInteractionModeEnabled = isInteractionEnabled)
-      "
+      @onFunctionInteractionModeChange="handleIsFunctionInteractionEnableChange"
       @onTTSEnabledChange="
         (isTextToSpeechEnabled) =>
           $emit('ttsEnableStatusChange', isTextToSpeechEnabled)
@@ -129,6 +128,7 @@ export default {
   },
   data() {
     return {
+      functionInteractionEnabledUserChoice: null, //tiene a mente la preferenza esplicita dell'utente
       isFunctionInteractionModeEnabled: true, //default
       favoriteItems: [],
       currentCustomizableItems: [],
@@ -176,6 +176,17 @@ export default {
     },
     handleSaveFromFavoritesBar() {
       this.$refs.chartOptionsSidebar.saveAll();
+    },
+    handleOpenSidebar() {
+      this.isFunctionInteractionModeEnabled = false;
+    },
+    handleCloseSidebar() {
+      this.isFunctionInteractionModeEnabled =
+        this.functionInteractionEnabledUserChoice ?? true;
+    },
+    handleIsFunctionInteractionEnableChange(isInteractionEnabled) {
+      this.functionInteractionEnabledUserChoice = isInteractionEnabled;
+      this.isFunctionInteractionModeEnabled = isInteractionEnabled;
     },
     onCopy(evt) {
       this.lastCopyFunctionSuccess = true;

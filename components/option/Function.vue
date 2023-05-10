@@ -8,23 +8,23 @@
       <h3 class="sr-only">
         Attiva la funzione (premi "Invio" su "applicazione")
       </h3>
-      <mathlive-mathfield
+      <!--<mathlive-mathfield
         id="mathlive-mathfield"
         ref="mathfield"
         role="application"
         aria-label="attiva per inserire una funzione"
-        :options="{
-          virtualKeyboardMode: 'manual',
-          virtualKeyboards: 'numeric symbols',
-          keypressSound: 'none',
-          smartFence: false,
-          smartMode: false,
-          mode: 'math',
-        }"
         :value="stableInputFunctionLatex"
         class="border w-100"
       >
-      </mathlive-mathfield>
+      </mathlive-mathfield> -->
+      <math-field
+        id="mathlive-mathfield"
+        ref="mathfield"
+        role="application"
+        aria-label="attiva per inserire una funzione"
+        class="border w-100"
+      >
+      </math-field>
     </div>
 
     <Keypress
@@ -68,7 +68,7 @@ export default {
       // debugger;
       if (_.isNil(error)) {
         this.currentOptionData.fn = forFnPlotFormula;
-
+        this.$refs.mathfield.value = val;
         this.$emit("optionDataChange", this.currentOptionData);
       } else {
         //TODO: gestire errore facendo apparire un messaggio sotto il campo di testo della formula
@@ -105,7 +105,14 @@ export default {
       console.log(`mathexpr: ${this.currentToSpeakFunction}`);
     },
     setupMathField() {
-      const mathField = this.$refs.mathfield.$el;
+      const mathField = this.$refs.mathfield;
+      mathField.mathVirtualKeyboardPolicy = "manual";
+      mathVirtualKeyboard.layouts = ["numeric", "symbols"];
+      mathVirtualKeyboard.keypressSound = "none";
+      mathField.smartFence = false;
+      mathField.smartMode = false;
+      mathField.defaultMode = "math";
+
       mathField.addEventListener("change", (evt) => {
         //Return o enter premuto
         this.lastInsertedLatexFunction = evt.target.value;
