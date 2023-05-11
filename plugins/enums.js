@@ -21,6 +21,7 @@ const KeyboardKey = {
   i: 73,
   c: 67,
   q: 81,
+  enter: 13,
 };
 const AudioSample = {
   noYAtX: "/audio/no_y.mp3",

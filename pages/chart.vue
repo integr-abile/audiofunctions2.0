@@ -54,6 +54,7 @@
         @needPlayEarcon="(earconObj) => (earconToNotifyObj = earconObj)"
         @needNotifyMessage="handleFunctionMessageEvent"
         @domainManuallyChanged="handleDomainManuallyChanged"
+        @beginFunctionInteractionRequest="handleEvent"
       />
     </main>
   </div>

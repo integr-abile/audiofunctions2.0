@@ -48,6 +48,7 @@ export default {
     { src: "~/plugins/vue-shortkey.js", mode: "client" },
     { src: "~/plugins/vue-clipboard.js", mode: "client" },
     { src: "~/plugins/vue-mathjax.js", mode: "client" },
+    { src: "~/plugins/vue-mouseover.js", mode: "client" },
 
     // { src: "~/plugins/vue-keypress.js" },
   ],
