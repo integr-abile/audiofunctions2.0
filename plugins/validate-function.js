@@ -89,7 +89,7 @@ class FunctionValidator {
   //---------------------------------//
   #mathExpressionToFunctionPlot(mathExpressionFormula) {
     var toReturn = mathExpressionFormula;
-    const exponentialRegex = /e\^(.*)\s/g;
+    const exponentialRegex = /e\^(.*)\s*/g;
     if (exponentialRegex.test(toReturn)) {
       toReturn = toReturn.replaceAll(exponentialRegex, "exp($1)"); //sostituisco e^ con exp
     }
