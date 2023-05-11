@@ -6,7 +6,10 @@ class FunctionValidator {
   validate(latexFnString) {
     console.log("Validate da passare latex " + latexFnString);
 
-    const mathExpression = MathExpression.fromLatex(latexFnString).toString();
+    // const mathExpression = this.#latexToMathExpression(latexFnString)
+    const preprocessedLatex = this.#preprocessLatex(latexFnString);
+    const mathExpression =
+      MathExpression.fromLatex(preprocessedLatex).toString();
     console.log("Validate da passare math expression " + mathExpression);
     const functionPlotFormula =
       this.#mathExpressionToFunctionPlot(mathExpression);
@@ -33,12 +36,44 @@ class FunctionValidator {
   toLatex(textFormula) {
     const mathExpression = this.#functionPlotToMathExpression(textFormula);
     const expression = MathExpression.fromText(mathExpression);
-    return expression.toLatex();
+    const latexExpression = expression.toLatex();
+    // return expression.toLatex();
+    return this.#normalizeLatex(latexExpression);
+  }
+
+  #preprocessLatex(latexFnString) {
+    var toReturn = latexFnString;
+    var ambiguousFunctionRegex = /\^{\\(sin|cos|tan)\s*\(*\s*.*\s*\)*/g;
+    if (ambiguousFunctionRegex.test(toReturn)) {
+      toReturn = toReturn.replaceAll(ambiguousFunctionRegex, function (match) {
+        return "^{1" + match.substring(2); // Replace the matched function with "{1" + the original match without the "^{" characters.
+      });
+    }
+    return toReturn;
+  }
+
+  #normalizeLatex(preprocessedLatex) {
+    //è l'inversa di preprocessLatex
+    console.log("preprocessedLatex " + preprocessedLatex);
+    var toReturn = preprocessedLatex;
+    let normalizeTrigonometricExponentialAmbiguousFunctionRegex =
+      /\^{1\s*\\(sin|cos|tan)\s*\(*\s*.*\s*\)*/g;
+    if (
+      normalizeTrigonometricExponentialAmbiguousFunctionRegex.test(toReturn)
+    ) {
+      toReturn = toReturn.replace(
+        normalizeTrigonometricExponentialAmbiguousFunctionRegex,
+        function (match) {
+          return match.replace("^{1", "^{");
+        }
+      );
+    }
+    return toReturn;
   }
 
   #mathExpressionToFunctionPlot(mathExpressionFormula) {
     var toReturn = mathExpressionFormula;
-    var exponentialRegex = /e\^(.*)/g;
+    var exponentialRegex = /e\^(.*)\s/g;
     if (exponentialRegex.test(toReturn)) {
       toReturn = toReturn.replaceAll(exponentialRegex, "exp($1)"); //sostituisco e^ con exp
     }

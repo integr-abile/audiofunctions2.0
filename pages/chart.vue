@@ -165,7 +165,7 @@ export default {
           data: {
             fn: "sin(x)", //formato interval arithmetic
           },
-          isFavorite: true,
+          isFavorite: false,
         },
         {
           identifier: "sonification",
@@ -174,7 +174,7 @@ export default {
             selectedInstrument: "clarinet",
             isEnabled: true,
           },
-          isFavorite: false,
+          isFavorite: true,
         },
         {
           identifier: "tts",
