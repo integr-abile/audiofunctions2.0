@@ -101,9 +101,14 @@ export default {
       mathField.mathVirtualKeyboardPolicy = "manual";
       mathVirtualKeyboard.layouts = ["numeric", "symbols"];
       mathVirtualKeyboard.keypressSound = "none";
+      mathVirtualKeyboard.plonkSound = "none";
       mathField.smartFence = false;
       mathField.smartMode = false;
       mathField.defaultMode = "math";
+      mathField.inlineShortcuts = {
+        ...mathField.inlineShortcuts,
+        abs: "\\|{#?}\\|",
+      };
 
       mathField.addEventListener("change", (evt) => {
         //Return o enter premuto
@@ -124,7 +129,7 @@ export default {
       mathField.addEventListener(
         "keydown",
         (evt) => {
-          if (evt.key === "\\" || evt.key === "Escape") {
+          if (evt.key === "\\" || evt.key === "Escape" || evt.key === "|") {
             evt.preventDefault();
           }
         },

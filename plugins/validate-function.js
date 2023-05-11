@@ -34,20 +34,31 @@ class FunctionValidator {
   }
 
   toLatex(textFormula) {
+    console.log("verso latex fnPlotFormula " + textFormula);
     const mathExpression = this.#functionPlotToMathExpression(textFormula);
+    console.log("verso latex math expression " + mathExpression);
     const expression = MathExpression.fromText(mathExpression);
     const latexExpression = expression.toLatex();
+    console.log(
+      "verso latex latex expression non normalizzata " + latexExpression
+    );
+    const normalizedLatex = this.#normalizeLatex(latexExpression);
+    console.log("verso latex latex normalizzato " + normalizedLatex);
     // return expression.toLatex();
-    return this.#normalizeLatex(latexExpression);
+    return normalizedLatex;
   }
-
+  //---------------------------//
   #preprocessLatex(latexFnString) {
     var toReturn = latexFnString;
-    var ambiguousFunctionRegex = /\^{\\(sin|cos|tan)\s*\(*\s*.*\s*\)*/g;
+    const ambiguousFunctionRegex = /\^{\\(sin|cos|tan)\s*\(*\s*.*\s*\)*/g;
     if (ambiguousFunctionRegex.test(toReturn)) {
       toReturn = toReturn.replaceAll(ambiguousFunctionRegex, function (match) {
         return "^{1" + match.substring(2); // Replace the matched function with "{1" + the original match without the "^{" characters.
       });
+    }
+    const absoluteValueRegex = /\\\|{([^}]*)}\\\|/g;
+    if (absoluteValueRegex.test(toReturn)) {
+      toReturn = toReturn.replaceAll(absoluteValueRegex, "\\abs($1)");
     }
     return toReturn;
   }
@@ -56,7 +67,7 @@ class FunctionValidator {
     //è l'inversa di preprocessLatex
     console.log("preprocessedLatex " + preprocessedLatex);
     var toReturn = preprocessedLatex;
-    let normalizeTrigonometricExponentialAmbiguousFunctionRegex =
+    const normalizeTrigonometricExponentialAmbiguousFunctionRegex =
       /\^{1\s*\\(sin|cos|tan)\s*\(*\s*.*\s*\)*/g;
     if (
       normalizeTrigonometricExponentialAmbiguousFunctionRegex.test(toReturn)
@@ -68,14 +79,23 @@ class FunctionValidator {
         }
       );
     }
+    const absoluteValueRegex = /abs\((.*)\)/g;
+    if (absoluteValueRegex.test(toReturn)) {
+      toReturn = toReturn.replaceAll(absoluteValueRegex, `\\|{$1}\\|`);
+    }
     return toReturn;
   }
 
+  //---------------------------------//
   #mathExpressionToFunctionPlot(mathExpressionFormula) {
     var toReturn = mathExpressionFormula;
-    var exponentialRegex = /e\^(.*)\s/g;
+    const exponentialRegex = /e\^(.*)\s/g;
     if (exponentialRegex.test(toReturn)) {
       toReturn = toReturn.replaceAll(exponentialRegex, "exp($1)"); //sostituisco e^ con exp
+    }
+    const absoluteValueRegex = /\|(.+?)\|/g;
+    if (absoluteValueRegex.test(toReturn)) {
+      toReturn = toReturn.replaceAll(absoluteValueRegex, "abs($1)");
     }
     return toReturn;
   }
@@ -85,6 +105,10 @@ class FunctionValidator {
     const exponentialRegex = /exp\((.*)\)/g;
     if (exponentialRegex.test(toReturn)) {
       toReturn = toReturn.replaceAll(exponentialRegex, "e^($1)");
+    }
+    const absoluteValueRegex = /abs\((.*)\)/g;
+    if (absoluteValueRegex.test(toReturn)) {
+      toReturn = toReturn.replaceAll(absoluteValueRegex, `|($1)|`);
     }
     return toReturn;
   }
