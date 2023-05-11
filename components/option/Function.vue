@@ -107,7 +107,7 @@ export default {
       mathField.defaultMode = "math";
       mathField.inlineShortcuts = {
         ...mathField.inlineShortcuts,
-        abs: "\\|{#?}\\|",
+        abs: "\|{#?}\|",
       };
 
       mathField.addEventListener("change", (evt) => {
