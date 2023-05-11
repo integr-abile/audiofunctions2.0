@@ -33,7 +33,10 @@ export default {
   },
 
   // Global CSS: https://go.nuxtjs.dev/config-css
-  css: ["mathlive/dist/mathlive-fonts.css"],
+  css: [
+    "~/assets/mathlive-fonts.css",
+    /*"mathlive/dist/mathlive-fonts.css"*/
+  ],
 
   // Plugins to run before rendering page: https://go.nuxtjs.dev/config-plugins
   plugins: [
@@ -49,8 +52,6 @@ export default {
     { src: "~/plugins/vue-clipboard.js", mode: "client" },
     { src: "~/plugins/vue-mathjax.js", mode: "client" },
     { src: "~/plugins/vue-mouseover.js", mode: "client" },
-
-    // { src: "~/plugins/vue-keypress.js" },
   ],
 
   // Auto import components: https://go.nuxtjs.dev/config-components

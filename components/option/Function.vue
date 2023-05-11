@@ -8,15 +8,7 @@
       <h3 class="sr-only">
         Attiva la funzione (premi "Invio" su "applicazione")
       </h3>
-      <!--<mathlive-mathfield
-        id="mathlive-mathfield"
-        ref="mathfield"
-        role="application"
-        aria-label="attiva per inserire una funzione"
-        :value="stableInputFunctionLatex"
-        class="border w-100"
-      >
-      </mathlive-mathfield> -->
+
       <math-field
         id="mathlive-mathfield"
         ref="mathfield"
