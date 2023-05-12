@@ -83,13 +83,18 @@ class FunctionValidator {
     if (absoluteValueRegex.test(toReturn)) {
       toReturn = toReturn.replaceAll(absoluteValueRegex, `\\|{$1}\\|`);
     }
+    // const exponentialRegex = /\^{([^{}]+)}/g; //metto tra parentesi tonde quello che c'è tra graffe
+    // if (exponentialRegex.test(toReturn)) {
+    //   toReturn = toReturn.replaceAll(exponentialRegex, "(^$1)");
+    // }
+
     return toReturn;
   }
 
   //---------------------------------//
   #mathExpressionToFunctionPlot(mathExpressionFormula) {
     var toReturn = mathExpressionFormula;
-    const exponentialRegex = /e\^(.*)\s*/g;
+    const exponentialRegex = /e\^\((.*)\)\s*/g;
     if (exponentialRegex.test(toReturn)) {
       toReturn = toReturn.replaceAll(exponentialRegex, "exp($1)"); //sostituisco e^ con exp
     }
