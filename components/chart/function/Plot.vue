@@ -423,7 +423,7 @@ export default {
         if (checkXAxisIntersection) {
           message += this.$FunctionVoiceMessageFormat.intersectX;
           if (checkYAxisIntersection) {
-            message += ` e ${this.$FunctionVoiceMessageFormat.intersectY}`;
+            message = this.$FunctionVoiceMessageFormat.origin;
           }
           this.notifyTextMessage(
             this.$TextToSpeechOption.axisIntersections,

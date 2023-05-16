@@ -144,6 +144,13 @@ export default {
       //questa variabile non cambia mai e sarà quella da ricavare dai query params
       return [
         {
+          identifier: "function",
+          data: {
+            fn: "sin(x)", //formato interval arithmetic
+          },
+          isFavorite: false,
+        },
+        {
           identifier: "xDomain",
           data: {
             xMin: -16, //stessi di geogebra
@@ -158,13 +165,6 @@ export default {
             yMin: -9, //stessi di geogebra
             yMax: 9, //stessi di geogebra
             step: 1,
-          },
-          isFavorite: false,
-        },
-        {
-          identifier: "function",
-          data: {
-            fn: "sin(x)", //formato interval arithmetic
           },
           isFavorite: false,
         },

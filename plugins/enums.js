@@ -32,6 +32,7 @@ const FunctionVoiceMessageFormat = {
   localMin: "min",
   intersectX: "x",
   intersectY: "y",
+  origin: "origine degli assi",
   currentCoordinates: "x: {x}, y: {y}", //da completare con format-unicorn
   interval: "Asse {axis}, da {min} a {max}", //da completare con format-unicorn
 };
