@@ -1,13 +1,3 @@
-<!-- <template>
-  <vue-web-speech-synth
-    v-if="isEnabled"
-    v-model="shouldRead"
-    :text="effectiveTextToRead"
-    :voice="concreteVoice"
-    :rate="1"
-    @list-voices="listVoices"
-  />
-</template> -->
 <template>
   <div></div>
 </template>
@@ -30,6 +20,8 @@ export default {
       voices: [],
       voicesAvailableForSelection: [],
       utteraceToRead: new window.SpeechSynthesisUtterance(),
+      lastReadUtterance: null,
+      isSpeaking: false,
     };
   },
   // mounted() {
@@ -58,8 +50,14 @@ export default {
 
       // this.shouldRead = newText != oldText;
 
+      if (newText === this.lastReadUtterance) {
+        return;
+      }
       console.log(`devo leggere TTS ${newText}`);
-      this.speak(newText);
+      if (!this.isSpeaking) {
+        this.speak(newText);
+        this.lastReadUtterance = newText;
+      }
     },
     voicesAvailableForSelection(newVoices) {
       this.$emit("onVoicesLoaded", newVoices);
@@ -90,6 +88,12 @@ export default {
     speak(text) {
       this.utteraceToRead.text = text;
       this.utteraceToRead.voice = this.concreteVoice;
+      this.utteraceToRead.rate = 1;
+      this.utteraceToRead.onend = function () {
+        this.isSpeaking = false;
+      }.bind(this);
+      console.log("sto per dire " + text);
+      this.isSpeaking = true;
       this.synth.speak(this.utteraceToRead);
     },
     getVoicesIfNeeded() {
@@ -106,22 +110,11 @@ export default {
           if (_.isNil(this.lang)) {
             return true;
           }
-          return voice.lang === this.lang;
+          return true;
+          // return voice.lang === this.lang;
         }.bind(this)
       );
     },
-    // listVoices(list) {
-    //   this.voices = list;
-    //   this.voicesAvailableForSelection = _.filter(
-    //     this.voices,
-    //     function (voice) {
-    //       if (this.lang === null) {
-    //         return true;
-    //       }
-    //       return voice.lang === this.lang;
-    //     }.bind(this) //necessario bindare il this all'istanza vue, se no da dentro la cbk si perde il this
-    //   );
-    // },
   },
 };
 </script>
