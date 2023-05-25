@@ -352,6 +352,10 @@ export default {
     },
     handleFunctionStateNotification(functionState) {
       this.functionSonificationData = functionState;
+      if (!this.functionSonificationData.shouldSound) {
+        console.log("force stopping TTS");
+        this.$refs.tts.stop();
+      }
     },
     handleFunctionMessageEvent(functionMessageEvent) {
       console.log(
@@ -374,23 +378,24 @@ export default {
           "canPlayAutomatically"
         )
       ) {
-        console.log(
-          "function message devo leggere AT " + functionMessageEvent.message
-        );
-        const now = new Date();
-        if (_.isNil(this.lastTimeAMessageIsInsertedIntoQueue)) {
-          this.lastTimeAMessageIsInsertedIntoQueue = now;
-        }
-        if (
-          functionMessageEvent.message != this.lastPendingMessageToRead ||
-          (now - this.lastTimeAMessageIsInsertedIntoQueue) / 1000 >
-            this.blockInsertIntoQueueTimeoutSeconds
-        ) {
-          console.log("Messo in coda " + functionMessageEvent.message);
-          this.messageQueue.enqueue(functionMessageEvent.message);
-          this.lastPendingMessageToRead = functionMessageEvent.message;
-          this.lastTimeAMessageIsInsertedIntoQueue = now;
-        }
+        // console.log(
+        //   "function message devo leggere AT " + functionMessageEvent.message
+        // );
+        this.messageQueue.enqueue(functionMessageEvent.message);
+        // const now = new Date();
+        // if (_.isNil(this.lastTimeAMessageIsInsertedIntoQueue)) {
+        //   this.lastTimeAMessageIsInsertedIntoQueue = now;
+        // }
+        // if (
+        //   functionMessageEvent.message != this.lastPendingMessageToRead ||
+        //   (now - this.lastTimeAMessageIsInsertedIntoQueue) / 1000 >
+        //     this.blockInsertIntoQueueTimeoutSeconds
+        // ) {
+        //   console.log("Messo in coda " + functionMessageEvent.message);
+        //   this.messageQueue.enqueue(functionMessageEvent.message);
+        //   this.lastPendingMessageToRead = functionMessageEvent.message;
+        //   this.lastTimeAMessageIsInsertedIntoQueue = now;
+        // }
 
         // this.$announcer.assertive(functionMessageEvent.message);
         // if (this.isTTSEnabled) {
@@ -417,9 +422,11 @@ export default {
             );
           }
           const message = this.messageQueue.dequeue();
-          this.$announcer.assertive(message);
+          console.log("TTS da passare a engine " + message);
           if (this.isTTSEnabled) {
             this.textToRead = message;
+          } else {
+            this.$announcer.assertive(message);
           }
         }.bind(this),
         process.env.TEXT_TO_SPEECH_MONITOR_QUEUE_INTERVAL_MS
