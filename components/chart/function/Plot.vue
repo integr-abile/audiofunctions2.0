@@ -1,6 +1,7 @@
 <template>
   <div>
     <div
+      v-mouseover="chartAreaHovered"
       class="d-flex flex-column w-100 h-100"
       id="functionContainer"
       ref="fnContainer"
@@ -8,15 +9,23 @@
     >
       <div class="w-100 h-100" style="position: relative">
         <resize-observer @notify="handleResize" :emitOnMount="true" />
-
-        <div
-          ref="chartarea"
-          role="application"
-          tabindex="0"
-          :aria-label="chartAriaLabel"
-        >
-          <div id="root" aria-hidden="true"></div>
-        </div>
+        <b-overlay :show="shouldShowChartOverlay">
+          <div
+            ref="chartarea"
+            role="application"
+            tabindex="0"
+            :aria-label="chartAriaLabel"
+          >
+            <div id="root" aria-hidden="true"></div>
+          </div>
+          <template #overlay>
+            <div class="w-100 h-100">
+              <p class="display-3 text-center">
+                Premi un tasto qualsiasi per iniziare ad interagire col grafico
+              </p>
+            </div>
+          </template>
+        </b-overlay>
       </div>
     </div>
     <div class="h-100" v-else>
@@ -24,6 +33,12 @@
         <h2>Nessuna funzione inserita</h2>
       </div>
     </div>
+    <Keypress
+      v-if="shouldShowChartOverlay"
+      key-event="keyup"
+      :key-code="null"
+      @success="handleRequestBeginInteraction"
+    />
   </div>
 </template>
 
@@ -38,6 +53,7 @@ export default {
     "needPlayEarcon",
     "needNotifyMessage",
     "domainManuallyChanged",
+    "beginFunctionInteractionRequest",
   ],
   props: [
     "fn",
@@ -48,6 +64,9 @@ export default {
     "isKeyboardInteractionEnabled",
     "fnAsText",
   ],
+  components: {
+    Keypress: () => import("vue-keypress"),
+  },
   computed: {
     doesFunctionExists() {
       return !_.isNil(this.fn);
@@ -58,6 +77,13 @@ export default {
           ? ""
           : "L'interazione da tastiera è disabilitata. Non puoi esplorare il grafico coi comandi da tastiera"
       }`;
+    },
+    shouldShowChartOverlay() {
+      return (
+        this.chartAreaHovered &&
+        !this.$soundFactory.isToneEngineStarted() &&
+        !this.alreadyRequestedBeginFunctionInteraction
+      );
     },
     functionStatus() {
       return {
@@ -94,6 +120,8 @@ export default {
       currentFnYValue: 0,
       fnPlotInstance: null,
       fnSamples: 0,
+      chartAreaHovered: false,
+      alreadyRequestedBeginFunctionInteraction: false,
       fnSamplesInDeltaX: 0,
       fnDerivative: null,
       fnSecondDerivative: null,
@@ -332,6 +360,10 @@ export default {
         message: message,
       });
     },
+    handleRequestBeginInteraction() {
+      this.alreadyRequestedBeginFunctionInteraction = true;
+      this.$emit("beginFunctionInteractionRequest");
+    },
     estimateFunctionNumberOfSamples() {
       const pixelDensity = window.devicePixelRatio || 1;
       const estimation = this.fnContainerWidth * pixelDensity;
@@ -391,7 +423,7 @@ export default {
         if (checkXAxisIntersection) {
           message += this.$FunctionVoiceMessageFormat.intersectX;
           if (checkYAxisIntersection) {
-            message += ` e ${this.$FunctionVoiceMessageFormat.intersectY}`;
+            message = this.$FunctionVoiceMessageFormat.origin;
           }
           this.notifyTextMessage(
             this.$TextToSpeechOption.axisIntersections,

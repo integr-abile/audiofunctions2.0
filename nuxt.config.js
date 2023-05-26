@@ -7,9 +7,9 @@ export default {
   },
   env: {
     SONIFICATION_MIN_TICK_TIME_SECONDS: 0.2, //TODO: valutare bene questo numero. lower bound per non andare incontro principio di indeterminazione tonale
-    SONIFICATION_BATCH_SONIFICATION_TIME_SECONDS: 10, //TODO: valutare bene questo numero. lower bound per non andare incontro principio di indeterminazione tonale
+    SONIFICATION_BATCH_SONIFICATION_TIME_SECONDS: 15, //TODO: valutare bene questo numero. lower bound per non andare incontro principio di indeterminazione tonale
     INTERACTION_SONIFICATION_HOLD_KEY_TICK_TIME_SECONDS: 1,
-    TEXT_TO_SPEECH_MONITOR_QUEUE_INTERVAL_MS: 100,
+    TEXT_TO_SPEECH_MONITOR_QUEUE_INTERVAL_MS: 50,
   },
 
   // Global page headers: https://go.nuxtjs.dev/config-head
@@ -33,7 +33,10 @@ export default {
   },
 
   // Global CSS: https://go.nuxtjs.dev/config-css
-  css: ["mathlive/dist/mathlive-fonts.css"],
+  css: [
+    "~/assets/mathlive-fonts.css",
+    /*"mathlive/dist/mathlive-fonts.css"*/
+  ],
 
   // Plugins to run before rendering page: https://go.nuxtjs.dev/config-plugins
   plugins: [
@@ -48,8 +51,7 @@ export default {
     { src: "~/plugins/vue-shortkey.js", mode: "client" },
     { src: "~/plugins/vue-clipboard.js", mode: "client" },
     { src: "~/plugins/vue-mathjax.js", mode: "client" },
-
-    // { src: "~/plugins/vue-keypress.js" },
+    { src: "~/plugins/vue-mouseover.js", mode: "client" },
   ],
 
   // Auto import components: https://go.nuxtjs.dev/config-components

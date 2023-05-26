@@ -21,6 +21,7 @@ const KeyboardKey = {
   i: 73,
   c: 67,
   q: 81,
+  enter: 13,
 };
 const AudioSample = {
   noYAtX: "/audio/no_y.mp3",
@@ -31,6 +32,7 @@ const FunctionVoiceMessageFormat = {
   localMin: "min",
   intersectX: "x",
   intersectY: "y",
+  origin: "origine degli assi",
   currentCoordinates: "x: {x}, y: {y}", //da completare con format-unicorn
   interval: "Asse {axis}, da {min} a {max}", //da completare con format-unicorn
 };
