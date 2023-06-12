@@ -6,8 +6,9 @@ export default {
     port: 3000,
   },
   env: {
-    SONIFICATION_MIN_TICK_TIME_SECONDS: 0.2, //TODO: valutare bene questo numero. lower bound per non andare incontro principio di indeterminazione tonale
-    SONIFICATION_BATCH_SONIFICATION_TIME_SECONDS: 15, //TODO: valutare bene questo numero. lower bound per non andare incontro principio di indeterminazione tonale
+    SONIFICATION_MIN_TICK_TIME_SECONDS: 0.05,
+    REPEAT_SAME_TEXT_TIME_THRESHOLD_SECONDS: 1,
+    SONIFICATION_BATCH_SONIFICATION_TIME_SECONDS: 1,
     INTERACTION_SONIFICATION_HOLD_KEY_TICK_TIME_SECONDS: 1,
     TEXT_TO_SPEECH_MONITOR_QUEUE_INTERVAL_MS: 50,
   },

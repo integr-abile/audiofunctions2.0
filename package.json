@@ -20,6 +20,7 @@
     "math-expressions": "^2.0.0-alpha60",
     "mathjs": "^11.8.0",
     "mathlive": "^0.93.0",
+    "moment": "^2.29.4",
     "nuxt": "^2.15.8",
     "queue-fifo": "^0.2.6",
     "text-diff": "^1.0.1",
