@@ -8,6 +8,7 @@
       :domXRange="functionSonificationOptions.domXRange"
       :domYRange="functionSonificationOptions.domYRange"
       :earconObj="earconToNotifyObj"
+      :shouldResetState="isFnExplorationOutOfBounds"
     />
     <TextToSpeech
       ref="tts"
@@ -52,6 +53,10 @@
         class="h-100"
         @needNotifyStatus="handleFunctionStateNotification"
         @needPlayEarcon="(earconObj) => (earconToNotifyObj = earconObj)"
+        @fnExplorationOutOfVisibleBounds="
+          (userFnExplorationOutOfVisibleBounds) =>
+            (isFnExplorationOutOfBounds = userFnExplorationOutOfVisibleBounds)
+        "
         @needNotifyMessage="handleFunctionMessageEvent"
         @domainManuallyChanged="handleDomainManuallyChanged"
         @beginFunctionInteractionRequest="handleEvent"
@@ -78,13 +83,14 @@ export default {
       currentConfiguration: [],
       functionActionRequest: null, //oggetto del tipo {requestType: enum, repetition: 1}
       ttsOptions: null, //oggetto di configurazione che dice cosa può dire e quando il TTS
-      isTTSEnabled: true, //questa variabile dev'essere mantenuta sincronizzata con quella nell'interaction bar come valore di default
+      isTTSEnabled: false, //questa variabile dev'essere mantenuta sincronizzata con quella nell'interaction bar come valore di default
       fnTextRepresentation: "",
       availableTTSVoices: [],
       isFnInteractionEnabled: true, //questa variabile dev'essere mantenuta sincronizzata con quella nell'interaction bar come valore di default
       lastFunctionActionRequestType: null,
       functionSonificationData: {},
       functionSonificationOptions: {},
+      isFnExplorationOutOfBounds: false,
       earconToNotifyObj: {},
       messageQueue: new Queue(),
       ttsMessageID: null,

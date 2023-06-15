@@ -54,6 +54,7 @@ export default {
     "needNotifyMessage",
     "domainManuallyChanged",
     "beginFunctionInteractionRequest",
+    "fnExplorationOutOfVisibleBounds",
   ],
   props: [
     "fn",
@@ -205,10 +206,12 @@ export default {
               id: this.$AudioSample.displayedChartBorder,
               ignoreIsStillPlaying: true,
             });
+            this.$emit("fnExplorationOutOfVisibleBounds", true);
             //se la x nuova sonificata è però fuori range riporto la X ad essere dentro il range e notifico il bordo del grafico
             this.currentFnXValue -= this.sonificationStep;
           } else {
             const xStep = this.sonificationStep / this.fnSamplesInDeltaX;
+            this.$emit("fnExplorationOutOfVisibleBounds", false);
             console.log("xStep: " + xStep);
             const initialXToCheck =
               this.currentFnXValue - this.sonificationStep;
@@ -228,9 +231,11 @@ export default {
               id: this.$AudioSample.displayedChartBorder,
               ignoreIsStillPlaying: true,
             });
+            this.$emit("fnExplorationOutOfVisibleBounds", true);
             //se la x nuova sonificata è però fuori range riporto la X ad essere dentro il range
             this.currentFnXValue += this.sonificationStep;
           } else {
+            this.$emit("fnExplorationOutOfVisibleBounds", false);
             const xStep = this.sonificationStep / this.fnSamplesInDeltaX;
             const initialXToCheck =
               this.currentFnXValue + this.sonificationStep;
@@ -269,6 +274,7 @@ export default {
               this.isBatchExplorationInProgress &&
               this.currentFnXValue < this.domXRange[1]
             ) {
+              this.$emit("fnExplorationOutOfVisibleBounds", false);
               this.calculateYForXAndNotify(this.currentFnXValue);
               this.updateFunctionChart();
 
@@ -288,6 +294,7 @@ export default {
                 id: this.$AudioSample.displayedChartBorder,
                 ignoreIsStillPlaying: true,
               });
+              this.$emit("fnExplorationOutOfVisibleBounds", true);
             }
           }.bind(this);
           sonifyTick();
@@ -516,6 +523,7 @@ export default {
           this.isBatchExplorationInProgress = false;
           this.currentFnYValue = cx.y;
           this.currentFnXValue = cx.x;
+          this.$emit("fnExplorationOutOfVisibleBounds", false);
           this.notifyCurrentXYPositionIfNeeded();
         }.bind(this)
       );
@@ -541,6 +549,7 @@ export default {
           //   false
           // );
           this.$emit("needNotifyStatus", this.functionStatus);
+          this.$emit("fnExplorationOutOfVisibleBounds", true);
         }.bind(this)
       );
       this.fnPlotInstance.on(
