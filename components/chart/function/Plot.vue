@@ -185,16 +185,14 @@ export default {
           this.isBatchExplorationInProgress = false;
           this.isManualExplorationInProgress = true;
           this.canEmitEventsForSonification = true;
+          this.$emit("fnExplorationOutOfVisibleBounds", true);
           this.currentFnXValue = this.currentFnXValue ?? this.domXRange[0];
           this.updateFunctionChart();
           this.calculateYForXAndNotify(this.currentFnXValue);
           await this.$soundFactory.enableSonifier();
           break;
         case this.$FunctionAction.endExploration:
-          this.isManualExplorationInProgress = false;
-          this.canEmitEventsForSonification = false;
-          this.$emit("needNotifyStatus", this.functionStatus);
-          this.updateFunctionChart();
+          this.performEndExplorationOperations();
           break;
         case this.$FunctionAction.incrementStep:
           this.currentFnXValue += this.sonificationStep;
@@ -256,8 +254,13 @@ export default {
           break;
         case this.$FunctionAction.batchExploration:
           if (this.isBatchExplorationInProgress) {
-            return;
+            this.performEndExplorationOperations();
+            if (!_.isNil(this.batchSonificationTimer)) {
+              clearTimeout(this.batchSonificationTimer);
+            }
+            // return;
           }
+          this.$emit("fnExplorationOutOfVisibleBounds", true);
           this.isBatchExplorationInProgress = true;
           const xDomainTicksToNotifyCount =
             (this.domXRange[1] - this.domXRange[0]) / this.sonificationStep;
@@ -639,6 +642,13 @@ export default {
         });
         // this.$soundFactory.playSample(this.$AudioSample.noYAtX);
       }
+    },
+    performEndExplorationOperations() {
+      this.isManualExplorationInProgress = false;
+      this.canEmitEventsForSonification = false;
+      this.$emit("needNotifyStatus", this.functionStatus);
+      this.$emit("fnExplorationOutOfVisibleBounds", true);
+      this.updateFunctionChart();
     },
   },
 };
