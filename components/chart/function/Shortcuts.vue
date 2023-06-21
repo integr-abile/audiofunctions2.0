@@ -139,7 +139,7 @@ export default {
               this.$emit(
                 "actionRequest",
                 _.isNil(this.holdKeyTimer)
-                  ? this.$FunctionAction.beginExploration
+                  ? this.$FunctionAction.beginExplorationIncrement
                   : this.$FunctionAction.incrementStep
               );
               // this.$emit("actionRequest", this.$FunctionAction.incrementStep);
@@ -159,7 +159,7 @@ export default {
               this.$emit(
                 "actionRequest",
                 _.isNil(this.holdKeyTimer)
-                  ? this.$FunctionAction.beginExploration
+                  ? this.$FunctionAction.beginExplorationDecrement
                   : this.$FunctionAction.decrementStep
               );
               this.holdKeyTimer = setTimeout(
