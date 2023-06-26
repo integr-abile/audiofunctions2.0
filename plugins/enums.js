@@ -27,6 +27,7 @@ const KeyboardKey = {
 const AudioSample = {
   noYAtX: "/audio/no_y.mp3",
   displayedChartBorder: "/audio/chart_border.mp3",
+  axisIntersection: "/audio/axis-intersection.wav",
 };
 const FunctionVoiceMessageFormat = {
   // localMax: "max",

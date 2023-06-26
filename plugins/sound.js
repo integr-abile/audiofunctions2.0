@@ -18,6 +18,7 @@ export default ({ app }, inject) => {
     #gain;
     #audioNoYPlayer;
     #audioDomainExtremeBorder;
+    #origineDegliAssiAudioPlayer;
     #lastPitchClass;
     #minGain = 0.1;
     #maxGain = 1; //no amplificazione
@@ -159,6 +160,25 @@ export default ({ app }, inject) => {
                 return;
               }
               this.playAudio(this.#audioDomainExtremeBorder);
+            }
+          }
+          break;
+        case app.$AudioSample.axisIntersection:
+          if (_.isNil(this.#origineDegliAssiAudioPlayer)) {
+            this.#origineDegliAssiAudioPlayer =
+              new Tone.Player().toDestination();
+            this.#origineDegliAssiAudioPlayer.load(audioSampleId, function () {
+              console.log(`audio sample loaded ${audioSampleId}`);
+              this.playAudio(this.#origineDegliAssiAudioPlayer);
+            });
+          } else {
+            if (ignoreNotFinishedYet) {
+              this.playAudio(this.#origineDegliAssiAudioPlayer);
+            } else {
+              if (this.#origineDegliAssiAudioPlayer.state == "started") {
+                return;
+              }
+              this.playAudio(this.#origineDegliAssiAudioPlayer);
             }
           }
           break;
