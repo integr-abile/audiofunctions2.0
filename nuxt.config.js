@@ -53,6 +53,7 @@ export default {
     { src: "~/plugins/vue-clipboard.js", mode: "client" },
     { src: "~/plugins/vue-mathjax.js", mode: "client" },
     { src: "~/plugins/vue-mouseover.js", mode: "client" },
+    { src: "~/plugins/vue-visibility.js", mode: "client" },
   ],
 
   // Auto import components: https://go.nuxtjs.dev/config-components

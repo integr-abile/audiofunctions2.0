@@ -1,5 +1,8 @@
 <template>
-  <div class="h-100 d-flex flex-column">
+  <div
+    class="h-100 d-flex flex-column"
+    v-visibility-change="onChartAreaVisibilityChange"
+  >
     <VueAnnouncer />
     <ChartSonifier
       v-bind="functionSonificationData"
@@ -239,6 +242,14 @@ export default {
     onVoicesLoaded(voices) {
       console.log("Caricamento voci completato");
       this.availableTTSVoices = voices;
+    },
+    onChartAreaVisibilityChange(evt, hidden) {
+      console.log("hidden " + hidden);
+      const newFunctionSonificationOptions = _.cloneDeep(
+        this.functionSonificationOptions
+      );
+      newFunctionSonificationOptions.isEnabled = !hidden;
+      this.functionSonificationOptions = newFunctionSonificationOptions;
     },
     handleDomainManuallyChanged(changes) {
       // console.log("dominio cambiato " + changes);

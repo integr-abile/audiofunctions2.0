@@ -10154,6 +10154,11 @@ vue-template-es2015-compiler@^1.9.0:
   resolved "https://registry.yarnpkg.com/vue-template-es2015-compiler/-/vue-template-es2015-compiler-1.9.1.tgz#1ee3bc9a16ecbf5118be334bb15f9c46f82f5825"
   integrity sha512-4gDntzrifFnCEvyoO8PqyJDmguXgVPxKiIxrBKjIowvL9l+N66196+72XVYR8BBf1Uv1Fgt3bGevJ+sEmxfZzw==
 
+vue-visibility-change@^1.2.1:
+  version "1.2.1"
+  resolved "https://registry.yarnpkg.com/vue-visibility-change/-/vue-visibility-change-1.2.1.tgz#d18008bf4f1de2c947afe5441ee044b9e9c60141"
+  integrity sha512-CgnubNhAY+EXqTHba660YY7FRubBuYkSELIlbXBBdgdiM/g5DmgFtLd2XChCqXs56TTfshnlIA900traBZPZQg==
+
 vue@^2.6.11, vue@^2.7.10:
   version "2.7.14"
   resolved "https://registry.yarnpkg.com/vue/-/vue-2.7.14.tgz#3743dcd248fd3a34d421ae456b864a0246bafb17"
