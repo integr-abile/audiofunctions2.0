@@ -54,6 +54,7 @@ export default {
     "needNotifyMessage",
     "domainManuallyChanged",
     "beginFunctionInteractionRequest",
+    "fnExplorationOutOfVisibleBounds",
   ],
   props: [
     "fn",
@@ -180,67 +181,117 @@ export default {
     async actionRequest(val) {
       console.log(`richiesta azione ${val.requestType}`);
       switch (val.requestType) {
-        case this.$FunctionAction.beginExploration:
+        case this.$FunctionAction.beginExplorationIncrement:
+        case this.$FunctionAction.beginExplorationDecrement:
           this.isBatchExplorationInProgress = false;
           this.isManualExplorationInProgress = true;
           this.canEmitEventsForSonification = true;
-          this.currentFnXValue = this.currentFnXValue ?? this.domXRange[0];
+          this.$emit("fnExplorationOutOfVisibleBounds", true);
+          if (_.isNil(this.currentFnXValue)) {
+            this.currentFnXValue = this.domXRange[0];
+          } else {
+            if (
+              val.requestType == this.$FunctionAction.beginExplorationIncrement
+            ) {
+              this.currentFnXValue += this.sonificationStep;
+            } else {
+              this.currentFnXValue -= this.sonificationStep;
+            }
+          }
           this.updateFunctionChart();
           this.calculateYForXAndNotify(this.currentFnXValue);
+          if (!this.isCurrentXInDisplayedRange) {
+            this.adjustXOutOfVisibleBoundsAndNotify(
+              val.requestType == this.$FunctionAction.beginExplorationIncrement
+                ? -1
+                : 1
+            );
+          } else {
+            this.setXInVisibleBoundsAndResumeNotifications(
+              val.requestType == this.$FunctionAction.beginExplorationIncrement
+                ? 1
+                : -1
+            );
+          }
           await this.$soundFactory.enableSonifier();
           break;
         case this.$FunctionAction.endExploration:
-          this.isManualExplorationInProgress = false;
-          this.canEmitEventsForSonification = false;
-          this.$emit("needNotifyStatus", this.functionStatus);
-          this.updateFunctionChart();
+          this.performEndExplorationOperations();
           break;
         case this.$FunctionAction.incrementStep:
-          this.currentFnXValue += this.sonificationStep;
-          this.calculateYForXAndNotify(this.currentFnXValue);
-          this.updateFunctionChart();
-
-          if (!this.isCurrentXInDisplayedRange) {
-            this.$emit("needPlayEarcon", {
-              id: this.$AudioSample.displayedChartBorder,
-              ignoreIsStillPlaying: true,
-            });
-            //se la x nuova sonificata è però fuori range riporto la X ad essere dentro il range e notifico il bordo del grafico
-            this.currentFnXValue -= this.sonificationStep;
-          } else {
-            const xStep = this.sonificationStep / this.fnSamplesInDeltaX;
-            console.log("xStep: " + xStep);
-            const initialXToCheck =
-              this.currentFnXValue - this.sonificationStep;
-            var currentCheckedX = initialXToCheck;
-            while (currentCheckedX < this.currentFnXValue) {
-              this.calculateAndNotifyRelevantValuesForX(currentCheckedX);
-              currentCheckedX += xStep;
-            }
-          }
-          break;
         case this.$FunctionAction.decrementStep:
-          this.currentFnXValue -= this.sonificationStep;
+          this.currentFnXValue =
+            this.currentFnXValue +
+            (this.sonificationStep *
+            (val.requestType == this.$FunctionAction.incrementStep)
+              ? 1
+              : -1);
           this.calculateYForXAndNotify(this.currentFnXValue);
           this.updateFunctionChart();
           if (!this.isCurrentXInDisplayedRange) {
-            this.$emit("needPlayEarcon", {
-              id: this.$AudioSample.displayedChartBorder,
-              ignoreIsStillPlaying: true,
-            });
-            //se la x nuova sonificata è però fuori range riporto la X ad essere dentro il range
-            this.currentFnXValue += this.sonificationStep;
+            this.adjustXOutOfVisibleBoundsAndNotify(
+              val.requestType == this.$FunctionAction.incrementStep ? -1 : 1
+            );
           } else {
-            const xStep = this.sonificationStep / this.fnSamplesInDeltaX;
-            const initialXToCheck =
-              this.currentFnXValue + this.sonificationStep;
-            var currentCheckedX = initialXToCheck;
-            while (currentCheckedX > this.currentFnXValue) {
-              this.calculateAndNotifyRelevantValuesForX(currentCheckedX);
-              currentCheckedX -= xStep;
-            }
+            this.setXInVisibleBoundsAndResumeNotifications(
+              val.requestType == this.$FunctionAction.incrementStep ? 1 : -1
+            );
           }
           break;
+        // case this.$FunctionAction.incrementStep:
+        //   this.currentFnXValue += this.sonificationStep;
+        //   this.calculateYForXAndNotify(this.currentFnXValue);
+        //   this.updateFunctionChart();
+
+        //   if (!this.isCurrentXInDisplayedRange) {
+        //     this.adjustXOutOfVisibleBoundsAndNotify(-1);
+        //     // this.$emit("needPlayEarcon", {
+        //     //   id: this.$AudioSample.displayedChartBorder,
+        //     //   ignoreIsStillPlaying: true,
+        //     // });
+        //     // this.$emit("fnExplorationOutOfVisibleBounds", true);
+        //     // //se la x nuova sonificata è però fuori range riporto la X ad essere dentro il range e notifico il bordo del grafico
+        //     // this.currentFnXValue -= this.sonificationStep;
+        //   } else {
+        //     this.setXInVisibleBoundsAndResumeNotifications(1);
+        //     // const xStep = this.sonificationStep / this.fnSamplesInDeltaX;
+        //     // this.$emit("fnExplorationOutOfVisibleBounds", false);
+        //     // console.log("xStep: " + xStep);
+        //     // const initialXToCheck =
+        //     //   this.currentFnXValue - this.sonificationStep;
+        //     // var currentCheckedX = initialXToCheck;
+        //     // while (currentCheckedX < this.currentFnXValue) {
+        //     //   this.calculateAndNotifyRelevantValuesForX(currentCheckedX);
+        //     //   currentCheckedX += xStep;
+        //     // }
+        //   }
+        //   break;
+        // case this.$FunctionAction.decrementStep:
+        //   this.currentFnXValue -= this.sonificationStep;
+        //   this.calculateYForXAndNotify(this.currentFnXValue);
+        //   this.updateFunctionChart();
+        //   if (!this.isCurrentXInDisplayedRange) {
+        //     this.adjustXOutOfVisibleBoundsAndNotify(1);
+        //     // this.$emit("needPlayEarcon", {
+        //     //   id: this.$AudioSample.displayedChartBorder,
+        //     //   ignoreIsStillPlaying: true,
+        //     // });
+        //     // this.$emit("fnExplorationOutOfVisibleBounds", true);
+        //     // //se la x nuova sonificata è però fuori range riporto la X ad essere dentro il range
+        //     // this.currentFnXValue += this.sonificationStep;
+        //   } else {
+        //     this.setXInVisibleBoundsAndResumeNotifications(-1);
+        //     // this.$emit("fnExplorationOutOfVisibleBounds", false);
+        //     // const xStep = this.sonificationStep / this.fnSamplesInDeltaX;
+        //     // const initialXToCheck =
+        //     //   this.currentFnXValue + this.sonificationStep;
+        //     // var currentCheckedX = initialXToCheck;
+        //     // while (currentCheckedX > this.currentFnXValue) {
+        //     //   this.calculateAndNotifyRelevantValuesForX(currentCheckedX);
+        //     //   currentCheckedX -= xStep;
+        //     // }
+        //   }
+        //   break;
         case this.$FunctionAction.goToBegin:
           this.currentFnXValue = this.domXRange[0];
           this.calculateYForXAndNotify(this.currentFnXValue);
@@ -251,8 +302,13 @@ export default {
           break;
         case this.$FunctionAction.batchExploration:
           if (this.isBatchExplorationInProgress) {
-            return;
+            this.performEndExplorationOperations();
+            if (!_.isNil(this.batchSonificationTimer)) {
+              clearTimeout(this.batchSonificationTimer);
+            }
+            // return;
           }
+          this.$emit("fnExplorationOutOfVisibleBounds", true);
           this.isBatchExplorationInProgress = true;
           const xDomainTicksToNotifyCount =
             (this.domXRange[1] - this.domXRange[0]) / this.sonificationStep;
@@ -269,6 +325,7 @@ export default {
               this.isBatchExplorationInProgress &&
               this.currentFnXValue < this.domXRange[1]
             ) {
+              this.$emit("fnExplorationOutOfVisibleBounds", false);
               this.calculateYForXAndNotify(this.currentFnXValue);
               this.updateFunctionChart();
 
@@ -288,6 +345,7 @@ export default {
                 id: this.$AudioSample.displayedChartBorder,
                 ignoreIsStillPlaying: true,
               });
+              this.$emit("fnExplorationOutOfVisibleBounds", true);
             }
           }.bind(this);
           sonifyTick();
@@ -364,6 +422,28 @@ export default {
       this.alreadyRequestedBeginFunctionInteraction = true;
       this.$emit("beginFunctionInteractionRequest");
     },
+    //Multiplier deve'essere 1 o -1
+    adjustXOutOfVisibleBoundsAndNotify(multiplier) {
+      this.$emit("needPlayEarcon", {
+        id: this.$AudioSample.displayedChartBorder,
+        ignoreIsStillPlaying: true,
+      });
+      this.$emit("fnExplorationOutOfVisibleBounds", true);
+      this.currentFnXValue += this.sonificationStep * multiplier;
+    },
+    setXInVisibleBoundsAndResumeNotifications(multiplier) {
+      const xStep = this.sonificationStep / this.fnSamplesInDeltaX;
+      this.$emit("fnExplorationOutOfVisibleBounds", false);
+      console.log("xStep: " + xStep);
+      const initialXToCheck =
+        this.currentFnXValue - this.sonificationStep * multiplier;
+      var currentCheckedX = initialXToCheck;
+      while (currentCheckedX < this.currentFnXValue) {
+        this.calculateAndNotifyRelevantValuesForX(currentCheckedX);
+        currentCheckedX += xStep * multiplier;
+      }
+    },
+
     estimateFunctionNumberOfSamples() {
       const pixelDensity = window.devicePixelRatio || 1;
       const estimation = this.fnContainerWidth * pixelDensity;
@@ -516,6 +596,7 @@ export default {
           this.isBatchExplorationInProgress = false;
           this.currentFnYValue = cx.y;
           this.currentFnXValue = cx.x;
+          this.$emit("fnExplorationOutOfVisibleBounds", false);
           this.notifyCurrentXYPositionIfNeeded();
         }.bind(this)
       );
@@ -541,6 +622,7 @@ export default {
           //   false
           // );
           this.$emit("needNotifyStatus", this.functionStatus);
+          this.$emit("fnExplorationOutOfVisibleBounds", true);
         }.bind(this)
       );
       this.fnPlotInstance.on(
@@ -630,6 +712,13 @@ export default {
         });
         // this.$soundFactory.playSample(this.$AudioSample.noYAtX);
       }
+    },
+    performEndExplorationOperations() {
+      this.isManualExplorationInProgress = false;
+      this.canEmitEventsForSonification = false;
+      this.$emit("needNotifyStatus", this.functionStatus);
+      this.$emit("fnExplorationOutOfVisibleBounds", true);
+      this.updateFunctionChart();
     },
   },
 };

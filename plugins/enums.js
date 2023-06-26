@@ -1,6 +1,7 @@
 const fnCommandPrefix = "fn";
 const FunctionAction = {
-  beginExploration: `${fnCommandPrefix}_beginExploration`,
+  beginExplorationIncrement: `${fnCommandPrefix}_beginExplorationIncrement`,
+  beginExplorationDecrement: `${fnCommandPrefix}_beginExplorationDecrement`,
   incrementStep: `${fnCommandPrefix}_incrementStep`,
   endExploration: `${fnCommandPrefix}_endExploration`,
   decrementStep: `${fnCommandPrefix}_decrementStep`,

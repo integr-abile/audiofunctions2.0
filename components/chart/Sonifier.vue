@@ -13,6 +13,7 @@ export default {
     "domXRange",
     "domYRange",
     "earconObj",
+    "shouldResetState",
   ],
   data() {
     return {
@@ -33,6 +34,12 @@ export default {
         this.$soundFactory.stopSonification(this.instrument);
       }
     },
+    shouldResetState(val) {
+      if (val) {
+        console.log("resetting cache");
+        this.$soundFactory.resetCache();
+      }
+    },
     earconObj(val) {
       if (!this.checkPreconditions() || !this.isEnabled) {
         return;
@@ -45,6 +52,7 @@ export default {
         if (!this.checkPreconditions() || !this.isEnabled) {
           return;
         }
+
         this.sonify();
       } else {
         if (!_.isNil(this.instrument)) {

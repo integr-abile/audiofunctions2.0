@@ -84,9 +84,9 @@ export default ({ app }, inject) => {
           envelope: {
             attack: 0.21000000000000005,
             attackCurve: "linear",
-            decay: 0.2,
+            decay: 0.1,
             decayCurve: "exponential",
-            release: 0.5,
+            release: 0.05,
             releaseCurve: "exponential",
             sustain: 1,
           },
@@ -176,7 +176,9 @@ export default ({ app }, inject) => {
     getAllInstrumentsName() {
       return _.map(this.#allInstruments, "name");
     }
-
+    resetCache() {
+      this.#lastPitchClass = null;
+    }
     async enableSonifier() {
       await Tone.start();
       return true;
@@ -280,12 +282,14 @@ export default ({ app }, inject) => {
           1
         );
       } else {
+        console.log("sonificazione discreta");
         const idxDomYValueLtCur =
           domYIntervalExtremes.findIndex((element) => {
             return element > yValue;
           }) - 1;
         const pitchClass =
           domYFrequencyMap[domYIntervalExtremes[idxDomYValueLtCur]];
+
         if (pitchClass == this.#lastPitchClass) {
           return;
         }
@@ -295,11 +299,12 @@ export default ({ app }, inject) => {
             const instrument = this.getInstrumentFrom(instrumentId);
             const concreteInstrument = instrument.instrument;
             console.log(`pitch class ${pitchClass}`);
-            if (concreteInstrument.state == "started") {
-              concreteInstrument.triggerRelease();
-            } else {
-              concreteInstrument.connect(this.#panner);
-            }
+            // if (concreteInstrument.state == "started") {
+            //   concreteInstrument.triggerRelease();
+            // } else {
+            //   concreteInstrument.connect(this.#panner);
+            // }
+            concreteInstrument.connect(this.#panner);
             this.#panner.pan.value = curPanningValue;
             this.#gain.gain.value = curGain;
             concreteInstrument.triggerAttackRelease(pitchClass, "4n");
