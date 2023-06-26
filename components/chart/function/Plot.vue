@@ -476,12 +476,12 @@ export default {
         const secondDerivativeValueAtX = this.fnSecondDerivative.evaluate({
           x: x,
         });
-        this.notifyTextMessage(
-          this.$TextToSpeechOption.maxMin,
-          secondDerivativeValueAtX > 0
-            ? this.$FunctionVoiceMessageFormat.localMin
-            : this.$FunctionVoiceMessageFormat.localMax
-        );
+        // this.notifyTextMessage(
+        //   this.$TextToSpeechOption.maxMin,
+        //   secondDerivativeValueAtX > 0
+        //     ? this.$FunctionVoiceMessageFormat.localMin
+        //     : this.$FunctionVoiceMessageFormat.localMax
+        // );
         console.log("valore derivata seconda " + secondDerivativeValueAtX);
       }
       //Controllo se abbiamo un'intersezione con l'asse X o Y
@@ -505,17 +505,17 @@ export default {
           if (checkYAxisIntersection) {
             message = this.$FunctionVoiceMessageFormat.origin;
           }
-          this.notifyTextMessage(
-            this.$TextToSpeechOption.axisIntersections,
-            message
-          );
+          // this.notifyTextMessage(
+          //   this.$TextToSpeechOption.axisIntersections,
+          //   message
+          // );
           // this.$emit("needNotifyMessage", message);
         } else {
           if (checkYAxisIntersection) {
-            this.notifyTextMessage(
-              this.$TextToSpeechOption.axisIntersections,
-              this.$FunctionVoiceMessageFormat.intersectY
-            );
+            // this.notifyTextMessage(
+            //   this.$TextToSpeechOption.axisIntersections,
+            //   this.$FunctionVoiceMessageFormat.intersectY
+            // );
             // this.$emit(
             //   "needNotifyMessage",
             //   this.$FunctionVoiceMessageFormat.intersectY

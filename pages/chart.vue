@@ -189,15 +189,15 @@ export default {
           identifier: "tts",
           data: {
             speechPermissions: [
-              {
-                identifier: this.$TextToSpeechOption.maxMin,
-                canPlayAutomatically: true,
-              },
+              // {
+              //   identifier: this.$TextToSpeechOption.maxMin,
+              //   canPlayAutomatically: true,
+              // },
 
-              {
-                identifier: this.$TextToSpeechOption.axisIntersections,
-                canPlayAutomatically: true,
-              },
+              // {
+              //   identifier: this.$TextToSpeechOption.axisIntersections,
+              //   canPlayAutomatically: true,
+              // },
               {
                 identifier: this.$TextToSpeechOption.coordinates,
               },
