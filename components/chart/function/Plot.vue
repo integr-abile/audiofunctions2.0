@@ -476,12 +476,12 @@ export default {
         const secondDerivativeValueAtX = this.fnSecondDerivative.evaluate({
           x: x,
         });
-        this.notifyTextMessage(
-          this.$TextToSpeechOption.maxMin,
-          secondDerivativeValueAtX > 0
-            ? this.$FunctionVoiceMessageFormat.localMin
-            : this.$FunctionVoiceMessageFormat.localMax
-        );
+        // this.notifyTextMessage(
+        //   this.$TextToSpeechOption.maxMin,
+        //   secondDerivativeValueAtX > 0
+        //     ? this.$FunctionVoiceMessageFormat.localMin
+        //     : this.$FunctionVoiceMessageFormat.localMax
+        // );
         console.log("valore derivata seconda " + secondDerivativeValueAtX);
       }
       //Controllo se abbiamo un'intersezione con l'asse X o Y
@@ -499,23 +499,37 @@ export default {
       // const checkXAxisIntersection = y > -stepTolerance && y < stepTolerance;
       // const checkYAxisIntersection = x > -stepTolerance && x < stepTolerance;
       if (checkXAxisIntersection || checkYAxisIntersection) {
-        var message = "";
+        // var message = "";
         if (checkXAxisIntersection) {
-          message += this.$FunctionVoiceMessageFormat.intersectX;
+          // message += this.$FunctionVoiceMessageFormat.intersectX;
           if (checkYAxisIntersection) {
-            message = this.$FunctionVoiceMessageFormat.origin;
+            //Se sono qui è perchè sono nell'origine
+            console.log("earcon origine degli assi");
+            this.$emit("needPlayEarcon", {
+              id: this.$AudioSample.axisIntersection,
+              ignoreIsStillPlaying: true,
+            });
+            // message = this.$FunctionVoiceMessageFormat.origin;
           }
-          this.notifyTextMessage(
-            this.$TextToSpeechOption.axisIntersections,
-            message
-          );
+          // this.$emit("needPlayEarcon", {
+          //   id: this.$AudioSample.axisIntersection,
+          //   ignoreIsStillPlaying: true,
+          // });
+          // this.notifyTextMessage(
+          //   this.$TextToSpeechOption.axisIntersections,
+          //   message
+          // );
           // this.$emit("needNotifyMessage", message);
         } else {
           if (checkYAxisIntersection) {
-            this.notifyTextMessage(
-              this.$TextToSpeechOption.axisIntersections,
-              this.$FunctionVoiceMessageFormat.intersectY
-            );
+            // this.$emit("needPlayEarcon", {
+            //   id: this.$AudioSample.axisIntersection,
+            //   ignoreIsStillPlaying: true,
+            // });
+            // this.notifyTextMessage(
+            //   this.$TextToSpeechOption.axisIntersections,
+            //   this.$FunctionVoiceMessageFormat.intersectY
+            // );
             // this.$emit(
             //   "needNotifyMessage",
             //   this.$FunctionVoiceMessageFormat.intersectY

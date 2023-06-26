@@ -27,20 +27,21 @@ const KeyboardKey = {
 const AudioSample = {
   noYAtX: "/audio/no_y.mp3",
   displayedChartBorder: "/audio/chart_border.mp3",
+  axisIntersection: "/audio/axis-intersection.wav",
 };
 const FunctionVoiceMessageFormat = {
-  localMax: "max",
-  localMin: "min",
-  intersectX: "x",
-  intersectY: "y",
+  // localMax: "max",
+  // localMin: "min",
+  // intersectX: "x",
+  // intersectY: "y",
   origin: "origine degli assi",
   currentCoordinates: "x: {x}, y: {y}", //da completare con format-unicorn
   interval: "Asse {axis}, da {min} a {max}", //da completare con format-unicorn
 };
 const TextToSpeechOption = {
-  maxMin: "massimi-e-minimi", //poi da dividere gli spazi per ottenere la descrizione
+  // maxMin: "massimi-e-minimi", //poi da dividere gli spazi per ottenere la descrizione
   coordinates: "coordinate",
-  axisIntersections: "intersezioni-con-gli-assi",
+  // axisIntersections: "intersezioni-con-gli-assi",
   intervals: "intervalli-visualizzati",
   currentFunction: "funzione-corrente",
 };
