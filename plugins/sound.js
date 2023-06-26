@@ -84,9 +84,9 @@ export default ({ app }, inject) => {
           envelope: {
             attack: 0.21000000000000005,
             attackCurve: "linear",
-            decay: 0.2,
+            decay: 0.1,
             decayCurve: "exponential",
-            release: 0.5,
+            release: 0.05,
             releaseCurve: "exponential",
             sustain: 1,
           },
