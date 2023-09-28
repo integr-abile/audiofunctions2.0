@@ -549,7 +549,7 @@ export default {
         tip: {
           xLine: true,
           renderer: function (x, y) {
-            return `(${x.toFixed(2)}, ${y.toFixed(2)})`;
+            // return `(${x.toFixed(2)}, ${y.toFixed(2)})`;
           },
         },
         yAxis: {
@@ -569,7 +569,7 @@ export default {
               fn: _.isNil(this.fnDerivative)
                 ? "0"
                 : this.fnDerivative.toString(),
-              updateOnMouseMove: true,
+              updateOnMouseMove: false, //con true si vede la tangente
             },
           },
         ],
