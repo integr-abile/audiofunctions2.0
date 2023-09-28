@@ -140,8 +140,6 @@ export default {
       lastCopyFunctionSuccess: false,
       showCopyAlert: false,
       predefinedFunctions: [
-        "sin(x)",
-        "cos(x)",
         "0",
         "3",
         "x+3",
@@ -149,6 +147,8 @@ export default {
         "5(x+3)",
         "x^2",
         "5x^2",
+        "sqrt(x)",
+        "(x^2)/(x^2+1)",
         "x^4",
         "5abs(x)",
         "((((2)/(3))x^(3)-1)/(x^(2)))-3cos(x)",
