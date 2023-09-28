@@ -27,6 +27,7 @@
         :customizableItems="initialConfiguration"
         :initialIsTTSEnabled="isTTSEnabled"
         @saveChanges="onOptionsChangesSaved"
+        @switchPredefinedFunction="onSwitchPredefinedFunction"
         @userInteraction="handleFunctionActionRequest"
         @ttsEnableStatusChange="
           (isTextToSpeechEnabled) => (isTTSEnabled = isTextToSpeechEnabled)
@@ -192,15 +193,6 @@ export default {
           identifier: "tts",
           data: {
             speechPermissions: [
-              // {
-              //   identifier: this.$TextToSpeechOption.maxMin,
-              //   canPlayAutomatically: true,
-              // },
-
-              // {
-              //   identifier: this.$TextToSpeechOption.axisIntersections,
-              //   canPlayAutomatically: true,
-              // },
               {
                 identifier: this.$TextToSpeechOption.coordinates,
               },
@@ -298,6 +290,21 @@ export default {
 
       console.log(`options changed to: ${optionsChanged}`);
       this.valorizeFunctionParamsFromOptions(optionsChanged);
+    },
+    onSwitchPredefinedFunction(newFn) {
+      console.log(`cambiata funzione predefinita ${newFn}`);
+
+      const idxOfFn = _.findIndex(this.currentConfiguration, {
+        identifier: "function",
+      });
+      const newFunctionOptions = _.cloneDeep(this.functionOptions);
+      newFunctionOptions.fn = newFn;
+      this.functionOptions = newFunctionOptions;
+      this.currentConfiguration[idxOfFn].data.fn = newFn;
+      this.currentConfiguration = _.cloneDeep(this.currentConfiguration);
+      this.$refs.actionMenu.updateCurrentCustomizableItems(
+        this.currentConfiguration
+      );
     },
     valorizeFunctionParamsFromOptions(options) {
       const functionData = _.head(

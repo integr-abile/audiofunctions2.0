@@ -57,6 +57,7 @@
           <ChartInstructionModal modal-id="instruction-modal" />
           <b-button v-b-modal.keymap-modal>Keymap</b-button>
           <ChartKeybindingModal modal-id="keymap-modal" />
+          <b-button @click="changeFunction">Switch funzione</b-button>
         </div>
       </div>
     </div>
@@ -101,6 +102,7 @@ export default {
     "ttsEnableStatusChange",
     "functionInteractionEnableStatusChange",
     "customizableItemsConfigurationChange",
+    "switchPredefinedFunction",
   ],
   props: {
     customizableItems: {
@@ -137,6 +139,21 @@ export default {
       currentFunctionIntervalArith: null,
       lastCopyFunctionSuccess: false,
       showCopyAlert: false,
+      predefinedFunctions: [
+        "sin(x)",
+        "cos(x)",
+        "0",
+        "3",
+        "x+3",
+        "-x+3",
+        "5(x+3)",
+        "x^2",
+        "5x^2",
+        "x^4",
+        "5abs(x)",
+        "((((2)/(3))x^(3)-1)/(x^(2)))-3cos(x)",
+      ],
+      currentPredefinedFunction: null,
     };
   },
   watch: {
@@ -197,6 +214,22 @@ export default {
       this.lastCopyFunctionSuccess = false;
       this.showCopyAlert = true;
       console.error("errore copia");
+    },
+    changeFunction(evt) {
+      this.currentPredefinedFunction =
+        this.currentPredefinedFunction === null
+          ? this.predefinedFunctions[0]
+          : this.getNextElement(
+              this.predefinedFunctions,
+              this.currentPredefinedFunction
+            );
+      this.$emit("switchPredefinedFunction", this.currentPredefinedFunction);
+    },
+    getNextElement(array, element) {
+      let index = _.indexOf(array, element);
+      if (index === -1) return null;
+      index = (index + 1) % array.length;
+      return array[index];
     },
     handleSaveChanges(optionIdentifiers) {
       console.log(`handleSaveChanges for ${optionIdentifiers}`);
