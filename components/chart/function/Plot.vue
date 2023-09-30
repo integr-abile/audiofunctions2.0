@@ -220,12 +220,10 @@ export default {
           break;
         case this.$FunctionAction.incrementStep:
         case this.$FunctionAction.decrementStep:
+          const multiplier =
+            val.requestType == this.$FunctionAction.incrementStep ? 1 : -1;
           this.currentFnXValue =
-            this.currentFnXValue +
-            (this.sonificationStep *
-            (val.requestType == this.$FunctionAction.incrementStep)
-              ? 1
-              : -1);
+            this.currentFnXValue + this.sonificationStep * multiplier;
           this.calculateYForXAndNotify(this.currentFnXValue);
           this.updateFunctionChart();
           if (!this.isCurrentXInDisplayedRange) {

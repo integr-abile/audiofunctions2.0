@@ -167,9 +167,9 @@ export default {
           data: {
             xMin: -16, //stessi di geogebra
             xMax: 16, //stessi di geogebra
-            step: 1,
+            step: 0.5,
           },
-          isFavorite: true,
+          isFavorite: false,
         },
         {
           identifier: "yDomain",
@@ -178,7 +178,7 @@ export default {
             yMax: 9, //stessi di geogebra
             step: 1,
           },
-          isFavorite: true,
+          isFavorite: false,
         },
         {
           identifier: "sonification",
