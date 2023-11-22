@@ -72,7 +72,7 @@ export default {
   methods: {
     saveAll() {
       this.$emit("saveChanges", _.map(this.customizableOptions, "identifier"));
-      this.$announcer.assertive("Salvataggio effettuato");
+      this.$announcer.polite("Salvataggio effettuato");
       this.$refs.sidebar.hide();
     },
     handleShowSidebar() {
@@ -81,7 +81,7 @@ export default {
     },
     saveOptions(optionIdentifiers) {
       this.$emit("saveChanges", optionIdentifiers);
-      this.$announcer.assertive("Salvataggio effettuato");
+      this.$announcer.polite("Salvataggio effettuato");
     },
   },
 };

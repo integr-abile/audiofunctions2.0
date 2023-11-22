@@ -63,7 +63,6 @@ export default {
     "domXRange",
     "domYRange",
     "isKeyboardInteractionEnabled",
-    "fnAsText",
   ],
   components: {
     Keypress: () => import("vue-keypress"),
@@ -73,7 +72,7 @@ export default {
       return !_.isNil(this.fn);
     },
     chartAriaLabel() {
-      return `area del grafico.${this.fnAsText}.${
+      return `area del grafico. ${
         this.isKeyboardInteractionEnabled
           ? ""
           : "L'interazione da tastiera è disabilitata. Non puoi esplorare il grafico coi comandi da tastiera"
@@ -378,10 +377,13 @@ export default {
           );
           break;
         case this.$FunctionAction.readCurrentExpression:
-          this.notifyTextMessage(
-            this.$TextToSpeechOption.currentFunction,
-            this.fnAsText
-          );
+          this.$nextTick(() => {
+            let el = document.getElementById("currentFormulaMathJax");
+            el.blur(); //rimuove il focus
+            setTimeout(() => {
+              el.focus();
+            }, 500); //do un po' di tempo per risettarlo perchè altrimenti se premo F o shift+F senza aver lasciato l'ultimo focus, lo SR non legge l'aggiornamento
+          });
           break;
         default:
           break;
@@ -474,12 +476,6 @@ export default {
         const secondDerivativeValueAtX = this.fnSecondDerivative.evaluate({
           x: x,
         });
-        // this.notifyTextMessage(
-        //   this.$TextToSpeechOption.maxMin,
-        //   secondDerivativeValueAtX > 0
-        //     ? this.$FunctionVoiceMessageFormat.localMin
-        //     : this.$FunctionVoiceMessageFormat.localMax
-        // );
         console.log("valore derivata seconda " + secondDerivativeValueAtX);
       }
       //Controllo se abbiamo un'intersezione con l'asse X o Y
@@ -494,47 +490,41 @@ export default {
       const checkXAxisIntersection = this.lastYSign != currentYSign;
       const checkYAxisIntersection = this.lastXSign != currentXSign;
 
-      // const checkXAxisIntersection = y > -stepTolerance && y < stepTolerance;
-      // const checkYAxisIntersection = x > -stepTolerance && x < stepTolerance;
-      if (checkXAxisIntersection || checkYAxisIntersection) {
-        // var message = "";
-        if (checkXAxisIntersection) {
-          // message += this.$FunctionVoiceMessageFormat.intersectX;
-          if (checkYAxisIntersection) {
-            //Se sono qui è perchè sono nell'origine
-            console.log("earcon origine degli assi");
-            this.$emit("needPlayEarcon", {
-              id: this.$AudioSample.axisIntersection,
-              ignoreIsStillPlaying: true,
-            });
-            // message = this.$FunctionVoiceMessageFormat.origin;
-          }
-          // this.$emit("needPlayEarcon", {
-          //   id: this.$AudioSample.axisIntersection,
-          //   ignoreIsStillPlaying: true,
-          // });
-          // this.notifyTextMessage(
-          //   this.$TextToSpeechOption.axisIntersections,
-          //   message
-          // );
-          // this.$emit("needNotifyMessage", message);
-        } else {
-          if (checkYAxisIntersection) {
-            // this.$emit("needPlayEarcon", {
-            //   id: this.$AudioSample.axisIntersection,
-            //   ignoreIsStillPlaying: true,
-            // });
-            // this.notifyTextMessage(
-            //   this.$TextToSpeechOption.axisIntersections,
-            //   this.$FunctionVoiceMessageFormat.intersectY
-            // );
-            // this.$emit(
-            //   "needNotifyMessage",
-            //   this.$FunctionVoiceMessageFormat.intersectY
-            // );
-          }
-        }
+      if (checkYAxisIntersection) {
+        this.$emit("needPlayEarcon", {
+          id: this.$AudioSample.yAxisIntersection,
+          ignoreIsStillPlaying: true,
+        });
       }
+
+      // if (checkXAxisIntersection || checkYAxisIntersection) {
+      //   if (checkXAxisIntersection) {
+      //     if (checkYAxisIntersection) {
+      //       //Se sono qui è perchè sono nell'origine
+      //       console.log("earcon origine degli assi");
+      //       this.$emit("needPlayEarcon", {
+      //         id: this.$AudioSample.axisIntersection,
+      //         ignoreIsStillPlaying: true,
+      //       });
+      //       // message = this.$FunctionVoiceMessageFormat.origin;
+      //     }
+      //   } else {
+      //     if (checkYAxisIntersection) {
+      //       // this.$emit("needPlayEarcon", {
+      //       //   id: this.$AudioSample.axisIntersection,
+      //       //   ignoreIsStillPlaying: true,
+      //       // });
+      //       // this.notifyTextMessage(
+      //       //   this.$TextToSpeechOption.axisIntersections,
+      //       //   this.$FunctionVoiceMessageFormat.intersectY
+      //       // );
+      //       // this.$emit(
+      //       //   "needNotifyMessage",
+      //       //   this.$FunctionVoiceMessageFormat.intersectY
+      //       // );
+      //     }
+      //   }
+      // }
       this.lastFirstDerivativeSign = currentDerivativeSign;
       this.lastXSign = currentXSign;
       this.lastYSign = currentYSign;

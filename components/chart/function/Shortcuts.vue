@@ -25,31 +25,16 @@
       :key-code="$KeyboardKey.b"
       @success="sonifyBatch"
     />
-    <!-- <Keypress
-      key-event="keyup"
-      :multiple-keys="fnBatchExplorationMultipleKeys"
-      @success="sonifyBatch"
-    />-->
     <Keypress
       key-event="keyup"
       :key-code="$KeyboardKey.x"
       @success="requestCurrentXInterval"
     />
-    <!-- <Keypress
-      key-event="keyup"
-      :multiple-keys="fnXIntervalMultipleKeys"
-      @success="requestCurrentXInterval"
-    />-->
     <Keypress
       key-event="keyup"
       :key-code="$KeyboardKey.y"
       @success="requestCurrentYInterval"
     />
-    <!-- <Keypress
-      key-event="keyup"
-      :multiple-keys="fnYIntervalMultipleKeys"
-      @success="requestCurrentYInterval"
-    />-->
     <Keypress
       key-event="keyup"
       :key-code="$KeyboardKey.c"
@@ -60,11 +45,6 @@
       :key-code="$KeyboardKey.q"
       @success="readCurrentExpression"
     />
-    <!-- <Keypress
-      key-event="keyup"
-      :multiple-keys="fnCurrentCoordinatesMultipleKeys"
-      @success="requestCurrentCoordinates"
-    />-->
   </div>
 </template>
 
@@ -77,35 +57,6 @@ export default {
   data() {
     return {
       holdKeyTimer: null,
-
-      // fnBatchExplorationMultipleKeys: [
-      //   {
-      //     keyCode: this.$KeyboardKey.b,
-      //     modifiers: ["ctrlKey", "shiftKey"],
-      //     preventDefault: true,
-      //   },
-      // ],
-      // fnXIntervalMultipleKeys: [
-      //   {
-      //     keyCode: this.$KeyboardKey.x,
-      //     modifiers: ["ctrlKey", "shiftKey"],
-      //     preventDefault: true,
-      //   },
-      // ],
-      // fnYIntervalMultipleKeys: [
-      //   {
-      //     keyCode: this.$KeyboardKey.y,
-      //     modifiers: ["ctrlKey", "shiftKey"],
-      //     preventDefault: true,
-      //   },
-      // ],
-      // fnCurrentCoordinatesMultipleKeys: [
-      //   {
-      //     keyCode: this.$KeyboardKey.i,
-      //     modifiers: ["ctrlKey", "shiftKey"],
-      //     preventDefault: true,
-      //   },
-      // ],
     };
   },
   components: {

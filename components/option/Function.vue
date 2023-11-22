@@ -54,7 +54,6 @@ export default {
   },
   watch: {
     stableInputFunctionLatex(val) {
-      // debugger;
       // this.currentOptionData.fn = val;
       const { error, forFnPlotFormula } = this.validateFormula(val);
       // debugger;
@@ -93,7 +92,7 @@ export default {
         this.currentToSpeakFunction = "Nessuna formula presente";
       }
 
-      this.$announcer.assertive(this.currentToSpeakFunction);
+      this.$announcer.polite(this.currentToSpeakFunction);
       console.log(`mathexpr: ${this.currentToSpeakFunction}`);
     },
     setupMathField() {

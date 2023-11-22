@@ -22,20 +22,17 @@ const KeyboardKey = {
   i: 73,
   c: 67,
   q: 81,
+  f: 70,
   enter: 13,
 };
 const AudioSample = {
   noYAtX: "/audio/no_y.mp3",
   displayedChartBorder: "/audio/chart_border.mp3",
-  axisIntersection: "/audio/axis-intersection.wav",
+  yAxisIntersection: "/audio/y-axis-intersection.wav",
 };
 const FunctionVoiceMessageFormat = {
-  // localMax: "max",
-  // localMin: "min",
-  // intersectX: "x",
-  // intersectY: "y",
   origin: "origine degli assi",
-  currentCoordinates: "x: {x}, y: {y}", //da completare con format-unicorn
+  currentCoordinates: "Coordinate. x: {x}, y: {y}", //da completare con format-unicorn
   interval: "Asse {axis}, da {min} a {max}", //da completare con format-unicorn
 };
 const TextToSpeechOption = {

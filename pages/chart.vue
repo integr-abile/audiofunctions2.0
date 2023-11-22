@@ -293,6 +293,7 @@ export default {
     },
     onSwitchPredefinedFunction(newFn) {
       console.log(`cambiata funzione predefinita ${newFn}`);
+      // debugger;
 
       const idxOfFn = _.findIndex(this.currentConfiguration, {
         identifier: "function",
@@ -305,6 +306,13 @@ export default {
       this.$refs.actionMenu.updateCurrentCustomizableItems(
         this.currentConfiguration
       );
+      this.$nextTick(() => {
+        let el = document.getElementById("currentFormulaMathJax");
+        el.blur(); //rimuove il focus
+        setTimeout(() => {
+          el.focus();
+        }, 500); //do un po' di tempo per risettarlo perchè altrimenti se premo F o shift+F senza aver lasciato l'ultimo focus, lo SR non legge l'aggiornamento
+      });
     },
     valorizeFunctionParamsFromOptions(options) {
       const functionData = _.head(
@@ -395,7 +403,7 @@ export default {
         identifier: functionMessageEvent.type,
       });
       if (permissionIndex == -1) {
-        this.$announcer.assertive(
+        this.$announcer.polite(
           "Non hai il permesso di richiedere questa informazione"
         );
         return;
@@ -450,7 +458,8 @@ export default {
               this.textToRead = message;
             }
           } else {
-            this.$announcer.assertive(message);
+            console.log(`speak through AT -> ${message}`);
+            this.$announcer.polite(message);
           }
         }.bind(this),
         process.env.TEXT_TO_SPEECH_MONITOR_QUEUE_INTERVAL_MS

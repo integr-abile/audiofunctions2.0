@@ -55,7 +55,7 @@ export default {
       handler(newVal) {
         // console.log(`emit ${newVal}`);
         this.$emit("onFunctionInteractionModeChange", newVal);
-        this.$announcer.assertive(
+        this.$announcer.polite(
           newVal
             ? "Ora quando esplori il grafico funzione potrai interagire con la tastiera"
             : ""

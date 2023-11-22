@@ -22,7 +22,12 @@
             Funzione corrente:
           </span>
         </div>
-        <vue-mathjax :formula="currentFunctionLatex" class="mr-2"></vue-mathjax>
+        <vue-mathjax
+          :formula="currentFunctionLatex"
+          id="currentFormulaMathJax"
+          tabindex="-1"
+          class="mr-2"
+        ></vue-mathjax>
         <div class="d-flex align-items-center">
           <b-button
             variant="outline-secondary"
@@ -57,7 +62,12 @@
           <ChartInstructionModal modal-id="instruction-modal" />
           <b-button v-b-modal.keymap-modal>Keymap</b-button>
           <ChartKeybindingModal modal-id="keymap-modal" />
-          <b-button @click="changeFunction">Switch funzione</b-button>
+          <b-button
+            @click="changeFunction"
+            v-shortkey.once="{ next: ['f'], previous: ['shift', 'f'] }"
+            @shortkey="handleShortkey"
+            >Switch funzione</b-button
+          >
         </div>
       </div>
     </div>
@@ -179,6 +189,16 @@ export default {
     // debugger;
   },
   methods: {
+    handleShortkey(event) {
+      switch (event.srcKey) {
+        case "next":
+          this.goToNextFunction(true);
+          break;
+        case "previous":
+          this.goToNextFunction(false);
+          break;
+      }
+    },
     updateCurrentCustomizableItems(newConfiguration) {
       this.currentCustomizableItems = _.cloneDeep(newConfiguration); //bisognare fare un deep clone altrimenti non mi fa una copia anche degli elementi contenuti nell'array
       this.favoriteItems = _.filter(this.currentCustomizableItems, {
@@ -216,20 +236,43 @@ export default {
       console.error("errore copia");
     },
     changeFunction(evt) {
-      this.currentPredefinedFunction =
-        this.currentPredefinedFunction === null
-          ? this.predefinedFunctions[0]
-          : this.getNextElement(
-              this.predefinedFunctions,
-              this.currentPredefinedFunction
-            );
-      this.$emit("switchPredefinedFunction", this.currentPredefinedFunction);
+      this.goToNextFunction(true);
+      // this.currentPredefinedFunction =
+      //   this.currentPredefinedFunction === null
+      //     ? this.predefinedFunctions[0]
+      //     : this.getNextElement(
+      //         this.predefinedFunctions,
+      //         this.currentPredefinedFunction
+      //       );
+      // this.$emit("switchPredefinedFunction", this.currentPredefinedFunction);
     },
     getNextElement(array, element) {
       let index = _.indexOf(array, element);
       if (index === -1) return null;
       index = (index + 1) % array.length;
       return array[index];
+    },
+    getPreviousElement(array, element) {
+      let index = _.indexOf(array, element);
+      // debugger;
+      if (index === -1) return null;
+      index = (index - 1 + array.length) % array.length; //devo sommare array.length altrimenti il risultato potrebbe essere negativo
+      return array[index];
+    },
+    goToNextFunction(shouldGoForward) {
+      this.currentPredefinedFunction =
+        this.currentPredefinedFunction === null
+          ? this.predefinedFunctions[0]
+          : shouldGoForward
+          ? this.getNextElement(
+              this.predefinedFunctions,
+              this.currentPredefinedFunction
+            )
+          : this.getPreviousElement(
+              this.predefinedFunctions,
+              this.currentPredefinedFunction
+            );
+      this.$emit("switchPredefinedFunction", this.currentPredefinedFunction);
     },
     handleSaveChanges(optionIdentifiers) {
       console.log(`handleSaveChanges for ${optionIdentifiers}`);
