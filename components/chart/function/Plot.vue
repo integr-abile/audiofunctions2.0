@@ -42,6 +42,16 @@
   </div>
 </template>
 
+<style lang="scss">
+.function-plot {
+  .graph {
+    .line-1 {
+      stroke-width: 10;
+    }
+  }
+}
+</style>
+
 <script>
 import functionPlot from "function-plot";
 import _ from "lodash";
@@ -235,60 +245,6 @@ export default {
             );
           }
           break;
-        // case this.$FunctionAction.incrementStep:
-        //   this.currentFnXValue += this.sonificationStep;
-        //   this.calculateYForXAndNotify(this.currentFnXValue);
-        //   this.updateFunctionChart();
-
-        //   if (!this.isCurrentXInDisplayedRange) {
-        //     this.adjustXOutOfVisibleBoundsAndNotify(-1);
-        //     // this.$emit("needPlayEarcon", {
-        //     //   id: this.$AudioSample.displayedChartBorder,
-        //     //   ignoreIsStillPlaying: true,
-        //     // });
-        //     // this.$emit("fnExplorationOutOfVisibleBounds", true);
-        //     // //se la x nuova sonificata è però fuori range riporto la X ad essere dentro il range e notifico il bordo del grafico
-        //     // this.currentFnXValue -= this.sonificationStep;
-        //   } else {
-        //     this.setXInVisibleBoundsAndResumeNotifications(1);
-        //     // const xStep = this.sonificationStep / this.fnSamplesInDeltaX;
-        //     // this.$emit("fnExplorationOutOfVisibleBounds", false);
-        //     // console.log("xStep: " + xStep);
-        //     // const initialXToCheck =
-        //     //   this.currentFnXValue - this.sonificationStep;
-        //     // var currentCheckedX = initialXToCheck;
-        //     // while (currentCheckedX < this.currentFnXValue) {
-        //     //   this.calculateAndNotifyRelevantValuesForX(currentCheckedX);
-        //     //   currentCheckedX += xStep;
-        //     // }
-        //   }
-        //   break;
-        // case this.$FunctionAction.decrementStep:
-        //   this.currentFnXValue -= this.sonificationStep;
-        //   this.calculateYForXAndNotify(this.currentFnXValue);
-        //   this.updateFunctionChart();
-        //   if (!this.isCurrentXInDisplayedRange) {
-        //     this.adjustXOutOfVisibleBoundsAndNotify(1);
-        //     // this.$emit("needPlayEarcon", {
-        //     //   id: this.$AudioSample.displayedChartBorder,
-        //     //   ignoreIsStillPlaying: true,
-        //     // });
-        //     // this.$emit("fnExplorationOutOfVisibleBounds", true);
-        //     // //se la x nuova sonificata è però fuori range riporto la X ad essere dentro il range
-        //     // this.currentFnXValue += this.sonificationStep;
-        //   } else {
-        //     this.setXInVisibleBoundsAndResumeNotifications(-1);
-        //     // this.$emit("fnExplorationOutOfVisibleBounds", false);
-        //     // const xStep = this.sonificationStep / this.fnSamplesInDeltaX;
-        //     // const initialXToCheck =
-        //     //   this.currentFnXValue + this.sonificationStep;
-        //     // var currentCheckedX = initialXToCheck;
-        //     // while (currentCheckedX > this.currentFnXValue) {
-        //     //   this.calculateAndNotifyRelevantValuesForX(currentCheckedX);
-        //     //   currentCheckedX -= xStep;
-        //     // }
-        //   }
-        //   break;
         case this.$FunctionAction.goToBegin:
           this.currentFnXValue = this.domXRange[0];
           this.calculateYForXAndNotify(this.currentFnXValue);
@@ -405,6 +361,7 @@ export default {
         return;
       }
       this.calculateAndNotifyRelevantValuesForX(val);
+      this.updateFunctionChart();
     },
   },
   methods: {
@@ -496,35 +453,6 @@ export default {
           ignoreIsStillPlaying: true,
         });
       }
-
-      // if (checkXAxisIntersection || checkYAxisIntersection) {
-      //   if (checkXAxisIntersection) {
-      //     if (checkYAxisIntersection) {
-      //       //Se sono qui è perchè sono nell'origine
-      //       console.log("earcon origine degli assi");
-      //       this.$emit("needPlayEarcon", {
-      //         id: this.$AudioSample.axisIntersection,
-      //         ignoreIsStillPlaying: true,
-      //       });
-      //       // message = this.$FunctionVoiceMessageFormat.origin;
-      //     }
-      //   } else {
-      //     if (checkYAxisIntersection) {
-      //       // this.$emit("needPlayEarcon", {
-      //       //   id: this.$AudioSample.axisIntersection,
-      //       //   ignoreIsStillPlaying: true,
-      //       // });
-      //       // this.notifyTextMessage(
-      //       //   this.$TextToSpeechOption.axisIntersections,
-      //       //   this.$FunctionVoiceMessageFormat.intersectY
-      //       // );
-      //       // this.$emit(
-      //       //   "needNotifyMessage",
-      //       //   this.$FunctionVoiceMessageFormat.intersectY
-      //       // );
-      //     }
-      //   }
-      // }
       this.lastFirstDerivativeSign = currentDerivativeSign;
       this.lastXSign = currentXSign;
       this.lastYSign = currentYSign;
@@ -535,10 +463,8 @@ export default {
         width: this.fnContainerWidth,
         height: this.fnContainerHeight * 0.99,
         tip: {
-          xLine: true,
-          renderer: function (x, y) {
-            // return `(${x.toFixed(2)}, ${y.toFixed(2)})`;
-          },
+          // xLine: true,
+          renderer: function (x, y) {},
         },
         yAxis: {
           domain: this.domYRange,
@@ -562,19 +488,15 @@ export default {
           },
         ],
       };
-      if (
-        this.isBatchExplorationInProgress ||
-        this.isManualExplorationInProgress
-      ) {
+      if (!_.isNil(this.currentFnXValue) && !_.isNil(this.currentFnYValue)) {
         config.data.push({
-          points: [
-            [this.currentFnXValue, this.domYRange[0]],
-            [this.currentFnXValue, this.domYRange[1]],
-          ],
+          points: [[this.currentFnXValue, this.currentFnYValue]],
           fnType: "points",
           color: "red",
+          class: "pippo",
           graphType: "polyline",
         });
+        this.updateTitleWithCurrentCoordinates(config);
       }
 
       // debugger;
@@ -619,10 +541,6 @@ export default {
             id: this.$AudioSample.displayedChartBorder,
             ignoreIsStillPlaying: false,
           });
-          // this.$soundFactory.playSample(
-          //   this.$AudioSample.displayedChartBorder,
-          //   false
-          // );
           this.$emit("needNotifyStatus", this.functionStatus);
           this.$emit("fnExplorationOutOfVisibleBounds", true);
         }.bind(this)
@@ -686,7 +604,6 @@ export default {
             id: this.$AudioSample.noYAtX,
             ignoreIsStillPlaying: false,
           });
-          // this.$soundFactory.playSample(this.$AudioSample.noYAtX, false);
         }
       }
     },
@@ -712,8 +629,12 @@ export default {
           id: this.$AudioSample.noYAtX,
           ignoreIsStillPlaying: true,
         });
-        // this.$soundFactory.playSample(this.$AudioSample.noYAtX);
       }
+    },
+    updateTitleWithCurrentCoordinates(fnPlotConfigObj) {
+      fnPlotConfigObj.title = `X: ${this.currentFnXValue.toFixed(
+        3
+      )}, Y: ${this.currentFnYValue.toFixed(3)}`;
     },
     performEndExplorationOperations() {
       this.isManualExplorationInProgress = false;
