@@ -6,6 +6,7 @@ export default ({ app }, inject) => {
     constructor(availableInstrumentNames) {
       //TODO: availableInstrumentNames è un array che indica quali nomi di strumenti sono ammessi tra quelli tra cui scegliere
       this.#createPanner();
+      this.#createNoise();
     }
 
     #createPanner() {
@@ -14,8 +15,14 @@ export default ({ app }, inject) => {
       this.#panner.connect(this.#gain);
     }
 
+    #createNoise() {
+      this.#pinkNoiseSynth = new Tone.Noise("pink").toDestination();
+      this.#pinkNoiseSynth.volume.value = -36; //dB. Valore che in rapporto agli altri dev'essere sufficientemente basso. trovato empiricamente con ascolto in cuffia
+    }
+
     #panner;
     #gain;
+    #pinkNoiseSynth;
     #audioNoYPlayer;
     #audioDomainExtremeBorder;
     #yAxisIntersectionAudioPlayer;
@@ -218,6 +225,17 @@ export default ({ app }, inject) => {
         })
       );
     }
+    startNoiseIfNeeded(yValue) {
+      if (this.#pinkNoiseSynth.state == "stopped") {
+        this.#pinkNoiseSynth.start();
+      }
+      this.#pinkNoiseSynth.mute = yValue > 0;
+    }
+    stopNoise() {
+      if (this.#pinkNoiseSynth.state == "started") {
+        this.#pinkNoiseSynth.stop();
+      }
+    }
 
     pitchClasses(from, to) {
       // debugger;
@@ -234,7 +252,7 @@ export default ({ app }, inject) => {
       } else {
         currentInstrument.instrument.triggerRelease();
       }
-      // this.getInstrumentFrom(instrumentId).instrument.triggerRelease();
+      this.stopNoise();
     }
     sonify(
       yValue,
@@ -246,6 +264,9 @@ export default ({ app }, inject) => {
       domYRange, //da cui dipende il volume
       instrumentId
     ) {
+      //Background noise management
+      this.startNoiseIfNeeded(yValue);
+
       const valueXRangeRatioPercentage =
         ((xValue - domXRange[0]) / (domXRange[1] - domXRange[0])) * 100;
       const curPanningValue = valueXRangeRatioPercentage / 50 - 1;
@@ -297,7 +318,6 @@ export default ({ app }, inject) => {
                 ? concreteInstrument.start()
                 : concreteInstrument.triggerAttack(`${targetFrequency}`);
             }
-            // concreteInstrument.triggerRelease();
           }.bind(this),
           1
         );
@@ -319,11 +339,6 @@ export default ({ app }, inject) => {
             const instrument = this.getInstrumentFrom(instrumentId);
             const concreteInstrument = instrument.instrument;
             console.log(`pitch class ${pitchClass}`);
-            // if (concreteInstrument.state == "started") {
-            //   concreteInstrument.triggerRelease();
-            // } else {
-            //   concreteInstrument.connect(this.#panner);
-            // }
             concreteInstrument.connect(this.#panner);
             this.#panner.pan.value = curPanningValue;
             this.#gain.gain.value = curGain;
