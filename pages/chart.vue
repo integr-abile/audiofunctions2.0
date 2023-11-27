@@ -244,7 +244,7 @@ export default {
       this.functionSonificationOptions = newFunctionSonificationOptions;
     },
     handleDomainManuallyChanged(changes) {
-      // console.log("dominio cambiato " + changes);
+      console.log("dominio cambiato " + changes);
       const newDomX = _.head(
         _.filter(changes, function (item) {
           return item.identifier == "xDomain";

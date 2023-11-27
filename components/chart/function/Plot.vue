@@ -360,8 +360,10 @@ export default {
       if (_.isNil(this.fnPlotInstance)) {
         return;
       }
-      this.calculateAndNotifyRelevantValuesForX(val);
-      this.updateFunctionChart();
+      if (_.isNil(this.pendingUserInteractionTimer)) {
+        this.calculateAndNotifyRelevantValuesForX(val);
+        this.updateFunctionChart();
+      }
     },
   },
   methods: {
@@ -588,8 +590,9 @@ export default {
                   },
                 },
               ]);
+              this.pendingUserInteractionTimer = null;
             }.bind(this),
-            1000
+            100
           );
 
           // debugger;
