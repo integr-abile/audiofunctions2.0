@@ -273,16 +273,17 @@ export default {
             notificationIntervalTimeSeconds = this.minSonificationTimeSeconds;
           }
           this.currentFnXValue = this.domXRange[0]; //inizio sonificando il primo valore della funzione
+
           let sonifyTick = function () {
             if (
               this.isBatchExplorationInProgress &&
               this.currentFnXValue < this.domXRange[1]
             ) {
               this.$emit("fnExplorationOutOfVisibleBounds", false);
-              this.calculateYForXAndNotify(this.currentFnXValue);
-              this.updateFunctionChart();
 
               this.currentFnXValue += this.sonificationStep;
+              this.calculateYForXAndNotify(this.currentFnXValue);
+              // this.updateFunctionChart();
 
               this.batchSonificationTimer = setTimeout(
                 sonifyTick,
@@ -299,6 +300,7 @@ export default {
                 ignoreIsStillPlaying: true,
               });
               this.$emit("fnExplorationOutOfVisibleBounds", true);
+              this.performEndExplorationOperations();
             }
           }.bind(this);
           sonifyTick();
@@ -360,8 +362,8 @@ export default {
       if (_.isNil(this.fnPlotInstance)) {
         return;
       }
+      this.calculateAndNotifyRelevantValuesForX(val);
       if (_.isNil(this.pendingUserInteractionTimer)) {
-        this.calculateAndNotifyRelevantValuesForX(val);
         this.updateFunctionChart();
       }
     },
@@ -402,7 +404,9 @@ export default {
         currentCheckedX += xStep * multiplier;
       }
     },
-
+    isYInDisplayedRange(y) {
+      return y >= this.domYRange[0] && y < this.domYRange[1];
+    },
     estimateFunctionNumberOfSamples() {
       const pixelDensity = window.devicePixelRatio || 1;
       const estimation = this.fnContainerWidth * pixelDensity;
@@ -441,6 +445,7 @@ export default {
       const currentYSign = this.$math.sign(y);
       const currentXSign = this.$math.sign(x);
       if (_.isNil(this.lastXSign)) {
+        console.log("riassegnamento lastXSign");
         this.lastXSign = currentXSign;
       }
       if (_.isNil(this.lastYSign)) {
@@ -450,6 +455,14 @@ export default {
       const checkYAxisIntersection = this.lastXSign != currentXSign;
 
       if (checkYAxisIntersection) {
+        console.log("intersezione con asse Y");
+        const yAt0 = this.calculateYGivenX(0);
+        if (!this.isYInDisplayedRange(yAt0)) {
+          console.log(
+            "segno c'è un'intersezione con l'asse Y, ma la funzione qui non è definita"
+          );
+          return;
+        }
         this.$emit("needPlayEarcon", {
           id: this.$AudioSample.yAxisIntersection,
           ignoreIsStillPlaying: true,
@@ -498,7 +511,7 @@ export default {
           class: "pippo",
           graphType: "polyline",
         });
-        this.updateTitleWithCurrentCoordinates(config);
+        // this.updateTitleWithCurrentCoordinates(config);
       }
 
       // debugger;
@@ -634,14 +647,16 @@ export default {
         });
       }
     },
-    updateTitleWithCurrentCoordinates(fnPlotConfigObj) {
-      fnPlotConfigObj.title = `X: ${this.currentFnXValue.toFixed(
-        3
-      )}, Y: ${this.currentFnYValue.toFixed(3)}`;
-    },
+    // updateTitleWithCurrentCoordinates(fnPlotConfigObj) {
+    //   fnPlotConfigObj.title = `X: ${this.currentFnXValue.toFixed(
+    //     3
+    //   )}, Y: ${this.currentFnYValue.toFixed(3)}`;
+    // },
     performEndExplorationOperations() {
       this.isManualExplorationInProgress = false;
       this.canEmitEventsForSonification = false;
+      this.lastYSign = null;
+      this.lastXSign = null; //metto a null altrimenti si innesca l'effetto di un grafico "circolare" in cui quando termino l'eslorazione ad un estremo del grafico quando riparto dall'inizio, per esempio con una batch exploration, il segno cambia
       this.$emit("needNotifyStatus", this.functionStatus);
       this.$emit("fnExplorationOutOfVisibleBounds", true);
       this.updateFunctionChart();
