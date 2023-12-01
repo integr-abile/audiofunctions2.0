@@ -6,3 +6,5 @@ node_modules
 # System files
 *.log
 dist
+#Python dev utility modules
+venv/

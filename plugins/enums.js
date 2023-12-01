@@ -23,6 +23,7 @@ const KeyboardKey = {
   c: 67,
   q: 81,
   f: 70,
+  i: 73,
   enter: 13,
 };
 const AudioSample = {

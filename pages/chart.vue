@@ -66,6 +66,9 @@
         @beginFunctionInteractionRequest="handleEvent"
       />
     </main>
+    <footer>
+      <p style="font-size: 12px">v{{ version }}</p>
+    </footer>
   </div>
 </template>
 
@@ -73,6 +76,7 @@
 import _ from "lodash";
 var Queue = require("queue-fifo");
 import moment from "moment";
+import appVersion from "~/assets/version.js";
 
 export default {
   layout: "fullscreen",
@@ -101,6 +105,7 @@ export default {
       lastTimeAMessageIsInsertedIntoQueue: null,
       blockInsertIntoQueueTimeoutSeconds: 5,
       messageQueueMaxCapacity: 2, //non voglio tenere in coda messaggi troppo vecchi
+      version: appVersion,
     };
   },
   created() {
