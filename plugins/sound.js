@@ -25,6 +25,7 @@ export default ({ app }, inject) => {
     #pinkNoiseSynth;
     #audioNoYPlayer;
     #audioDomainExtremeBorder;
+    #earconBorderPanner;
     #yAxisIntersectionAudioPlayer;
     #lastPitchClass;
     #minGain = 0.1;
@@ -60,6 +61,19 @@ export default ({ app }, inject) => {
       const m = (this.#minGain - this.#maxGain) / (maxRange - minRange);
       const q = this.#maxGain;
       return m * distance + q;
+    }
+    #getPanningFrom(xValue, domXRange) {
+      const valueXRangeRatioPercentage =
+        ((xValue - domXRange[0]) / (domXRange[1] - domXRange[0])) * 100;
+      let panValue = valueXRangeRatioPercentage / 50 - 1;
+      //Normalizziamo tra -1 e 1, altrimenti ritorniamo il valore corretto. Questo perchè può essere che la libreria di gestione grafici ritorni valori oltre gli estremi di qualche centesimo che fa sì che i calcoli escano di qualche centesimo
+      if (panValue > 1) {
+        return 1;
+      }
+      if (panValue < -1) {
+        return -1;
+      }
+      return panValue;
     }
     InstrumentFrequencyType = {
       continuous: "continuous",
@@ -132,7 +146,11 @@ export default ({ app }, inject) => {
         availablePitchClasses: this.pitchClasses("C3", "C6"),
       },
     ];
-    playSample(audioSampleId, ignoreNotFinishedYet = true) {
+    playSample(
+      audioSampleId,
+      ignoreNotFinishedYet = true,
+      additionaKeyValueInfo
+    ) {
       switch (audioSampleId) {
         case app.$AudioSample.noYAtX:
           if (_.isNil(this.#audioNoYPlayer)) {
@@ -153,13 +171,24 @@ export default ({ app }, inject) => {
           }
           break;
         case app.$AudioSample.displayedChartBorder:
+          const panValue = this.#getPanningFrom(
+            additionaKeyValueInfo.xFunctionValue,
+            additionaKeyValueInfo.domXRange
+          );
+          console.log("pan value " + panValue);
           if (_.isNil(this.#audioDomainExtremeBorder)) {
-            this.#audioDomainExtremeBorder = new Tone.Player().toDestination();
+            this.#audioDomainExtremeBorder = new Tone.Player();
+            this.#earconBorderPanner = new Tone.Panner(
+              panValue
+            ).toDestination();
+            console.log("pan value " + panValue);
+            this.#audioDomainExtremeBorder.connect(this.#earconBorderPanner);
             this.#audioDomainExtremeBorder.load(audioSampleId, function () {
               console.log(`audio sample loaded ${audioSampleId}`);
               this.playAudio(this.#audioDomainExtremeBorder);
             });
           } else {
+            this.#earconBorderPanner.pan.value = panValue;
             if (ignoreNotFinishedYet) {
               this.playAudio(this.#audioDomainExtremeBorder);
             } else {
@@ -191,13 +220,14 @@ export default ({ app }, inject) => {
           break;
       }
     }
-    playAudio(player) {
+    playAudio(player, pan = -99) {
       if (!player.loaded) {
         return;
       }
       if (player.state === "started") {
         player.stop();
       }
+
       player.start();
     }
     getAllInstrumentsName() {
@@ -267,9 +297,7 @@ export default ({ app }, inject) => {
       //Background noise management
       this.startNoiseIfNeeded(yValue);
 
-      const valueXRangeRatioPercentage =
-        ((xValue - domXRange[0]) / (domXRange[1] - domXRange[0])) * 100;
-      const curPanningValue = valueXRangeRatioPercentage / 50 - 1;
+      const curPanningValue = this.#getPanningFrom(xValue, domXRange);
       const curGain = this.#getGainFrom(yDistanceFromFunction, domYRange);
       console.log(`current gain ${curGain}`);
       if (

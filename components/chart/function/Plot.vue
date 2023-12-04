@@ -136,6 +136,7 @@ export default {
       fnDerivative: null,
       fnSecondDerivative: null,
       yMousePointer: 0,
+      xMousePointer: 0,
       canEmitEventsForSonification: false,
       isBatchExplorationInProgress: false,
       isManualExplorationInProgress: false,
@@ -367,6 +368,9 @@ export default {
         this.updateFunctionChart();
       }
     },
+    xMousePointer(val) {
+      this.currentFnXValue = val;
+    },
   },
   methods: {
     handleResize({ width, height }) {
@@ -385,12 +389,13 @@ export default {
     },
     //Multiplier deve'essere 1 o -1
     adjustXOutOfVisibleBoundsAndNotify(multiplier) {
+      this.currentFnXValue += this.sonificationStep * multiplier;
+      this.$emit("needNotifyStatus", this.functionStatus);
       this.$emit("needPlayEarcon", {
         id: this.$AudioSample.displayedChartBorder,
         ignoreIsStillPlaying: true,
       });
       this.$emit("fnExplorationOutOfVisibleBounds", true);
-      this.currentFnXValue += this.sonificationStep * multiplier;
     },
     setXInVisibleBoundsAndResumeNotifications(multiplier) {
       const xStep = this.sonificationStep / this.fnSamplesInDeltaX;
@@ -417,35 +422,43 @@ export default {
     },
     calculateAndNotifyRelevantValuesForX(x) {
       const y = this.calculateYGivenX(x);
-      if (_.isNil(this.fnSecondDerivative) || _.isNil(this.fnDerivative)) {
-        return;
-      }
-      // const stepTolerance = 0.05;
-      //Calcolo se a questo X abbiamo un minimo o un massimo locale
-      const firstDerivativeValueAtX = this.fnDerivative.evaluate({ x: x });
-
-      const currentDerivativeSign = this.$math.sign(firstDerivativeValueAtX);
-      if (_.isNil(this.lastFirstDerivativeSign)) {
-        this.lastFirstDerivativeSign = currentDerivativeSign;
-      }
-      const hasDerivativeChangedSign =
-        this.lastFirstDerivativeSign != currentDerivativeSign;
-
-      // const firstDerivativeTolerance = stepTolerance; //serve questa tolleranza trovata empiricamente perchè dal punto di vista della libreria che renderizza la funzione, l'asse x è comunque discretizzato e quindi difficilmente avrà tra i suoi valori esattamente == al mio valore
-
-      console.log("valore derivata prima " + firstDerivativeValueAtX);
-
-      if (hasDerivativeChangedSign) {
-        const secondDerivativeValueAtX = this.fnSecondDerivative.evaluate({
-          x: x,
+      if (_.isNaN(y)) {
+        console.log("NaN per X: " + x);
+        this.currentFnYValue = 0; //asse X
+        this.$emit("needPlayEarcon", {
+          id: this.$AudioSample.noYAtX,
+          ignoreIsStillPlaying: false,
         });
-        console.log("valore derivata seconda " + secondDerivativeValueAtX);
+        this.performEndExplorationOperations(false);
       }
+      // if (_.isNil(this.fnSecondDerivative) || _.isNil(this.fnDerivative)) {
+      //   return;
+      // }
+
+      // //Calcolo se a questo X abbiamo un minimo o un massimo locale
+      // const firstDerivativeValueAtX = this.fnDerivative.evaluate({ x: x });
+
+      // const currentDerivativeSign = this.$math.sign(firstDerivativeValueAtX);
+      // if (_.isNil(this.lastFirstDerivativeSign)) {
+      //   this.lastFirstDerivativeSign = currentDerivativeSign;
+      // }
+      // const hasDerivativeChangedSign =
+      //   this.lastFirstDerivativeSign != currentDerivativeSign;
+
+      // // const firstDerivativeTolerance = stepTolerance; //serve questa tolleranza trovata empiricamente perchè dal punto di vista della libreria che renderizza la funzione, l'asse x è comunque discretizzato e quindi difficilmente avrà tra i suoi valori esattamente == al mio valore
+
+      // // console.log("valore derivata prima " + firstDerivativeValueAtX);
+
+      // if (hasDerivativeChangedSign) {
+      //   const secondDerivativeValueAtX = this.fnSecondDerivative.evaluate({
+      //     x: x,
+      //   });
+      //   // console.log("valore derivata seconda " + secondDerivativeValueAtX);
+      // }
       //Controllo se abbiamo un'intersezione con l'asse X o Y
       const currentYSign = this.$math.sign(y);
       const currentXSign = this.$math.sign(x);
       if (_.isNil(this.lastXSign)) {
-        console.log("riassegnamento lastXSign");
         this.lastXSign = currentXSign;
       }
       if (_.isNil(this.lastYSign)) {
@@ -457,18 +470,14 @@ export default {
       if (checkYAxisIntersection) {
         console.log("intersezione con asse Y");
         const yAt0 = this.calculateYGivenX(0);
-        if (!this.isYInDisplayedRange(yAt0)) {
-          console.log(
-            "segno c'è un'intersezione con l'asse Y, ma la funzione qui non è definita"
-          );
-          return;
+        if (this.isYInDisplayedRange(yAt0)) {
+          this.$emit("needPlayEarcon", {
+            id: this.$AudioSample.yAxisIntersection,
+            ignoreIsStillPlaying: true,
+          });
         }
-        this.$emit("needPlayEarcon", {
-          id: this.$AudioSample.yAxisIntersection,
-          ignoreIsStillPlaying: true,
-        });
       }
-      this.lastFirstDerivativeSign = currentDerivativeSign;
+      // this.lastFirstDerivativeSign = currentDerivativeSign;
       this.lastXSign = currentXSign;
       this.lastYSign = currentYSign;
     },
@@ -552,11 +561,11 @@ export default {
         function (event) {
           console.log("mouseout");
           this.canEmitEventsForSonification = false;
+          this.$emit("needNotifyStatus", this.functionStatus);
           this.$emit("needPlayEarcon", {
             id: this.$AudioSample.displayedChartBorder,
             ignoreIsStillPlaying: false,
           });
-          this.$emit("needNotifyStatus", this.functionStatus);
           this.$emit("fnExplorationOutOfVisibleBounds", true);
         }.bind(this)
       );
@@ -564,7 +573,9 @@ export default {
         "mousemove",
         function (event) {
           // console.log(`mosso mouse y: ${event.y}`);
+          // console.log(`mosso mouse x: ${event.x}`);
           this.yMousePointer = event.y;
+          this.xMousePointer = event.x;
         }.bind(this)
       );
 
@@ -652,14 +663,16 @@ export default {
     //     3
     //   )}, Y: ${this.currentFnYValue.toFixed(3)}`;
     // },
-    performEndExplorationOperations() {
+    performEndExplorationOperations(shouldUpdateChart = true) {
       this.isManualExplorationInProgress = false;
       this.canEmitEventsForSonification = false;
       this.lastYSign = null;
       this.lastXSign = null; //metto a null altrimenti si innesca l'effetto di un grafico "circolare" in cui quando termino l'eslorazione ad un estremo del grafico quando riparto dall'inizio, per esempio con una batch exploration, il segno cambia
       this.$emit("needNotifyStatus", this.functionStatus);
       this.$emit("fnExplorationOutOfVisibleBounds", true);
-      this.updateFunctionChart();
+      if (shouldUpdateChart) {
+        this.updateFunctionChart();
+      }
     },
   },
 };

@@ -44,7 +44,10 @@ export default {
       if (!this.checkPreconditions() || !this.isEnabled) {
         return;
       }
-      this.$soundFactory.playSample(val.id, val.ignoreIsStillPlaying);
+      this.$soundFactory.playSample(val.id, val.ignoreIsStillPlaying, {
+        xFunctionValue: this.xFunctionValue,
+        domXRange: this.domXRange,
+      });
     },
     shouldSound(val) {
       console.log(`should sound: ${val}`);
