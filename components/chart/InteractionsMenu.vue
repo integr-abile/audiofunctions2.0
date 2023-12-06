@@ -1,6 +1,6 @@
 <template>
   <div>
-    <VueAnnouncer />
+    <!-- <VueAnnouncer /> -->
     <h2 class="sr-only">Controlli rapidi</h2>
     <div aria-label="Controlli rapidi" role="toolbar" class="d-flex">
       <div class="mr-3">

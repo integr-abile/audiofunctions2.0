@@ -1,6 +1,6 @@
 <template>
   <div>
-    <VueAnnouncer />
+    <!-- <VueAnnouncer /> -->
     <h2>Funzione</h2>
     <div class="d-flex align-items-center">
       <vue-mathjax :formula="preFieldLabelText" class="mr-1"></vue-mathjax>

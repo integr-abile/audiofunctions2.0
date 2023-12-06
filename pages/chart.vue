@@ -464,7 +464,7 @@ export default {
             }
           } else {
             console.log(`speak through AT -> ${message}`);
-            this.$announcer.polite(message);
+            this.$announcer.assertive(message);
           }
         }.bind(this),
         process.env.TEXT_TO_SPEECH_MONITOR_QUEUE_INTERVAL_MS

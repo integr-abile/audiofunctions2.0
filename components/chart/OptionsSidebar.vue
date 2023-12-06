@@ -1,9 +1,9 @@
 <template>
   <div>
-    <VueAnnouncer />
+    <!-- <VueAnnouncer /> -->
     <b-sidebar
       @shown="handleShowSidebar"
-      @hidden="(evt) => $emit('close')"
+      @hidden="handleCloseSidebar"
       ref="sidebar"
       backdrop
       close-label="Chiudi"
@@ -29,6 +29,12 @@
         </li>
       </ul>
       <template #footer>
+        <Keypress
+          v-if="isSidebarOpen"
+          key-event="keyup"
+          :key-code="$KeyboardKey.enter"
+          @success="saveAll"
+        />
         <div class="d-flex bg-dark text-light align-items-center px-3 py-2">
           <strong class="mr-auto">Azioni</strong>
           <b-button size="sm" @click="saveAll">Salva tutto</b-button>
@@ -50,7 +56,11 @@ export default {
   data() {
     return {
       refreshKey: 0,
+      isSidebarOpen: false,
     };
+  },
+  components: {
+    Keypress: () => import("vue-keypress"),
   },
   props: {
     sidebarId: {
@@ -71,6 +81,8 @@ export default {
   },
   methods: {
     saveAll() {
+      console.log("salvataggio tutte le opzioni");
+
       this.$emit("saveChanges", _.map(this.customizableOptions, "identifier"));
       this.$announcer.polite("Salvataggio effettuato");
       this.$refs.sidebar.hide();
@@ -78,6 +90,12 @@ export default {
     handleShowSidebar() {
       this.refreshKey += 1;
       this.$emit("open");
+      this.isSidebarOpen = true;
+    },
+    handleCloseSidebar() {
+      this.refreshKey += 1;
+      this.$emit("close");
+      this.isSidebarOpen = false;
     },
     saveOptions(optionIdentifiers) {
       this.$emit("saveChanges", optionIdentifiers);

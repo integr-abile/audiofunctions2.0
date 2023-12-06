@@ -154,13 +154,16 @@ export default ({ app }, inject) => {
       switch (audioSampleId) {
         case app.$AudioSample.noYAtX:
           if (_.isNil(this.#audioNoYPlayer)) {
-            this.#audioNoYPlayer = new Tone.Player().toDestination();
-            this.#audioNoYPlayer.load(audioSampleId, function () {
-              console.log(`audio sample loaded ${audioSampleId}`);
-              this.playAudio(this.#audioNoYPlayer);
-            });
+            this.#audioNoYPlayer = new Tone.Player(
+              audioSampleId
+            ).toDestination();
+            this.#audioNoYPlayer.autostart = true;
           } else {
             if (ignoreNotFinishedYet) {
+              console.log(
+                "request play noYAtX. IgnoreNotFinished -> " +
+                  ignoreNotFinishedYet
+              );
               this.playAudio(this.#audioNoYPlayer);
             } else {
               if (this.#audioNoYPlayer.state == "started") {
@@ -175,18 +178,13 @@ export default ({ app }, inject) => {
             additionaKeyValueInfo.xFunctionValue,
             additionaKeyValueInfo.domXRange
           );
-          console.log("pan value " + panValue);
           if (_.isNil(this.#audioDomainExtremeBorder)) {
-            this.#audioDomainExtremeBorder = new Tone.Player();
             this.#earconBorderPanner = new Tone.Panner(
               panValue
             ).toDestination();
-            console.log("pan value " + panValue);
+            this.#audioDomainExtremeBorder = new Tone.Player(audioSampleId);
             this.#audioDomainExtremeBorder.connect(this.#earconBorderPanner);
-            this.#audioDomainExtremeBorder.load(audioSampleId, function () {
-              console.log(`audio sample loaded ${audioSampleId}`);
-              this.playAudio(this.#audioDomainExtremeBorder);
-            });
+            this.#audioDomainExtremeBorder.autostart = true;
           } else {
             this.#earconBorderPanner.pan.value = panValue;
             if (ignoreNotFinishedYet) {
@@ -201,12 +199,10 @@ export default ({ app }, inject) => {
           break;
         case app.$AudioSample.yAxisIntersection:
           if (_.isNil(this.#yAxisIntersectionAudioPlayer)) {
-            this.#yAxisIntersectionAudioPlayer =
-              new Tone.Player().toDestination();
-            this.#yAxisIntersectionAudioPlayer.load(audioSampleId, function () {
-              console.log(`audio sample loaded ${audioSampleId}`);
-              this.playAudio(this.#yAxisIntersectionAudioPlayer);
-            });
+            this.#yAxisIntersectionAudioPlayer = new Tone.Player(
+              audioSampleId
+            ).toDestination();
+            this.#yAxisIntersectionAudioPlayer.autostart = true;
           } else {
             if (ignoreNotFinishedYet) {
               this.playAudio(this.#yAxisIntersectionAudioPlayer);
@@ -220,14 +216,13 @@ export default ({ app }, inject) => {
           break;
       }
     }
-    playAudio(player, pan = -99) {
+    playAudio(player) {
       if (!player.loaded) {
         return;
       }
       if (player.state === "started") {
         player.stop();
       }
-
       player.start();
     }
     getAllInstrumentsName() {
@@ -259,7 +254,7 @@ export default ({ app }, inject) => {
       if (this.#pinkNoiseSynth.state == "stopped") {
         this.#pinkNoiseSynth.start();
       }
-      this.#pinkNoiseSynth.mute = yValue > 0;
+      this.#pinkNoiseSynth.mute = yValue >= 0; //sonifico il rumore (noise) solo se il valore della funzione è strettamente sotto zero
     }
     stopNoise() {
       if (this.#pinkNoiseSynth.state == "started") {

@@ -195,7 +195,7 @@ export default {
         case this.$FunctionAction.beginExplorationDecrement:
           this.isBatchExplorationInProgress = false;
           this.isManualExplorationInProgress = true;
-          this.canEmitEventsForSonification = true;
+          // this.canEmitEventsForSonification = true;
           this.$emit("fnExplorationOutOfVisibleBounds", true);
           if (_.isNil(this.currentFnXValue)) {
             this.currentFnXValue = this.domXRange[0];
@@ -208,8 +208,7 @@ export default {
               this.currentFnXValue -= this.sonificationStep;
             }
           }
-          this.updateFunctionChart();
-          this.calculateYForXAndNotify(this.currentFnXValue);
+          // this.updateFunctionChart();
           if (!this.isCurrentXInDisplayedRange) {
             this.adjustXOutOfVisibleBoundsAndNotify(
               val.requestType == this.$FunctionAction.beginExplorationIncrement
@@ -217,12 +216,9 @@ export default {
                 : 1
             );
           } else {
-            this.setXInVisibleBoundsAndResumeNotifications(
-              val.requestType == this.$FunctionAction.beginExplorationIncrement
-                ? 1
-                : -1
-            );
+            this.calculateYForXAndNotify(this.currentFnXValue);
           }
+          // this.updateFunctionChart();
           await this.$soundFactory.enableSonifier();
           break;
         case this.$FunctionAction.endExploration:
@@ -230,20 +226,19 @@ export default {
           break;
         case this.$FunctionAction.incrementStep:
         case this.$FunctionAction.decrementStep:
-          const multiplier =
-            val.requestType == this.$FunctionAction.incrementStep ? 1 : -1;
-          this.currentFnXValue =
-            this.currentFnXValue + this.sonificationStep * multiplier;
-          this.calculateYForXAndNotify(this.currentFnXValue);
-          this.updateFunctionChart();
+          if (val.requestType == this.$FunctionAction.incrementStep) {
+            this.currentFnXValue += this.sonificationStep;
+          } else {
+            this.currentFnXValue -= this.sonificationStep;
+          }
           if (!this.isCurrentXInDisplayedRange) {
             this.adjustXOutOfVisibleBoundsAndNotify(
-              val.requestType == this.$FunctionAction.incrementStep ? -1 : 1
+              val.requestType == this.$FunctionAction.beginExplorationIncrement
+                ? -1
+                : 1
             );
           } else {
-            this.setXInVisibleBoundsAndResumeNotifications(
-              val.requestType == this.$FunctionAction.incrementStep ? 1 : -1
-            );
+            this.calculateYForXAndNotify(this.currentFnXValue);
           }
           break;
         case this.$FunctionAction.goToBegin:
@@ -273,6 +268,7 @@ export default {
           ) {
             notificationIntervalTimeSeconds = this.minSonificationTimeSeconds;
           }
+          this.lastXSign = null;
           this.currentFnXValue = this.domXRange[0]; //inizio sonificando il primo valore della funzione
 
           let sonifyTick = function () {
@@ -364,12 +360,16 @@ export default {
         return;
       }
       this.calculateAndNotifyRelevantValuesForX(val);
+      this.calculateYForXAndNotify(this.currentFnXValue);
       if (_.isNil(this.pendingUserInteractionTimer)) {
         this.updateFunctionChart();
       }
     },
     xMousePointer(val) {
       this.currentFnXValue = val;
+    },
+    canEmitEventsForSonification(val) {
+      this.$emit("needNotifyStatus", this.functionStatus);
     },
   },
   methods: {
@@ -389,6 +389,7 @@ export default {
     },
     //Multiplier deve'essere 1 o -1
     adjustXOutOfVisibleBoundsAndNotify(multiplier) {
+      console.log("correcting x on bounds");
       this.currentFnXValue += this.sonificationStep * multiplier;
       this.$emit("needNotifyStatus", this.functionStatus);
       this.$emit("needPlayEarcon", {
@@ -396,18 +397,6 @@ export default {
         ignoreIsStillPlaying: true,
       });
       this.$emit("fnExplorationOutOfVisibleBounds", true);
-    },
-    setXInVisibleBoundsAndResumeNotifications(multiplier) {
-      const xStep = this.sonificationStep / this.fnSamplesInDeltaX;
-      this.$emit("fnExplorationOutOfVisibleBounds", false);
-      console.log("xStep: " + xStep);
-      const initialXToCheck =
-        this.currentFnXValue - this.sonificationStep * multiplier;
-      var currentCheckedX = initialXToCheck;
-      while (currentCheckedX < this.currentFnXValue) {
-        this.calculateAndNotifyRelevantValuesForX(currentCheckedX);
-        currentCheckedX += xStep * multiplier;
-      }
     },
     isYInDisplayedRange(y) {
       return y >= this.domYRange[0] && y < this.domYRange[1];
@@ -421,50 +410,11 @@ export default {
       return (deltaX / (domX[1] - domX[0])) * totalNumberOfSamples;
     },
     calculateAndNotifyRelevantValuesForX(x) {
-      const y = this.calculateYGivenX(x);
-      if (_.isNaN(y)) {
-        console.log("NaN per X: " + x);
-        this.currentFnYValue = 0; //asse X
-        this.$emit("needPlayEarcon", {
-          id: this.$AudioSample.noYAtX,
-          ignoreIsStillPlaying: false,
-        });
-        this.performEndExplorationOperations(false);
-      }
-      // if (_.isNil(this.fnSecondDerivative) || _.isNil(this.fnDerivative)) {
-      //   return;
-      // }
-
-      // //Calcolo se a questo X abbiamo un minimo o un massimo locale
-      // const firstDerivativeValueAtX = this.fnDerivative.evaluate({ x: x });
-
-      // const currentDerivativeSign = this.$math.sign(firstDerivativeValueAtX);
-      // if (_.isNil(this.lastFirstDerivativeSign)) {
-      //   this.lastFirstDerivativeSign = currentDerivativeSign;
-      // }
-      // const hasDerivativeChangedSign =
-      //   this.lastFirstDerivativeSign != currentDerivativeSign;
-
-      // // const firstDerivativeTolerance = stepTolerance; //serve questa tolleranza trovata empiricamente perchè dal punto di vista della libreria che renderizza la funzione, l'asse x è comunque discretizzato e quindi difficilmente avrà tra i suoi valori esattamente == al mio valore
-
-      // // console.log("valore derivata prima " + firstDerivativeValueAtX);
-
-      // if (hasDerivativeChangedSign) {
-      //   const secondDerivativeValueAtX = this.fnSecondDerivative.evaluate({
-      //     x: x,
-      //   });
-      //   // console.log("valore derivata seconda " + secondDerivativeValueAtX);
-      // }
-      //Controllo se abbiamo un'intersezione con l'asse X o Y
-      const currentYSign = this.$math.sign(y);
       const currentXSign = this.$math.sign(x);
+      console.log("X sign " + currentXSign);
       if (_.isNil(this.lastXSign)) {
         this.lastXSign = currentXSign;
       }
-      if (_.isNil(this.lastYSign)) {
-        this.lastYSign = currentYSign;
-      }
-      const checkXAxisIntersection = this.lastYSign != currentYSign;
       const checkYAxisIntersection = this.lastXSign != currentXSign;
 
       if (checkYAxisIntersection) {
@@ -477,9 +427,7 @@ export default {
           });
         }
       }
-      // this.lastFirstDerivativeSign = currentDerivativeSign;
       this.lastXSign = currentXSign;
-      this.lastYSign = currentYSign;
     },
     createFnConfigObject() {
       let config = {
@@ -528,6 +476,7 @@ export default {
     },
 
     updateFunctionChart() {
+      console.log("updating chart");
       if (!_.isNil(this.fnPlotInstance)) {
         const svg = document.querySelector("#root svg");
         if (!_.isNil(svg)) {
@@ -549,14 +498,6 @@ export default {
         }.bind(this)
       );
       this.fnPlotInstance.on(
-        "mouseover",
-        function (event) {
-          console.log("mouseover");
-          this.canEmitEventsForSonification = true;
-          //Non emetto un evento se no mi riparte dall'ultimo tip:update, mentre è solo il tip:update che può comandare la posizione X,Y
-        }.bind(this)
-      );
-      this.fnPlotInstance.on(
         "mouseout",
         function (event) {
           console.log("mouseout");
@@ -572,8 +513,6 @@ export default {
       this.fnPlotInstance.on(
         "mousemove",
         function (event) {
-          // console.log(`mosso mouse y: ${event.y}`);
-          // console.log(`mosso mouse x: ${event.x}`);
           this.yMousePointer = event.y;
           this.xMousePointer = event.x;
         }.bind(this)
@@ -627,6 +566,7 @@ export default {
       if (this.canEmitEventsForSonification) {
         this.$emit("needNotifyStatus", this.functionStatus);
         if (!this.isCurrentYInDisplayedRange) {
+          console.log("notify noYAtX. Ignore still playing: false");
           this.$emit("needPlayEarcon", {
             id: this.$AudioSample.noYAtX,
             ignoreIsStillPlaying: false,
@@ -647,14 +587,31 @@ export default {
     },
     calculateYForXAndNotify(x) {
       const y = this.calculateYGivenX(x);
+      if (_.isNaN(y)) {
+        console.log("NaN per X: " + x);
+        this.currentFnYValue = 0; //asse X
+        this.$emit("needPlayEarcon", {
+          id: this.$AudioSample.noYAtX,
+          ignoreIsStillPlaying: false,
+        });
+        this.canEmitEventsForSonification = false;
+        return;
+      }
+      this.canEmitEventsForSonification = true;
+
+      const currentYSign = this.$math.sign(y);
+      if (_.isNil(this.lastYSign)) {
+        this.lastYSign = currentYSign;
+      }
+      this.lastYSign = currentYSign;
+
       this.yMousePointer = y;
       this.currentFnYValue = y;
-
       this.$emit("needNotifyStatus", this.functionStatus);
       if (!this.isCurrentYInDisplayedRange) {
         this.$emit("needPlayEarcon", {
           id: this.$AudioSample.noYAtX,
-          ignoreIsStillPlaying: true,
+          ignoreIsStillPlaying: false,
         });
       }
     },
@@ -666,9 +623,7 @@ export default {
     performEndExplorationOperations(shouldUpdateChart = true) {
       this.isManualExplorationInProgress = false;
       this.canEmitEventsForSonification = false;
-      this.lastYSign = null;
-      this.lastXSign = null; //metto a null altrimenti si innesca l'effetto di un grafico "circolare" in cui quando termino l'eslorazione ad un estremo del grafico quando riparto dall'inizio, per esempio con una batch exploration, il segno cambia
-      this.$emit("needNotifyStatus", this.functionStatus);
+      // this.$emit("needNotifyStatus", this.functionStatus);
       this.$emit("fnExplorationOutOfVisibleBounds", true);
       if (shouldUpdateChart) {
         this.updateFunctionChart();
