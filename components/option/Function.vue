@@ -76,9 +76,15 @@ export default {
   methods: {
     updateOptionData(currentValues) {
       this.currentOptionData = currentValues;
-      const latexFormula = this.$functionValidator.toLatex(currentValues.fn); //fn dev'essere in formato interval-arithmetic
-      this.stableInputFunctionLatex = latexFormula;
-      this.lastInsertedLatexFunction = this.stableInputFunctionLatex;
+      const fnObj = this.$functionParser.parse(currentValues.fn);
+      if (this.$functionParser.isTraitFunction(fnObj)) {
+        console.log("funzione a tratti");
+        //TODO: gestire funzione a tratti
+      } else {
+        const latexFormula = this.$functionValidator.toLatex(currentValues.fn); //fn dev'essere in formato interval-arithmetic
+        this.stableInputFunctionLatex = latexFormula;
+        this.lastInsertedLatexFunction = this.stableInputFunctionLatex;
+      }
     },
     validateFormula(latexFormula) {
       return this.$functionValidator.validate(latexFormula);

@@ -151,6 +151,7 @@ export default {
       showCopyAlert: false,
       predefinedFunctions: [
         "((((2)/(3))x^(3)-1)/(x^(2)))-3cos(x)",
+        "[-3,0]x^2;[0,3]x;", //funzione a tratti
         "0",
         "3",
         "x+3",
@@ -209,7 +210,16 @@ export default {
           return item.identifier == "function";
         })
       );
-      this.currentFunctionIntervalArith = functionData.data.fn;
+      const currentFunctionObj = this.$functionParser.parse(
+        functionData.data.fn
+      );
+      if (this.$functionParser.isTraitFunction(currentFunctionObj)) {
+        console.log("funzione a tratti");
+        //TODO: gestire il caso in cui arriva una funzione a tratti
+      } else {
+        //se la funzione non è a tratti
+        this.currentFunctionIntervalArith = functionData.data.fn;
+      }
     },
     handleSaveFromFavoritesBar() {
       this.$refs.chartOptionsSidebar.saveAll();
@@ -237,14 +247,6 @@ export default {
     },
     changeFunction(evt) {
       this.goToNextFunction(true);
-      // this.currentPredefinedFunction =
-      //   this.currentPredefinedFunction === null
-      //     ? this.predefinedFunctions[0]
-      //     : this.getNextElement(
-      //         this.predefinedFunctions,
-      //         this.currentPredefinedFunction
-      //       );
-      // this.$emit("switchPredefinedFunction", this.currentPredefinedFunction);
     },
     getNextElement(array, element) {
       let index = _.indexOf(array, element);
