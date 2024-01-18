@@ -125,6 +125,16 @@ export default {
       return this.$functionParser.parse(this.fn);
     },
   },
+  mounted() {
+    //Setup chart listener functions
+    this.boundTipUpdateFunction = this.chartTipUpdateFunction.bind(this);
+    this.boundMouseOutFunction = this.chartMouseOutFunction.bind(this);
+    this.boundMouseMoveFunction = this.chartMouseMoveFunction.bind(this);
+    this.boundAllZoomFunction = this.chartAllZoomFunction.bind(this);
+  },
+  beforeDestroy() {
+    this.cleanUp();
+  },
   data() {
     return {
       fnContainerWidth: 0,
@@ -154,6 +164,10 @@ export default {
       lastFirstDerivativeSign: null,
       lastXSign: null,
       lastYSign: null,
+      boundTipUpdateFunction: null,
+      boundMouseOutFunction: null,
+      boundMouseMoveFunction: null,
+      boundAllZoomFunction: null,
     };
   },
   watch: {
@@ -376,6 +390,80 @@ export default {
     },
   },
   methods: {
+    cleanUp() {
+      if (this.fnPlotInstance && this.boundTipUpdateFunction) {
+        this.fnPlotInstance.off("tip:update", this.boundTipUpdateFunction);
+      }
+      if (this.fnPlotInstance && this.boundMouseMoveFunction) {
+        this.fnPlotInstance.off("mousemove", this.boundMouseMoveFunction);
+      }
+      if (this.fnPlotInstance && this.boundMouseOutFunction) {
+        this.fnPlotInstance.off("mouseout", this.boundMouseOutFunction);
+      }
+      if (this.fnPlotInstance && this.boundAllZoomFunction) {
+        this.fnPlotInstance.off("all:zoom", this.boundAllZoomFunction);
+      }
+    },
+    chartTipUpdateFunction(cx, cy, cidx) {
+      console.log("tip:update");
+      this.isBatchExplorationInProgress = false;
+      this.currentFnYValue = cx.y;
+      this.currentFnXValue = cx.x;
+      this.$emit("fnExplorationOutOfVisibleBounds", false);
+      this.notifyCurrentXYPositionIfNeeded();
+    },
+    chartMouseOutFunction(event) {
+      console.log("mouseout");
+      this.canEmitEventsForSonification = false;
+      this.$emit("needNotifyStatus", this.functionStatus);
+      this.$emit("needPlayEarcon", {
+        id: this.$AudioSample.displayedChartBorder,
+        ignoreIsStillPlaying: false,
+      });
+      this.$emit("fnExplorationOutOfVisibleBounds", true);
+    },
+    chartMouseMoveFunction(event) {
+      this.yMousePointer = event.y;
+      this.xMousePointer = event.x;
+    },
+    chartAllZoomFunction(event) {
+      //scale o translation
+      console.log(
+        "numero di campioni " + this.estimateFunctionNumberOfSamples()
+      );
+      // const newXAxisDomain = this.fnPlotInstance.meta.xDomain;
+      const newXAxisDomain = this.fnPlotInstance.meta.xScale.domain();
+      const newYAxisDomain = this.fnPlotInstance.meta.yScale.domain();
+
+      if (!_.isNil(this.pendingUserInteractionTimer)) {
+        clearTimeout(this.pendingUserInteractionTimer);
+      }
+      this.pendingUserInteractionTimer = setTimeout(
+        function () {
+          console.log(
+            `evt ${event.type}. new x axis domain: ${newXAxisDomain}; y domain: ${newYAxisDomain}`
+          );
+          this.$emit("domainManuallyChanged", [
+            {
+              identifier: "xDomain",
+              data: {
+                xMin: newXAxisDomain[0],
+                xMax: newXAxisDomain[1],
+              },
+            },
+            {
+              identifier: "yDomain",
+              data: {
+                yMin: newYAxisDomain[0],
+                yMax: newYAxisDomain[1],
+              },
+            },
+          ]);
+          this.pendingUserInteractionTimer = null;
+        }.bind(this),
+        100
+      );
+    },
     handleResize({ width, height }) {
       this.fnContainerWidth = width;
       this.fnContainerHeight = height;
@@ -488,7 +576,8 @@ export default {
 
     updateFunctionChart() {
       console.log("updating chart");
-      if (!_.isNil(this.fnPlotInstance)) {
+      if (this.fnPlotInstance) {
+        //Questo pezzo rimuove i residui del tip quando da mouse passo a esplorazione da tastiera
         const svg = document.querySelector("#root svg");
         if (!_.isNil(svg)) {
           while (svg.lastChild) {
@@ -496,82 +585,19 @@ export default {
           }
         }
       }
+      this.cleanUp();
       this.fnPlotInstance = functionPlot(this.createFnConfigObject());
-      this.fnPlotInstance.on(
-        "tip:update",
-        function (cx, cy, cidx) {
-          console.log("tip:update");
-          this.isBatchExplorationInProgress = false;
-          this.currentFnYValue = cx.y;
-          this.currentFnXValue = cx.x;
-          this.$emit("fnExplorationOutOfVisibleBounds", false);
-          this.notifyCurrentXYPositionIfNeeded();
-        }.bind(this)
-      );
-      this.fnPlotInstance.on(
-        "mouseout",
-        function (event) {
-          console.log("mouseout");
-          this.canEmitEventsForSonification = false;
-          this.$emit("needNotifyStatus", this.functionStatus);
-          this.$emit("needPlayEarcon", {
-            id: this.$AudioSample.displayedChartBorder,
-            ignoreIsStillPlaying: false,
-          });
-          this.$emit("fnExplorationOutOfVisibleBounds", true);
-        }.bind(this)
-      );
-      this.fnPlotInstance.on(
-        "mousemove",
-        function (event) {
-          this.yMousePointer = event.y;
-          this.xMousePointer = event.x;
-        }.bind(this)
-      );
-
-      this.fnPlotInstance.on(
-        "all:zoom",
-        function (event) {
-          //scale o translation
-          console.log(
-            "numero di campioni " + this.estimateFunctionNumberOfSamples()
-          );
-          // const newXAxisDomain = this.fnPlotInstance.meta.xDomain;
-          const newXAxisDomain = this.fnPlotInstance.meta.xScale.domain();
-          const newYAxisDomain = this.fnPlotInstance.meta.yScale.domain();
-
-          if (!_.isNil(this.pendingUserInteractionTimer)) {
-            clearTimeout(this.pendingUserInteractionTimer);
-          }
-          this.pendingUserInteractionTimer = setTimeout(
-            function () {
-              console.log(
-                `evt ${event.type}. new x axis domain: ${newXAxisDomain}; y domain: ${newYAxisDomain}`
-              );
-              this.$emit("domainManuallyChanged", [
-                {
-                  identifier: "xDomain",
-                  data: {
-                    xMin: newXAxisDomain[0],
-                    xMax: newXAxisDomain[1],
-                  },
-                },
-                {
-                  identifier: "yDomain",
-                  data: {
-                    yMin: newYAxisDomain[0],
-                    yMax: newYAxisDomain[1],
-                  },
-                },
-              ]);
-              this.pendingUserInteractionTimer = null;
-            }.bind(this),
-            100
-          );
-
-          // debugger;
-        }.bind(this)
-      );
+      if (
+        this.boundTipUpdateFunction &&
+        this.boundMouseMoveFunction &&
+        this.boundMouseOutFunction &&
+        this.boundAllZoomFunction
+      ) {
+        this.fnPlotInstance.on("tip:update", this.boundTipUpdateFunction);
+        this.fnPlotInstance.on("mouseout", this.boundMouseOutFunction);
+        this.fnPlotInstance.on("mousemove", this.boundMouseMoveFunction);
+        this.fnPlotInstance.on("all:zoom", this.boundAllZoomFunction);
+      }
     },
     notifyCurrentXYPositionIfNeeded() {
       if (this.canEmitEventsForSonification) {

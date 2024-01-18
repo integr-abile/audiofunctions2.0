@@ -134,7 +134,7 @@ export default {
       alert(e.message);
     }
   },
-  destroyed() {
+  beforeDestroy() {
     window.removeEventListener("keydown", this.handleEvent);
     window.removeEventListener("mousedown", this.handleEvent);
   },
