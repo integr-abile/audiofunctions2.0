@@ -13,7 +13,7 @@ export default ({ app }, inject) => {
           fn: null,
         };
       }
-      let regexTraitsFunction = /\[(-?\d+),(-?\d+)\]([a-zA-Z0-9_^+*\/-]+);/g;
+      let regexTraitsFunction = /\[(-?\d+),(-?\d+)\](.*?);/g;
       let matches = fnString.match(regexTraitsFunction);
       let result = {};
       if (matches) {
@@ -21,7 +21,7 @@ export default ({ app }, inject) => {
         result.traits = [];
         result.functionType = FunctionParser.FunctionType.TRAITS;
         matches.forEach((match) => {
-          let params = /\[(-?\d+),(-?\d+)\]([a-zA-Z0-9_^+*\/-]+);/.exec(match);
+          let params = /\[(-?\d+),(-?\d+)\](.*?);/.exec(match);
           if (params) {
             result.traits.push({
               lowerBound: params[1],

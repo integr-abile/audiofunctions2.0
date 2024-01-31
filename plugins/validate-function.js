@@ -8,6 +8,7 @@ class FunctionValidator {
 
     // const mathExpression = this.#latexToMathExpression(latexFnString)
     const preprocessedLatex = this.#preprocessLatex(latexFnString);
+    console.log("Validate after pre-processing " + preprocessedLatex);
     const mathExpression =
       MathExpression.fromLatex(preprocessedLatex).toString();
     console.log("Validate da passare math expression " + mathExpression);
@@ -60,6 +61,7 @@ class FunctionValidator {
     if (absoluteValueRegex.test(toReturn)) {
       toReturn = toReturn.replaceAll(absoluteValueRegex, "\\abs($1)");
     }
+
     return toReturn;
   }
 
@@ -102,6 +104,12 @@ class FunctionValidator {
     if (absoluteValueRegex.test(toReturn)) {
       toReturn = toReturn.replaceAll(absoluteValueRegex, "abs($1)");
     }
+    const piRegex = /(\d+)?\π/g;
+    if (piRegex.test(toReturn)) {
+      toReturn = toReturn.replaceAll(piRegex, (match, p1) =>
+        p1 ? `${p1}*PI` : "PI"
+      );
+    }
     return toReturn;
   }
 
@@ -115,6 +123,10 @@ class FunctionValidator {
     if (absoluteValueRegex.test(toReturn)) {
       toReturn = toReturn.replaceAll(absoluteValueRegex, `|($1)|`);
     }
+
+    const piRegex = /PI/g;
+    toReturn = toReturn.replaceAll(piRegex, "π");
+
     return toReturn;
   }
 }

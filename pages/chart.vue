@@ -313,10 +313,12 @@ export default {
       );
       this.$nextTick(() => {
         let el = document.getElementById("currentFormulaMathJax");
-        el.blur(); //rimuove il focus
-        setTimeout(() => {
-          el.focus();
-        }, 500); //do un po' di tempo per risettarlo perchè altrimenti se premo F o shift+F senza aver lasciato l'ultimo focus, lo SR non legge l'aggiornamento
+        if (el) {
+          el.blur(); //rimuove il focus
+          setTimeout(() => {
+            el.focus();
+          }, 500); //do un po' di tempo per risettarlo perchè altrimenti se premo F o shift+F senza aver lasciato l'ultimo focus, lo SR non legge l'aggiornamento
+        }
       });
     },
     valorizeFunctionParamsFromOptions(options) {
