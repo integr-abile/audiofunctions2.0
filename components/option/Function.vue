@@ -2,7 +2,7 @@
   <div>
     <!-- <VueAnnouncer /> -->
     <h2>Funzione</h2>
-    <div class="d-flex align-items-center">
+    <div v-if="!isTraitFunction" class="d-flex align-items-center">
       <vue-mathjax :formula="preFieldLabelText" class="mr-1"></vue-mathjax>
       <!-- Se sono su un elemento role application devo comunque attivarlo (premere enter) prima di iniziare a scrivere -->
       <h3 class="sr-only">
@@ -17,6 +17,9 @@
         class="border w-100"
       >
       </math-field>
+    </div>
+    <div v-else>
+      <p>Modifica della funzione a tratti non ancora supportata</p>
     </div>
 
     <Keypress
@@ -42,6 +45,7 @@ export default {
       stableInputFunctionLatex: "",
       lastInsertedLatexFunction: "",
       currentToSpeakFunction: "",
+      isTraitFunction: false,
       currentOptionData: {},
       readMathKeys: [
         {
@@ -76,9 +80,16 @@ export default {
   methods: {
     updateOptionData(currentValues) {
       this.currentOptionData = currentValues;
-      const latexFormula = this.$functionValidator.toLatex(currentValues.fn); //fn dev'essere in formato interval-arithmetic
-      this.stableInputFunctionLatex = latexFormula;
-      this.lastInsertedLatexFunction = this.stableInputFunctionLatex;
+      const fnObj = this.$functionParser.parse(currentValues.fn);
+      if (this.$functionParser.isTraitFunction(fnObj)) {
+        console.log("funzione a tratti");
+        this.isTraitFunction = true;
+      } else {
+        this.isTraitFunction = false;
+        const latexFormula = this.$functionValidator.toLatex(currentValues.fn); //fn dev'essere in formato interval-arithmetic
+        this.stableInputFunctionLatex = latexFormula;
+        this.lastInsertedLatexFunction = this.stableInputFunctionLatex;
+      }
     },
     validateFormula(latexFormula) {
       return this.$functionValidator.validate(latexFormula);

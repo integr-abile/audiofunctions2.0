@@ -54,6 +54,7 @@ export default {
     { src: "~/plugins/vue-mathjax.js", mode: "client" },
     { src: "~/plugins/vue-mouseover.js", mode: "client" },
     { src: "~/plugins/vue-visibility.js", mode: "client" },
+    { src: "~/plugins/function-parser.js", mode: "client" },
   ],
 
   // Auto import components: https://go.nuxtjs.dev/config-components

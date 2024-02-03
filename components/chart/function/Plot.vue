@@ -121,6 +121,9 @@ export default {
         this.currentFnXValue < this.domXRange[1]
       );
     },
+    currentFunction() {
+      return this.$functionParser.parse(this.fn);
+    },
   },
   data() {
     return {
@@ -345,8 +348,8 @@ export default {
       }
     },
     fn(val) {
-      this.fnDerivative = this.$math.derivative(val, "x");
-      this.fnSecondDerivative = this.$math.derivative(this.fnDerivative, "x");
+      // this.fnDerivative = this.$math.derivative(val, "x");
+      // this.fnSecondDerivative = this.$math.derivative(this.fnDerivative, "x");
       this.updateFunctionChart();
     },
     domXRange(val) {
@@ -429,15 +432,48 @@ export default {
       }
       this.lastXSign = currentXSign;
     },
+
     createFnConfigObject() {
+      let functionsData = [];
+      if (this.$functionParser.isTraitFunction(this.currentFunction)) {
+        const traits = this.currentFunction.traits.forEach((trait) => {
+          functionsData.push({
+            graphType: "polyline",
+            fn: trait.function,
+            range: [trait.lowerBound, trait.upperBound],
+            skipTip: true,
+            nSamples: this.nSamples,
+          });
+        });
+      } else {
+        //La funzione è non a tratti
+        functionsData.push({
+          graphType: "polyline",
+          fn: this.currentFunction.fn,
+          skipTip: true,
+          nSamples: this.nSamples,
+        });
+      }
+      //Inserimento indicatore X corrente
+      if (!_.isNil(this.currentFnXValue) && !_.isNil(this.currentFnYValue)) {
+        const currentXIndicator = {
+          //via CSS aggiungo la width
+          points: [[this.currentFnXValue, this.currentFnYValue]],
+          skipTip: true,
+          fnType: "points",
+          color: "red",
+          class: "pippo",
+          graphType: "polyline",
+        };
+        functionsData.length <= 1
+          ? functionsData.push(currentXIndicator)
+          : functionsData.splice(1, 0, currentXIndicator);
+      }
+
       let config = {
         target: "#root",
         width: this.fnContainerWidth,
         height: this.fnContainerHeight * 0.99,
-        tip: {
-          // xLine: true,
-          renderer: function (x, y) {},
-        },
         yAxis: {
           domain: this.domYRange,
         },
@@ -445,33 +481,8 @@ export default {
           domain: this.domXRange,
         },
         grid: true,
-        data: [
-          {
-            // force the use of builtIn math, altrimenti su funzioni definite con function(scope) salta tutto
-            graphType: "polyline",
-            fn: this.fn,
-            nSamples: this.fnSamples,
-            derivative: {
-              fn: _.isNil(this.fnDerivative)
-                ? "0"
-                : this.fnDerivative.toString(),
-              updateOnMouseMove: false, //con true si vede la tangente
-            },
-          },
-        ],
+        data: functionsData,
       };
-      if (!_.isNil(this.currentFnXValue) && !_.isNil(this.currentFnYValue)) {
-        config.data.push({
-          points: [[this.currentFnXValue, this.currentFnYValue]],
-          fnType: "points",
-          color: "red",
-          class: "pippo",
-          graphType: "polyline",
-        });
-        // this.updateTitleWithCurrentCoordinates(config);
-      }
-
-      // debugger;
       return config;
     },
 
@@ -574,10 +585,15 @@ export default {
         }
       }
     },
+
     calculateYGivenX(x) {
+      const fn = this.$functionParser.getFunctionForX(x, this.currentFunction);
+      if (_.isNil(fn)) {
+        return NaN;
+      }
       return functionPlot.$eval.builtIn(
         {
-          fn: this.fn,
+          fn: this.$functionParser.getFunctionForX(x, this.currentFunction),
         },
         "fn",
         {

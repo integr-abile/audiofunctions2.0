@@ -21,13 +21,16 @@
           >
             Funzione corrente:
           </span>
+          <vue-mathjax
+            :formula="currentFunctionLatex"
+            id="currentFormulaMathJax"
+            tabindex="-1"
+            class="mr-2"
+            v-if="!isTraitFunction"
+          ></vue-mathjax>
+          <span v-else>Funzione a tratti</span>
         </div>
-        <vue-mathjax
-          :formula="currentFunctionLatex"
-          id="currentFormulaMathJax"
-          tabindex="-1"
-          class="mr-2"
-        ></vue-mathjax>
+
         <div class="d-flex align-items-center">
           <b-button
             variant="outline-secondary"
@@ -37,6 +40,7 @@
             v-clipboard:copy="currentFunctionLatex"
             v-clipboard:success="onCopy"
             v-clipboard:error="onCopyError"
+            v-if="!isTraitFunction"
           >
             <b-icon-files></b-icon-files>
           </b-button>
@@ -137,6 +141,26 @@ export default {
     sortedFavorites() {
       return _.sortBy(this.favoriteItems, ["identifier"]);
     },
+    isTraitFunction() {
+      if (_.isNil(this.currentFunctionIntervalArith)) {
+        return false;
+      }
+      const currentFnObj = this.$functionParser.parse(
+        this.currentFunctionIntervalArith
+      );
+      return this.$functionParser.isTraitFunction(currentFnObj);
+    },
+    currentFunctionIntervalArith() {
+      const functionData = _.find(
+        this.currentCustomizableItems,
+        function (item) {
+          return item.identifier == "function";
+        }
+      );
+      if (!_.isNil(functionData)) {
+        return functionData.data.fn;
+      }
+    },
   },
   data() {
     return {
@@ -146,11 +170,14 @@ export default {
       currentCustomizableItems: [],
       favoritesBarRefreshKey: 0,
       currentFunctionLatex: "$$f(x) = $$",
-      currentFunctionIntervalArith: null,
+      // currentFunctionIntervalArith: null,
       lastCopyFunctionSuccess: false,
       showCopyAlert: false,
       predefinedFunctions: [
         "((((2)/(3))x^(3)-1)/(x^(2)))-3cos(x)",
+        "[0,150]-x+180;[150,244]30;[244,394]x-120-30*PI;",
+        "[0,20](PI*x^2(30-x))/3;[20,25]16*PI*(x-20)+(4/3)*PI*1000;",
+        "[-3,0]x^2;[0,3]x;", //funzione a tratti di esempio
         "0",
         "3",
         "x+3",
@@ -177,16 +204,16 @@ export default {
       this.$emit("customizableItemsConfigurationChange", val);
     },
     currentFunctionIntervalArith(val) {
+      if (this.isTraitFunction) {
+        console.log("arith funzione a tratti");
+        return;
+      }
       this.currentFunctionLatex =
-        "$$f(x) = " +
-        this.$functionValidator.toLatex(this.currentFunctionIntervalArith) +
-        "$$";
+        "$$f(x) = " + this.$functionValidator.toLatex(val) + "$$";
     },
   },
   created() {
     this.updateCurrentCustomizableItems(this.customizableItems);
-
-    // debugger;
   },
   methods: {
     handleShortkey(event) {
@@ -204,12 +231,21 @@ export default {
       this.favoriteItems = _.filter(this.currentCustomizableItems, {
         isFavorite: true,
       });
-      const functionData = _.head(
-        _.filter(newConfiguration, function (item) {
-          return item.identifier == "function";
-        })
-      );
-      this.currentFunctionIntervalArith = functionData.data.fn;
+      // const functionData = _.head(
+      //   _.filter(newConfiguration, function (item) {
+      //     return item.identifier == "function";
+      //   })
+      // );
+      // const currentFunctionObj = this.$functionParser.parse(
+      //   functionData.data.fn
+      // );
+      // if (this.$functionParser.isTraitFunction(currentFunctionObj)) {
+      //   console.log("funzione a tratti");
+      //   //TODO: gestire il caso in cui arriva una funzione a tratti
+      // } else {
+      //   //se la funzione non è a tratti
+      //   this.currentFunctionIntervalArith = functionData.data.fn;
+      // }
     },
     handleSaveFromFavoritesBar() {
       this.$refs.chartOptionsSidebar.saveAll();
@@ -237,14 +273,6 @@ export default {
     },
     changeFunction(evt) {
       this.goToNextFunction(true);
-      // this.currentPredefinedFunction =
-      //   this.currentPredefinedFunction === null
-      //     ? this.predefinedFunctions[0]
-      //     : this.getNextElement(
-      //         this.predefinedFunctions,
-      //         this.currentPredefinedFunction
-      //       );
-      // this.$emit("switchPredefinedFunction", this.currentPredefinedFunction);
     },
     getNextElement(array, element) {
       let index = _.indexOf(array, element);
