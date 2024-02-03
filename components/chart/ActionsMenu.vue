@@ -142,13 +142,24 @@ export default {
       return _.sortBy(this.favoriteItems, ["identifier"]);
     },
     isTraitFunction() {
-      if (_.isNil(this.currentPredefinedFunction)) {
+      if (_.isNil(this.currentFunctionIntervalArith)) {
         return false;
       }
       const currentFnObj = this.$functionParser.parse(
-        this.currentPredefinedFunction
+        this.currentFunctionIntervalArith
       );
       return this.$functionParser.isTraitFunction(currentFnObj);
+    },
+    currentFunctionIntervalArith() {
+      const functionData = _.find(
+        this.currentCustomizableItems,
+        function (item) {
+          return item.identifier == "function";
+        }
+      );
+      if (!_.isNil(functionData)) {
+        return functionData.data.fn;
+      }
     },
   },
   data() {
@@ -159,7 +170,7 @@ export default {
       currentCustomizableItems: [],
       favoritesBarRefreshKey: 0,
       currentFunctionLatex: "$$f(x) = $$",
-      currentFunctionIntervalArith: null,
+      // currentFunctionIntervalArith: null,
       lastCopyFunctionSuccess: false,
       showCopyAlert: false,
       predefinedFunctions: [
@@ -193,16 +204,16 @@ export default {
       this.$emit("customizableItemsConfigurationChange", val);
     },
     currentFunctionIntervalArith(val) {
+      if (this.isTraitFunction) {
+        console.log("arith funzione a tratti");
+        return;
+      }
       this.currentFunctionLatex =
-        "$$f(x) = " +
-        this.$functionValidator.toLatex(this.currentFunctionIntervalArith) +
-        "$$";
+        "$$f(x) = " + this.$functionValidator.toLatex(val) + "$$";
     },
   },
   created() {
     this.updateCurrentCustomizableItems(this.customizableItems);
-
-    // debugger;
   },
   methods: {
     handleShortkey(event) {
@@ -220,21 +231,21 @@ export default {
       this.favoriteItems = _.filter(this.currentCustomizableItems, {
         isFavorite: true,
       });
-      const functionData = _.head(
-        _.filter(newConfiguration, function (item) {
-          return item.identifier == "function";
-        })
-      );
-      const currentFunctionObj = this.$functionParser.parse(
-        functionData.data.fn
-      );
-      if (this.$functionParser.isTraitFunction(currentFunctionObj)) {
-        console.log("funzione a tratti");
-        //TODO: gestire il caso in cui arriva una funzione a tratti
-      } else {
-        //se la funzione non è a tratti
-        this.currentFunctionIntervalArith = functionData.data.fn;
-      }
+      // const functionData = _.head(
+      //   _.filter(newConfiguration, function (item) {
+      //     return item.identifier == "function";
+      //   })
+      // );
+      // const currentFunctionObj = this.$functionParser.parse(
+      //   functionData.data.fn
+      // );
+      // if (this.$functionParser.isTraitFunction(currentFunctionObj)) {
+      //   console.log("funzione a tratti");
+      //   //TODO: gestire il caso in cui arriva una funzione a tratti
+      // } else {
+      //   //se la funzione non è a tratti
+      //   this.currentFunctionIntervalArith = functionData.data.fn;
+      // }
     },
     handleSaveFromFavoritesBar() {
       this.$refs.chartOptionsSidebar.saveAll();

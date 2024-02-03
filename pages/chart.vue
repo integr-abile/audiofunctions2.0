@@ -41,17 +41,11 @@
         "
       />
     </header>
-    <main
-      class="h-100"
-      aria-label="Grafico della funzione"
-      tabindex="0"
-      @focus="requestFnAsText"
-    >
+    <main class="h-100" aria-label="Grafico della funzione" tabindex="0">
       <ChartFunctionPlot
         v-bind="functionOptions"
         :actionRequest="functionActionRequest"
         :isKeyboardInteractionEnabled="isFnInteractionEnabled"
-        :fnAsText="fnTextRepresentation"
         id="fnPlot"
         ref="fnPlot"
         class="h-100"
@@ -122,8 +116,19 @@ export default {
     }
     try {
       //La sintassi dell'initialConfiguration è quella del customizableItems
-      const config = sessionDataSerializer.parse(initialEncodedConfiguration);
-      this.initialConfiguration = config;
+      const configOverrides = sessionDataSerializer.parse(
+        initialEncodedConfiguration
+      );
+      let defaultConfig = _.cloneDeep(this.defaultConfiguration);
+      configOverrides.forEach((cfgOverride) => {
+        const identifier = cfgOverride.identifier;
+        cfgOverride.params.forEach((param) => {
+          _.find(defaultConfig, { identifier: identifier }).data[param.id] =
+            param.value;
+        });
+      });
+      console.log(defaultConfig);
+      this.initialConfiguration = defaultConfig;
     } catch (e) {
       this.initialConfiguration = this.defaultConfiguration;
       alert(e.message);
@@ -217,23 +222,23 @@ export default {
     },
   },
   methods: {
-    requestFnAsText() {
-      // debugger;
-      this.fnTextRepresentation = document
-        .getElementById("mathlive-mathfield")
-        .getValue("spoken-text");
-      console.log(
-        "richiedo formula parlata " +
-          document.getElementById("mathlive-mathfield").getValue("spoken-text")
-      );
-    },
+    // requestFnAsText() {
+    //   // debugger;
+    //   this.fnTextRepresentation = document
+    //     .getElementById("mathlive-mathfield")
+    //     .getValue("spoken-text");
+    //   console.log(
+    //     "richiedo formula parlata " +
+    //       document.getElementById("mathlive-mathfield").getValue("spoken-text")
+    //   );
+    // },
     async handleEvent(evt) {
       if (!this.$soundFactory.isToneEngineStarted()) {
         this.$soundFactory.enableSonifier();
       }
-      if (_.isEmpty(this.fnTextRepresentation)) {
-        this.requestFnAsText();
-      }
+      // if (_.isEmpty(this.fnTextRepresentation)) {
+      //   this.requestFnAsText();
+      // }
       this.$refs.tts.getVoicesIfNeeded();
     },
     onVoicesLoaded(voices) {
@@ -352,9 +357,6 @@ export default {
         fn: _.isNil(functionData)
           ? this.functionOptions.fn
           : functionData.data.fn,
-        fnAsText: _.isNil(functionData)
-          ? this.functionOptions.fnAsText
-          : functionData.data.fnAsText,
         sonificationStep: _.isNil(xDomainData)
           ? this.functionOptions.sonificationStep
           : parseFloat(xDomainData.data.step),
