@@ -576,16 +576,6 @@ export default {
 
     updateFunctionChart() {
       console.log("updating chart");
-      if (this.fnPlotInstance) {
-        //Questo pezzo rimuove i residui del tip quando da mouse passo a esplorazione da tastiera
-        const svg = document.querySelector("#root svg");
-        if (!_.isNil(svg)) {
-          while (svg.lastChild) {
-            svg.removeChild(svg.lastChild);
-          }
-        }
-      }
-      this.cleanUp();
       this.fnPlotInstance = functionPlot(this.createFnConfigObject());
       if (
         this.boundTipUpdateFunction &&
