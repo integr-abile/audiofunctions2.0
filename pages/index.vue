@@ -53,6 +53,12 @@
     </ul>
     <!-- Carosello immagini -->
     <h2 class="text-center">Alcuni screenshot dell'applicazione</h2>
+    <span class="sr-only">
+      Di seguito è presente un carosello di immagini e relative spiegazioni. è
+      possibile andare avanti e indietro nelle slide attraverso i bottoni "Slide
+      precedente" e "Slide successiva" posti sotto il carosello. Accanto a
+      questi bottoni c'è un testo che indica il numero della slide corrente
+    </span>
     <b-row style="margin-bottom: 72px">
       <b-col>
         <ssr-carousel v-model="page" style="margin-top: 48px">
