@@ -72,6 +72,10 @@
             @shortkey="handleShortkey"
             >Switch funzione</b-button
           >
+          <NuxtLink class="btn btn-secondary" to="/">
+            <b-icon icon="house" aria-hidden="true"></b-icon>
+            <span class="sr-only">Vai alla home page</span>
+          </NuxtLink>
         </div>
       </div>
     </div>

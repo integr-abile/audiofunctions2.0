@@ -12,7 +12,6 @@ body,
 #__layout {
   margin: 0;
   height: 100%;
-  overflow: hidden;
 }
 body {
   --keyboard-zindex: 3000;
