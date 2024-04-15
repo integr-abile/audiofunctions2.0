@@ -111,6 +111,7 @@ export default {
     },
     cleanUp() {
       const mathField = this.$refs.mathfield;
+      if (_.isNil(mathField)) return;
       mathField.removeEventListener("change", this.changeEvtFn);
       mathField.removeEventListener("beforeinput", this.beforeInputEvtFn);
       //Math shortcut: https://cortexjs.io/mathlive/reference/keybindings/

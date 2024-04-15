@@ -269,6 +269,9 @@ export default {
       const newFunctionOptions = _.cloneDeep(this.functionOptions);
       newFunctionOptions.domXRange = [newDomX.data.xMin, newDomX.data.xMax];
       newFunctionOptions.domYRange = [newDomY.data.yMin, newDomY.data.yMax];
+      console.log(
+        `setting new domain ${newFunctionOptions.domXRange} and ${newFunctionOptions.domYRange}`
+      );
       this.functionOptions = newFunctionOptions;
 
       const newFunctionSonificationOptions = _.cloneDeep(

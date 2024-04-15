@@ -125,16 +125,6 @@ export default {
       return this.$functionParser.parse(this.fn);
     },
   },
-  mounted() {
-    //Setup chart listener functions
-    this.boundTipUpdateFunction = this.chartTipUpdateFunction.bind(this);
-    this.boundMouseOutFunction = this.chartMouseOutFunction.bind(this);
-    this.boundMouseMoveFunction = this.chartMouseMoveFunction.bind(this);
-    this.boundAllZoomFunction = this.chartAllZoomFunction.bind(this);
-  },
-  beforeDestroy() {
-    this.cleanUp();
-  },
   data() {
     return {
       fnContainerWidth: 0,
@@ -164,10 +154,6 @@ export default {
       lastFirstDerivativeSign: null,
       lastXSign: null,
       lastYSign: null,
-      boundTipUpdateFunction: null,
-      boundMouseOutFunction: null,
-      boundMouseMoveFunction: null,
-      boundAllZoomFunction: null,
     };
   },
   watch: {
@@ -390,28 +376,14 @@ export default {
     },
   },
   methods: {
-    cleanUp() {
-      if (this.fnPlotInstance && this.boundTipUpdateFunction) {
-        this.fnPlotInstance.off("tip:update", this.boundTipUpdateFunction);
-      }
-      if (this.fnPlotInstance && this.boundMouseMoveFunction) {
-        this.fnPlotInstance.off("mousemove", this.boundMouseMoveFunction);
-      }
-      if (this.fnPlotInstance && this.boundMouseOutFunction) {
-        this.fnPlotInstance.off("mouseout", this.boundMouseOutFunction);
-      }
-      if (this.fnPlotInstance && this.boundAllZoomFunction) {
-        this.fnPlotInstance.off("all:zoom", this.boundAllZoomFunction);
-      }
-    },
-    chartTipUpdateFunction(cx, cy, cidx) {
-      console.log("tip:update");
-      this.isBatchExplorationInProgress = false;
-      this.currentFnYValue = cx.y;
-      this.currentFnXValue = cx.x;
-      this.$emit("fnExplorationOutOfVisibleBounds", false);
-      this.notifyCurrentXYPositionIfNeeded();
-    },
+    // chartTipUpdateFunction(cx, cy, cidx) {
+    //   console.log("evt tip:update");
+    //   this.isBatchExplorationInProgress = false;
+    //   this.currentFnYValue = cx.y;
+    //   this.currentFnXValue = cx.x;
+    //   this.$emit("fnExplorationOutOfVisibleBounds", false);
+    //   this.notifyCurrentXYPositionIfNeeded();
+    // },
     chartMouseOutFunction(event) {
       console.log("mouseout");
       this.canEmitEventsForSonification = false;
@@ -423,25 +395,27 @@ export default {
       this.$emit("fnExplorationOutOfVisibleBounds", true);
     },
     chartMouseMoveFunction(event) {
+      // console.log(`evt mousemove ${event.x}, ${event.y}`);
       this.yMousePointer = event.y;
       this.xMousePointer = event.x;
+      this.$emit("fnExplorationOutOfVisibleBounds", false);
     },
     chartAllZoomFunction(event) {
       //scale o translation
-      console.log(
-        "numero di campioni " + this.estimateFunctionNumberOfSamples()
-      );
+      // console.log(
+      //   "evt numero di campioni " + this.estimateFunctionNumberOfSamples()
+      // );
       // const newXAxisDomain = this.fnPlotInstance.meta.xDomain;
-      const newXAxisDomain = this.fnPlotInstance.meta.xScale.domain();
-      const newYAxisDomain = this.fnPlotInstance.meta.yScale.domain();
 
       if (!_.isNil(this.pendingUserInteractionTimer)) {
         clearTimeout(this.pendingUserInteractionTimer);
       }
       this.pendingUserInteractionTimer = setTimeout(
         function () {
+          const newXAxisDomain = this.fnPlotInstance.meta.xScale.domain();
+          const newYAxisDomain = this.fnPlotInstance.meta.yScale.domain();
           console.log(
-            `evt ${event.type}. new x axis domain: ${newXAxisDomain}; y domain: ${newYAxisDomain}`
+            `setting evt ${event.type}. new x axis domain: ${newXAxisDomain}; y domain: ${newYAxisDomain}`
           );
           this.$emit("domainManuallyChanged", [
             {
@@ -577,17 +551,9 @@ export default {
     updateFunctionChart() {
       console.log("updating chart");
       this.fnPlotInstance = functionPlot(this.createFnConfigObject());
-      if (
-        this.boundTipUpdateFunction &&
-        this.boundMouseMoveFunction &&
-        this.boundMouseOutFunction &&
-        this.boundAllZoomFunction
-      ) {
-        this.fnPlotInstance.on("tip:update", this.boundTipUpdateFunction);
-        this.fnPlotInstance.on("mouseout", this.boundMouseOutFunction);
-        this.fnPlotInstance.on("mousemove", this.boundMouseMoveFunction);
-        this.fnPlotInstance.on("all:zoom", this.boundAllZoomFunction);
-      }
+      this.fnPlotInstance.on("mouseout", this.chartMouseOutFunction);
+      this.fnPlotInstance.on("mousemove", this.chartMouseMoveFunction);
+      this.fnPlotInstance.on("all:zoom", this.chartAllZoomFunction);
     },
     notifyCurrentXYPositionIfNeeded() {
       if (this.canEmitEventsForSonification) {
