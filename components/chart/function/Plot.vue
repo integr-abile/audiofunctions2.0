@@ -150,7 +150,7 @@ export default {
       batchSonificationTimer: null,
       currentEarconToPlay: null,
       explorationIndicatorColor: "#e86432", //rossiccio
-      pendingUserInteractionTimer: null,
+      // pendingUserInteractionTimer: null,
       lastFirstDerivativeSign: null,
       lastXSign: null,
       lastYSign: null,
@@ -364,9 +364,10 @@ export default {
       }
       this.calculateAndNotifyRelevantValuesForX(val);
       this.calculateYForXAndNotify(this.currentFnXValue);
-      if (_.isNil(this.pendingUserInteractionTimer)) {
-        this.updateFunctionChart();
-      }
+      this.updateFunctionChart();
+      // if (_.isNil(this.pendingUserInteractionTimer)) {
+
+      // }
     },
     xMousePointer(val) {
       this.currentFnXValue = val;
@@ -376,68 +377,6 @@ export default {
     },
   },
   methods: {
-    // chartTipUpdateFunction(cx, cy, cidx) {
-    //   console.log("evt tip:update");
-    //   this.isBatchExplorationInProgress = false;
-    //   this.currentFnYValue = cx.y;
-    //   this.currentFnXValue = cx.x;
-    //   this.$emit("fnExplorationOutOfVisibleBounds", false);
-    //   this.notifyCurrentXYPositionIfNeeded();
-    // },
-    chartMouseOutFunction(event) {
-      console.log("mouseout");
-      this.canEmitEventsForSonification = false;
-      this.$emit("needNotifyStatus", this.functionStatus);
-      this.$emit("needPlayEarcon", {
-        id: this.$AudioSample.displayedChartBorder,
-        ignoreIsStillPlaying: false,
-      });
-      this.$emit("fnExplorationOutOfVisibleBounds", true);
-    },
-    chartMouseMoveFunction(event) {
-      // console.log(`evt mousemove ${event.x}, ${event.y}`);
-      this.yMousePointer = event.y;
-      this.xMousePointer = event.x;
-      this.$emit("fnExplorationOutOfVisibleBounds", false);
-    },
-    chartAllZoomFunction(event) {
-      //scale o translation
-      // console.log(
-      //   "evt numero di campioni " + this.estimateFunctionNumberOfSamples()
-      // );
-      // const newXAxisDomain = this.fnPlotInstance.meta.xDomain;
-
-      if (!_.isNil(this.pendingUserInteractionTimer)) {
-        clearTimeout(this.pendingUserInteractionTimer);
-      }
-      this.pendingUserInteractionTimer = setTimeout(
-        function () {
-          const newXAxisDomain = this.fnPlotInstance.meta.xScale.domain();
-          const newYAxisDomain = this.fnPlotInstance.meta.yScale.domain();
-          console.log(
-            `setting evt ${event.type}. new x axis domain: ${newXAxisDomain}; y domain: ${newYAxisDomain}`
-          );
-          this.$emit("domainManuallyChanged", [
-            {
-              identifier: "xDomain",
-              data: {
-                xMin: newXAxisDomain[0],
-                xMax: newXAxisDomain[1],
-              },
-            },
-            {
-              identifier: "yDomain",
-              data: {
-                yMin: newYAxisDomain[0],
-                yMax: newYAxisDomain[1],
-              },
-            },
-          ]);
-          this.pendingUserInteractionTimer = null;
-        }.bind(this),
-        100
-      );
-    },
     handleResize({ width, height }) {
       this.fnContainerWidth = width;
       this.fnContainerHeight = height;
@@ -534,6 +473,7 @@ export default {
 
       let config = {
         target: "#root",
+        disableZoom: true,
         width: this.fnContainerWidth,
         height: this.fnContainerHeight * 0.99,
         yAxis: {
@@ -551,9 +491,43 @@ export default {
     updateFunctionChart() {
       console.log("updating chart");
       this.fnPlotInstance = functionPlot(this.createFnConfigObject());
-      this.fnPlotInstance.on("mouseout", this.chartMouseOutFunction);
-      this.fnPlotInstance.on("mousemove", this.chartMouseMoveFunction);
-      this.fnPlotInstance.on("all:zoom", this.chartAllZoomFunction);
+      this.fnPlotInstance.on(
+        "tip:update",
+        function (cx, cy, cidx) {
+          console.log("tip:update");
+          this.isBatchExplorationInProgress = false;
+          this.currentFnYValue = cx.y;
+          this.currentFnXValue = cx.x;
+          this.$emit("fnExplorationOutOfVisibleBounds", false);
+          this.notifyCurrentXYPositionIfNeeded();
+        }.bind(this)
+      );
+      this.fnPlotInstance.on(
+        "mouseout",
+        function (event) {
+          console.log("mouseout");
+          this.canEmitEventsForSonification = false;
+          this.$emit("needNotifyStatus", this.functionStatus);
+          this.$emit("needPlayEarcon", {
+            id: this.$AudioSample.displayedChartBorder,
+            ignoreIsStillPlaying: false,
+          });
+          this.$emit("fnExplorationOutOfVisibleBounds", true);
+        }.bind(this)
+      );
+      this.fnPlotInstance.on(
+        "mousemove",
+        function (event) {
+          this.yMousePointer = event.y;
+          this.xMousePointer = event.x;
+        }.bind(this)
+      );
+
+      this.fnPlotInstance.on("all:zoom", function (event) {
+        //è l'unico modo che ho per intercettare la mouse wheel
+
+        console.log("scrolling " + event); //da event posso ricavare deltaY e capire se sto scrollando su o giù
+      });
     },
     notifyCurrentXYPositionIfNeeded() {
       if (this.canEmitEventsForSonification) {
