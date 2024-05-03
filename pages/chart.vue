@@ -56,7 +56,7 @@
             (isFnExplorationOutOfBounds = userFnExplorationOutOfVisibleBounds)
         "
         @needNotifyMessage="handleFunctionMessageEvent"
-        @domainManuallyChanged="handleDomainManuallyChanged"
+        @displayedIntervalChangeRequest="handleDisplayedIntervalChangeRequest"
         @beginFunctionInteractionRequest="handleEvent"
       />
     </main>
@@ -253,51 +253,90 @@ export default {
       newFunctionSonificationOptions.isEnabled = !hidden;
       this.functionSonificationOptions = newFunctionSonificationOptions;
     },
-    handleDomainManuallyChanged(changes) {
-      console.log("dominio cambiato " + changes);
-      const newDomX = _.head(
-        _.filter(changes, function (item) {
-          return item.identifier == "xDomain";
-        })
-      );
-      const newDomY = _.head(
-        _.filter(changes, function (item) {
-          return item.identifier == "yDomain";
-        })
-      );
+    handleDisplayedIntervalChangeRequest(event) {
+      const requestType = event.requestType.split("-")[0];
+      console.log("request type " + requestType);
+      const speed =
+        requestType == "zoom"
+          ? this.$FunctionGesture.ZoomSpeed.medium
+          : this.$FunctionGesture.DragSpeed.medium;
 
-      const newFunctionOptions = _.cloneDeep(this.functionOptions);
-      newFunctionOptions.domXRange = [newDomX.data.xMin, newDomX.data.xMax];
-      newFunctionOptions.domYRange = [newDomY.data.yMin, newDomY.data.yMax];
-      console.log(
-        `setting new domain ${newFunctionOptions.domXRange} and ${newFunctionOptions.domYRange}`
-      );
-      this.functionOptions = newFunctionOptions;
+      const { newDomX, newDomY } =
+        this.$functionUtility.calculateNewVisualizedInterval(
+          this.functionOptions.domXRange,
+          this.functionOptions.domYRange,
+          event.pivotPoint,
+          event.requestType,
+          speed
+        );
+      console.log("nuovo intervallo visualizzato " + newDomX + " " + newDomY);
 
-      const newFunctionSonificationOptions = _.cloneDeep(
-        this.functionSonificationOptions
-      );
-      newFunctionSonificationOptions.domXRange = this.functionOptions.domXRange;
-      newFunctionSonificationOptions.domYRange = this.functionOptions.domYRange;
-      this.functionSonificationOptions = newFunctionSonificationOptions;
-
-      const idxOfXDomain = _.findIndex(this.currentConfiguration, {
-        identifier: "xDomain",
-      });
-      const idxOfYDomain = _.findIndex(this.currentConfiguration, {
-        identifier: "yDomain",
-      });
-
-      this.currentConfiguration[idxOfXDomain].data.xMax = newDomX.data.xMax;
-      this.currentConfiguration[idxOfXDomain].data.xMin = newDomX.data.xMin;
-      this.currentConfiguration[idxOfYDomain].data.yMax = newDomY.data.yMax;
-      this.currentConfiguration[idxOfYDomain].data.yMin = newDomY.data.yMin;
-
-      this.currentConfiguration = _.cloneDeep(this.currentConfiguration);
-      this.$refs.actionMenu.updateCurrentCustomizableItems(
-        this.currentConfiguration
-      );
+      // switch (event.requestType) {
+      //   case this.$FunctionGesture.zoomIn:
+      //     console.log("zoom in in chart");
+      //     break;
+      //   case this.$FunctionGesture.zoomOut:
+      //     console.log("zoom out in chart");
+      //     break;
+      //   case this.$FunctionGesture.dragRight:
+      //     console.log("drag right in chart");
+      //     break;
+      //   case this.$FunctionGesture.dragLeft:
+      //     console.log("drag left in chart");
+      //     break;
+      //   case this.$FunctionGesture.dragUp:
+      //     console.log("drag up in chart");
+      //     break;
+      //   case this.$FunctionGesture.dragDown:
+      //     console.log("drag down in chart");
+      //     break;
+      // }
     },
+    // handleDomainManuallyChanged(changes) {
+    //   console.log("dominio cambiato " + changes);
+    //   const newDomX = _.head(
+    //     _.filter(changes, function (item) {
+    //       return item.identifier == "xDomain";
+    //     })
+    //   );
+    //   const newDomY = _.head(
+    //     _.filter(changes, function (item) {
+    //       return item.identifier == "yDomain";
+    //     })
+    //   );
+
+    //   const newFunctionOptions = _.cloneDeep(this.functionOptions);
+    //   newFunctionOptions.domXRange = [newDomX.data.xMin, newDomX.data.xMax];
+    //   newFunctionOptions.domYRange = [newDomY.data.yMin, newDomY.data.yMax];
+    //   console.log(
+    //     `setting new domain ${newFunctionOptions.domXRange} and ${newFunctionOptions.domYRange}`
+    //   );
+    //   this.functionOptions = newFunctionOptions;
+
+    //   const newFunctionSonificationOptions = _.cloneDeep(
+    //     this.functionSonificationOptions
+    //   );
+    //   newFunctionSonificationOptions.domXRange = this.functionOptions.domXRange;
+    //   newFunctionSonificationOptions.domYRange = this.functionOptions.domYRange;
+    //   this.functionSonificationOptions = newFunctionSonificationOptions;
+
+    //   const idxOfXDomain = _.findIndex(this.currentConfiguration, {
+    //     identifier: "xDomain",
+    //   });
+    //   const idxOfYDomain = _.findIndex(this.currentConfiguration, {
+    //     identifier: "yDomain",
+    //   });
+
+    //   this.currentConfiguration[idxOfXDomain].data.xMax = newDomX.data.xMax;
+    //   this.currentConfiguration[idxOfXDomain].data.xMin = newDomX.data.xMin;
+    //   this.currentConfiguration[idxOfYDomain].data.yMax = newDomY.data.yMax;
+    //   this.currentConfiguration[idxOfYDomain].data.yMin = newDomY.data.yMin;
+
+    //   this.currentConfiguration = _.cloneDeep(this.currentConfiguration);
+    //   this.$refs.actionMenu.updateCurrentCustomizableItems(
+    //     this.currentConfiguration
+    //   );
+    // },
     onOptionsChangesSaved(optionsChanged) {
       //[{"identifier": "xDomain","data": {}]
 

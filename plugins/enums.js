@@ -12,6 +12,12 @@ const FunctionAction = {
   currentXIntervalRequest: `${fnCommandPrefix}_currentXIntervalRequest`,
   currentYIntervalRequest: `${fnCommandPrefix}_currentYIntervalRequest`,
   readCurrentExpression: `${fnCommandPrefix}_readCurrentExpression`,
+  zoomIn: `${fnCommandPrefix}_zoomIn`,
+  zoomOut: `${fnCommandPrefix}_zoomOut`,
+  dragRight: `${fnCommandPrefix}_dragRight`,
+  dragLeft: `${fnCommandPrefix}_dragLeft`,
+  dragUp: `${fnCommandPrefix}_dragUp`,
+  dragDown: `${fnCommandPrefix}_dragDown`,
 };
 const KeyboardKey = {
   arrowRight: 39,
@@ -24,6 +30,11 @@ const KeyboardKey = {
   q: 81,
   f: 70,
   i: 73,
+  z: 90,
+  w: 87,
+  a: 65,
+  s: 83,
+  d: 68,
   enter: 13,
 };
 const AudioSample = {
@@ -49,6 +60,27 @@ const MathSymbolsStringRepresentation = {
   "\\cdot": "per",
 };
 
+const FunctionGesture = {
+  zoomIn: "zoom-in",
+  zoomOut: "zoom-out",
+  dragRight: "drag-right",
+  dragLeft: "drag-left",
+  dragUp: "drag-up",
+  dragDown: "drag-down",
+
+  ZoomSpeed: {
+    slow: 1.1,
+    medium: 1.25,
+    fast: 2,
+  },
+
+  DragSpeed: {
+    slow: 0.05,
+    medium: 0.2,
+    fast: 0.4,
+  },
+};
+
 export default ({ app }, inject) => {
   inject("FunctionAction", FunctionAction);
   inject("KeyboardKey", KeyboardKey);
@@ -56,4 +88,5 @@ export default ({ app }, inject) => {
   inject("TextToSpeechOption", TextToSpeechOption);
   inject("FunctionVoiceMessageFormat", FunctionVoiceMessageFormat);
   inject("MathSymbolsStringRepresentation", MathSymbolsStringRepresentation);
+  inject("FunctionGesture", FunctionGesture);
 };

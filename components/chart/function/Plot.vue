@@ -62,7 +62,7 @@ export default {
     "needNotifyStatus",
     "needPlayEarcon",
     "needNotifyMessage",
-    "domainManuallyChanged",
+    "displayedIntervalChangeRequest",
     "beginFunctionInteractionRequest",
     "fnExplorationOutOfVisibleBounds",
   ],
@@ -341,6 +341,60 @@ export default {
             setTimeout(() => {
               el.focus();
             }, 500); //do un po' di tempo per risettarlo perchè altrimenti se premo F o shift+F senza aver lasciato l'ultimo focus, lo SR non legge l'aggiornamento
+          });
+          break;
+        case this.$FunctionAction.zoomIn:
+          this.$emit("displayedIntervalChangeRequest", {
+            requestType: this.$FunctionGesture.zoomIn,
+            pivotPoint: {
+              x: this.currentFnXValue,
+              y: this.currentFnYValue,
+            },
+          });
+          break;
+        case this.$FunctionAction.zoomOut:
+          this.$emit("displayedIntervalChangeRequest", {
+            requestType: this.$FunctionGesture.zoomOut,
+            pivotPoint: {
+              x: this.currentFnXValue,
+              y: this.currentFnYValue,
+            },
+          });
+          break;
+        case this.$FunctionAction.dragRight:
+          this.$emit("displayedIntervalChangeRequest", {
+            requestType: this.$FunctionGesture.dragRight,
+            pivotPoint: {
+              x: this.currentFnXValue,
+              y: this.currentFnYValue,
+            },
+          });
+          break;
+        case this.$FunctionAction.dragLeft:
+          this.$emit("displayedIntervalChangeRequest", {
+            requestType: this.$FunctionGesture.dragLeft,
+            pivotPoint: {
+              x: this.currentFnXValue,
+              y: this.currentFnYValue,
+            },
+          });
+          break;
+        case this.$FunctionAction.dragUp:
+          this.$emit("displayedIntervalChangeRequest", {
+            requestType: this.$FunctionGesture.dragUp,
+            pivotPoint: {
+              x: this.currentFnXValue,
+              y: this.currentFnYValue,
+            },
+          });
+          break;
+        case this.$FunctionAction.dragDown:
+          this.$emit("displayedIntervalChangeRequest", {
+            requestType: this.$FunctionGesture.dragDown,
+            pivotPoint: {
+              x: this.currentFnXValue,
+              y: this.currentFnYValue,
+            },
           });
           break;
         default:

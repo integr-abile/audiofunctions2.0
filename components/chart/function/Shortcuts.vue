@@ -45,6 +45,28 @@
       :key-code="$KeyboardKey.q"
       @success="readCurrentExpression"
     />
+    <Keypress
+      key-event="keyup"
+      :key-code="$KeyboardKey.z"
+      @success="handleZoom"
+    />
+    <!-- Drag -->
+    <Keypress key-event="keyup" :key-code="$KeyboardKey.w" @success="dragUp" />
+    <Keypress
+      key-event="keyup"
+      :key-code="$KeyboardKey.a"
+      @success="dragLeft"
+    />
+    <Keypress
+      key-event="keyup"
+      :key-code="$KeyboardKey.s"
+      @success="dragDown"
+    />
+    <Keypress
+      key-event="keyup"
+      :key-code="$KeyboardKey.d"
+      @success="dragRight"
+    />
   </div>
 </template>
 
@@ -63,6 +85,26 @@ export default {
     Keypress: () => import("vue-keypress"),
   },
   methods: {
+    dragUp(event) {
+      this.$emit("actionRequest", this.$FunctionAction.dragUp);
+    },
+    dragLeft(event) {
+      this.$emit("actionRequest", this.$FunctionAction.dragLeft);
+    },
+    dragDown(event) {
+      this.$emit("actionRequest", this.$FunctionAction.dragDown);
+    },
+    dragRight(event) {
+      this.$emit("actionRequest", this.$FunctionAction.dragRight);
+    },
+    handleZoom(event) {
+      // console.log(event);
+      if (event.event.shiftKey) {
+        this.$emit("actionRequest", this.$FunctionAction.zoomOut);
+      } else {
+        this.$emit("actionRequest", this.$FunctionAction.zoomIn);
+      }
+    },
     handleKeyUp(event) {
       switch (event.event.keyCode) {
         case this.$KeyboardKey.arrowRight:

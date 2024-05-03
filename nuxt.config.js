@@ -52,6 +52,7 @@ export default {
     { src: "~/plugins/vue-mouseover.js", mode: "client" },
     { src: "~/plugins/vue-visibility.js", mode: "client" },
     { src: "~/plugins/function-parser.js", mode: "client" },
+    { src: "~/plugins/function-utility.js", mode: "client" },
   ],
 
   // Auto import components: https://go.nuxtjs.dev/config-components
