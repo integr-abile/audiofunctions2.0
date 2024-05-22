@@ -226,7 +226,10 @@ export default ({ app }, inject) => {
       player.start();
     }
     getAllInstrumentsName() {
-      return _.map(this.#allInstruments, "name");
+      let allInstrumentNames = _.map(this.#allInstruments, "name");
+      return process.env.DEBUG == "true"
+        ? allInstrumentNames
+        : allInstrumentNames.filter((name) => name != "sine");
     }
     resetCache() {
       this.#lastPitchClass = null;

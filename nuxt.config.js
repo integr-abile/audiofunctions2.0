@@ -62,7 +62,7 @@ export default {
   buildModules: ["vue-ssr-carousel/nuxt"],
 
   // Modules: https://go.nuxtjs.dev/config-modules
-  modules: ["bootstrap-vue/nuxt"],
+  modules: ["bootstrap-vue/nuxt", "@nuxtjs/dotenv"],
   bootstrapVue: {
     icons: true,
   },
