@@ -7,7 +7,11 @@
       ref="fnContainer"
       v-if="doesFunctionExists"
     >
-      <div class="w-100 h-100" style="position: relative">
+      <div
+        class="w-100 h-100"
+        style="position: relative"
+        @touchend="handleTouchEnd"
+      >
         <resize-observer @notify="handleResize" :emitOnMount="true" />
         <b-overlay :show="shouldShowChartOverlay">
           <div
@@ -126,6 +130,7 @@ export default {
       return this.$functionParser.parse(this.fn);
     },
   },
+
   data() {
     return {
       fnContainerWidth: 0,
@@ -548,6 +553,9 @@ export default {
       return config;
     },
 
+    handleTouchEnd() {
+      this.handleRequestBeginInteraction();
+    },
     updateFunctionChart() {
       console.log("updating chart");
       this.fnPlotInstance = functionPlot(this.createFnConfigObject());
