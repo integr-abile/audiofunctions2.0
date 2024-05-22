@@ -20,18 +20,42 @@ export default ({ app }, inject) => {
 
       switch (transformationType) {
         case app.$FunctionGesture.zoomIn:
-          break;
         case app.$FunctionGesture.zoomOut:
-          break;
+          const offsetLeft =
+            (distanceFromLeft / 100) *
+            speed *
+            (transformationType == app.$FunctionGesture.zoomIn ? 1 : -1);
+          const offsetRight =
+            (distanceFromRight / 100) *
+            speed *
+            (transformationType == app.$FunctionGesture.zoomIn ? -1 : 1);
+          const offsetBottom =
+            (distanceFromBottom / 100) *
+            speed *
+            (transformationType == app.$FunctionGesture.zoomIn ? 1 : -1);
+          const offsetTop =
+            (distanceFromTop / 100) *
+            speed *
+            (transformationType == app.$FunctionGesture.zoomIn ? -1 : 1);
+
+          var newLeftBorderValue = leftBorderValue + offsetLeft;
+          var newRightBorderValue = rightBorderValue + offsetRight;
+          var newBottomBorderValue = bottomBorderValue + offsetBottom;
+          var newTopBorderValue = topBorderValue + offsetTop;
+
+          return {
+            newDomX: [newLeftBorderValue, newRightBorderValue],
+            newDomY: [newBottomBorderValue, newTopBorderValue],
+          };
+
         case app.$FunctionGesture.dragRight:
         case app.$FunctionGesture.dragLeft:
-          //TODO: parametrizzare spostamento in base a se il drag è left o right
           var offset =
             speed *
             (rightBorderValue - leftBorderValue) *
             (transformationType == app.$FunctionGesture.dragRight ? 1 : -1);
-          const newLeftBorderValue = leftBorderValue + offset;
-          const newRightBorderValue = rightBorderValue + offset;
+          var newLeftBorderValue = leftBorderValue + offset;
+          var newRightBorderValue = rightBorderValue + offset;
 
           return {
             newDomX: [newLeftBorderValue, newRightBorderValue],
@@ -43,8 +67,8 @@ export default ({ app }, inject) => {
             speed *
             (topBorderValue - bottomBorderValue) *
             (transformationType == app.$FunctionGesture.dragUp ? 1 : -1);
-          const newBottomBorderValue = bottomBorderValue + offset;
-          const newTopBorderValue = topBorderValue + offset;
+          var newBottomBorderValue = bottomBorderValue + offset;
+          var newTopBorderValue = topBorderValue + offset;
           return {
             newDomX: [leftBorderValue, rightBorderValue],
             newDomY: [newBottomBorderValue, newTopBorderValue],

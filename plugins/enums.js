@@ -68,10 +68,11 @@ const FunctionGesture = {
   dragUp: "drag-up",
   dragDown: "drag-down",
 
+  //Numeri intesi in percentuale
   ZoomSpeed: {
-    slow: 1.1,
-    medium: 1.25,
-    fast: 2,
+    slow: 10,
+    medium: 25,
+    fast: 100,
   },
 
   DragSpeed: {
