@@ -1,5 +1,5 @@
 [build]
 command = "yarn generate"
 publish = "dist"
-[context.production.environment]
+[build.environment]
 DEBUG = "false"

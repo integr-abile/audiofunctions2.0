@@ -8,3 +8,4 @@ node_modules
 dist
 #Python dev utility modules
 venv/
+.env
