@@ -58,6 +58,7 @@
         @needNotifyMessage="handleFunctionMessageEvent"
         @displayedIntervalChangeRequest="handleDisplayedIntervalChangeRequest"
         @beginFunctionInteractionRequest="handleEvent"
+        @instrumentChangeRequest="handleInstrumentChangeRequest"
       />
     </main>
     <footer>
@@ -253,6 +254,21 @@ export default {
       newFunctionSonificationOptions.isEnabled = !hidden;
       this.functionSonificationOptions = newFunctionSonificationOptions;
     },
+    handleInstrumentChangeRequest(event) {
+      const allAvailableInstruments =
+        this.$soundFactory.getAllInstrumentsName();
+      const currentInstrumentIndex = allAvailableInstruments.indexOf(
+        this.functionSonificationOptions.instrument
+      );
+      const nextInstrumentIndex =
+        (currentInstrumentIndex + 1) % allAvailableInstruments.length;
+      const newInstrument = allAvailableInstruments[nextInstrumentIndex];
+      this.functionSonificationOptions = {
+        ...this.functionSonificationOptions,
+        instrument: newInstrument,
+      };
+      this.updateInstrumentInConfiguration(newInstrument);
+    },
     handleDisplayedIntervalChangeRequest(event) {
       const requestType = event.requestType.split("-")[0];
       console.log("request type " + requestType);
@@ -289,6 +305,18 @@ export default {
         identifier: "function",
       });
       this.currentConfiguration[idxOfFn].data.fn = newFn;
+      this.currentConfiguration = _.cloneDeep(this.currentConfiguration);
+      this.$refs.actionMenu.updateCurrentCustomizableItems(
+        this.currentConfiguration
+      );
+    },
+
+    updateInstrumentInConfiguration(newInstrument) {
+      const idxOfInstrument = _.findIndex(this.currentConfiguration, {
+        identifier: "sonification",
+      });
+      this.currentConfiguration[idxOfInstrument].data.selectedInstrument =
+        newInstrument;
       this.currentConfiguration = _.cloneDeep(this.currentConfiguration);
       this.$refs.actionMenu.updateCurrentCustomizableItems(
         this.currentConfiguration

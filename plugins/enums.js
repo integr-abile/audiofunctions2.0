@@ -18,6 +18,7 @@ const FunctionAction = {
   dragLeft: `${fnCommandPrefix}_dragLeft`,
   dragUp: `${fnCommandPrefix}_dragUp`,
   dragDown: `${fnCommandPrefix}_dragDown`,
+  changeInstrument: `${fnCommandPrefix}_changeInstrument`,
 };
 const KeyboardKey = {
   arrowRight: 39,

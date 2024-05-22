@@ -65,6 +65,7 @@ export default {
     "displayedIntervalChangeRequest",
     "beginFunctionInteractionRequest",
     "fnExplorationOutOfVisibleBounds",
+    "instrumentChangeRequest",
   ],
   props: [
     "fn",
@@ -396,6 +397,9 @@ export default {
               y: this.currentFnYValue,
             },
           });
+          break;
+        case this.$FunctionAction.changeInstrument:
+          this.$emit("instrumentChangeRequest");
           break;
         default:
           break;

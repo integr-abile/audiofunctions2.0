@@ -46,6 +46,12 @@
       @success="readCurrentExpression"
     />
     <Keypress
+      key-even="keyup"
+      :key-code="$KeyboardKey.i"
+      @success="changeInstrument"
+    />
+    <!-- Zoom -->
+    <Keypress
       key-event="keyup"
       :key-code="$KeyboardKey.z"
       @success="handleZoom"
@@ -96,6 +102,9 @@ export default {
     },
     dragRight(event) {
       this.$emit("actionRequest", this.$FunctionAction.dragRight);
+    },
+    changeInstrument(event) {
+      this.$emit("actionRequest", this.$FunctionAction.changeInstrument);
     },
     handleZoom(event) {
       // console.log(event);
