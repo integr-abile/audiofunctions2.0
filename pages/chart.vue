@@ -270,73 +270,55 @@ export default {
           speed
         );
       console.log("nuovo intervallo visualizzato " + newDomX + " " + newDomY);
-
-      // switch (event.requestType) {
-      //   case this.$FunctionGesture.zoomIn:
-      //     console.log("zoom in in chart");
-      //     break;
-      //   case this.$FunctionGesture.zoomOut:
-      //     console.log("zoom out in chart");
-      //     break;
-      //   case this.$FunctionGesture.dragRight:
-      //     console.log("drag right in chart");
-      //     break;
-      //   case this.$FunctionGesture.dragLeft:
-      //     console.log("drag left in chart");
-      //     break;
-      //   case this.$FunctionGesture.dragUp:
-      //     console.log("drag up in chart");
-      //     break;
-      //   case this.$FunctionGesture.dragDown:
-      //     console.log("drag down in chart");
-      //     break;
-      // }
+      this.functionOptions = {
+        ...this.functionOptions,
+        domXRange: newDomX,
+        domYRange: newDomY,
+      };
+      this.functionSonificationOptions = {
+        ...this.functionSonificationOptions,
+        domXRange: newDomX,
+        domYRange: newDomY,
+      };
+      this.updateXDomainInConfiguration(newDomX);
+      this.updateYDomainInConfiguration(newDomY);
     },
-    // handleDomainManuallyChanged(changes) {
-    //   console.log("dominio cambiato " + changes);
-    //   const newDomX = _.head(
-    //     _.filter(changes, function (item) {
-    //       return item.identifier == "xDomain";
-    //     })
-    //   );
-    //   const newDomY = _.head(
-    //     _.filter(changes, function (item) {
-    //       return item.identifier == "yDomain";
-    //     })
-    //   );
 
-    //   const newFunctionOptions = _.cloneDeep(this.functionOptions);
-    //   newFunctionOptions.domXRange = [newDomX.data.xMin, newDomX.data.xMax];
-    //   newFunctionOptions.domYRange = [newDomY.data.yMin, newDomY.data.yMax];
-    //   console.log(
-    //     `setting new domain ${newFunctionOptions.domXRange} and ${newFunctionOptions.domYRange}`
-    //   );
-    //   this.functionOptions = newFunctionOptions;
+    updateFunctionInConfiguration(newFn) {
+      const idxOfFn = _.findIndex(this.currentConfiguration, {
+        identifier: "function",
+      });
+      this.currentConfiguration[idxOfFn].data.fn = newFn;
+      this.currentConfiguration = _.cloneDeep(this.currentConfiguration);
+      this.$refs.actionMenu.updateCurrentCustomizableItems(
+        this.currentConfiguration
+      );
+    },
 
-    //   const newFunctionSonificationOptions = _.cloneDeep(
-    //     this.functionSonificationOptions
-    //   );
-    //   newFunctionSonificationOptions.domXRange = this.functionOptions.domXRange;
-    //   newFunctionSonificationOptions.domYRange = this.functionOptions.domYRange;
-    //   this.functionSonificationOptions = newFunctionSonificationOptions;
+    updateXDomainInConfiguration(newDomain) {
+      const idxOfDomain = _.findIndex(this.currentConfiguration, {
+        identifier: "xDomain",
+      });
+      this.currentConfiguration[idxOfDomain].data.xMin = newDomain[0];
+      this.currentConfiguration[idxOfDomain].data.xMax = newDomain[1];
+      this.currentConfiguration = _.cloneDeep(this.currentConfiguration);
+      this.$refs.actionMenu.updateCurrentCustomizableItems(
+        this.currentConfiguration
+      );
+    },
 
-    //   const idxOfXDomain = _.findIndex(this.currentConfiguration, {
-    //     identifier: "xDomain",
-    //   });
-    //   const idxOfYDomain = _.findIndex(this.currentConfiguration, {
-    //     identifier: "yDomain",
-    //   });
+    updateYDomainInConfiguration(newDomain) {
+      const idxOfDomain = _.findIndex(this.currentConfiguration, {
+        identifier: "yDomain",
+      });
+      this.currentConfiguration[idxOfDomain].data.yMin = newDomain[0];
+      this.currentConfiguration[idxOfDomain].data.yMax = newDomain[1];
+      this.currentConfiguration = _.cloneDeep(this.currentConfiguration);
+      this.$refs.actionMenu.updateCurrentCustomizableItems(
+        this.currentConfiguration
+      );
+    },
 
-    //   this.currentConfiguration[idxOfXDomain].data.xMax = newDomX.data.xMax;
-    //   this.currentConfiguration[idxOfXDomain].data.xMin = newDomX.data.xMin;
-    //   this.currentConfiguration[idxOfYDomain].data.yMax = newDomY.data.yMax;
-    //   this.currentConfiguration[idxOfYDomain].data.yMin = newDomY.data.yMin;
-
-    //   this.currentConfiguration = _.cloneDeep(this.currentConfiguration);
-    //   this.$refs.actionMenu.updateCurrentCustomizableItems(
-    //     this.currentConfiguration
-    //   );
-    // },
     onOptionsChangesSaved(optionsChanged) {
       //[{"identifier": "xDomain","data": {}]
 
@@ -346,18 +328,10 @@ export default {
     onSwitchPredefinedFunction(newFn) {
       console.log(`cambiata funzione predefinita ${newFn}`);
       // debugger;
-
-      const idxOfFn = _.findIndex(this.currentConfiguration, {
-        identifier: "function",
-      });
       const newFunctionOptions = _.cloneDeep(this.functionOptions);
       newFunctionOptions.fn = newFn;
       this.functionOptions = newFunctionOptions;
-      this.currentConfiguration[idxOfFn].data.fn = newFn;
-      this.currentConfiguration = _.cloneDeep(this.currentConfiguration);
-      this.$refs.actionMenu.updateCurrentCustomizableItems(
-        this.currentConfiguration
-      );
+      this.updateFunctionInConfiguration(newFn);
       this.$nextTick(() => {
         let el = document.getElementById("currentFormulaMathJax");
         if (el) {

@@ -26,20 +26,29 @@ export default ({ app }, inject) => {
         case app.$FunctionGesture.dragRight:
         case app.$FunctionGesture.dragLeft:
           //TODO: parametrizzare spostamento in base a se il drag è left o right
-          let offset =
+          var offset =
             speed *
             (rightBorderValue - leftBorderValue) *
-            (app.$FunctionGesture.dragRight ? 1 : -1);
+            (transformationType == app.$FunctionGesture.dragRight ? 1 : -1);
           const newLeftBorderValue = leftBorderValue + offset;
           const newRightBorderValue = rightBorderValue + offset;
+
           return {
-            x: [newLeftBorderValue, newRightBorderValue],
-            y: [bottomBorderValue, topBorderValue],
+            newDomX: [newLeftBorderValue, newRightBorderValue],
+            newDomY: [bottomBorderValue, topBorderValue],
           };
         case app.$FunctionGesture.dragUp:
-          break;
         case app.$FunctionGesture.dragDown:
-          break;
+          var offset =
+            speed *
+            (topBorderValue - bottomBorderValue) *
+            (transformationType == app.$FunctionGesture.dragUp ? 1 : -1);
+          const newBottomBorderValue = bottomBorderValue + offset;
+          const newTopBorderValue = topBorderValue + offset;
+          return {
+            newDomX: [leftBorderValue, rightBorderValue],
+            newDomY: [newBottomBorderValue, newTopBorderValue],
+          };
       }
     }
   }
