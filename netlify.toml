@@ -1,5 +1,0 @@
-[build]
-command = "yarn generate"
-publish = "dist"
-[build.environment]
-DEBUG = "false"
