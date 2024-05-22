@@ -55,12 +55,17 @@ export default ({ app }, inject) => {
       }
       return toReturn;
     }
-    #getGainFrom(distance, domYRange) {
+    #getGainFrom(distance, domYRange, fnYValue) {
       const minRange = domYRange[0];
       const maxRange = domYRange[1];
-      const m = (this.#minGain - this.#maxGain) / (maxRange - minRange);
-      const q = this.#maxGain;
-      return m * distance + q;
+      const isMousePointerOnFunction = distance < 0;
+      const referenceDistance = isMousePointerOnFunction
+        ? maxRange - fnYValue
+        : fnYValue - minRange;
+      const m = (this.#maxGain - this.#minGain) / referenceDistance;
+      const q = this.#minGain;
+
+      return this.#maxGain - (m * Math.abs(distance) + q);
     }
     #getPanningFrom(xValue, domXRange) {
       const valueXRangeRatioPercentage =
@@ -296,8 +301,13 @@ export default ({ app }, inject) => {
       this.startNoiseIfNeeded(yValue);
 
       const curPanningValue = this.#getPanningFrom(xValue, domXRange);
-      const curGain = this.#getGainFrom(yDistanceFromFunction, domYRange);
-      console.log(`current gain ${curGain}`);
+      const curGain = this.#getGainFrom(
+        yDistanceFromFunction,
+        domYRange,
+        yValue
+      );
+      // console.log(`current gain ${curGain}`);
+      console.log(`distance from function ${yDistanceFromFunction}`);
       if (
         this.getInstrumentTypeFrom(instrumentId) ==
         this.InstrumentFrequencyType.continuous

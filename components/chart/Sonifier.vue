@@ -74,7 +74,7 @@ export default {
       this.sonify();
     },
     yPointerDistanceFromFunction(val) {
-      console.log("cambiata distanza tra il puntatore e la funzione");
+      console.log("cambiata distanza tra il puntatore e la funzione " + val);
       if (!this.checkPreconditions() || !this.isEnabled || !this.shouldSound) {
         return;
       }

@@ -108,7 +108,7 @@ export default {
       };
     },
     yPointerDistanceFromFunction() {
-      return Math.abs(this.currentFnYValue - this.yMousePointer);
+      return this.currentFnYValue - this.yMousePointer;
     },
     isCurrentYInDisplayedRange() {
       return (
@@ -155,6 +155,7 @@ export default {
       lastFirstDerivativeSign: null,
       lastXSign: null,
       lastYSign: null,
+      isExploringThroughKeyboard: false,
     };
   },
   watch: {
@@ -199,6 +200,7 @@ export default {
         case this.$FunctionAction.beginExplorationDecrement:
           this.isBatchExplorationInProgress = false;
           this.isManualExplorationInProgress = true;
+          this.isExploringThroughKeyboard = true;
           // this.canEmitEventsForSonification = true;
           this.$emit("fnExplorationOutOfVisibleBounds", true);
           if (_.isNil(this.currentFnXValue)) {
@@ -576,6 +578,7 @@ export default {
       this.fnPlotInstance.on(
         "mousemove",
         function (event) {
+          this.isExploringThroughKeyboard = false;
           this.yMousePointer = event.y;
           this.xMousePointer = event.x;
         }.bind(this)
@@ -634,8 +637,9 @@ export default {
         this.lastYSign = currentYSign;
       }
       this.lastYSign = currentYSign;
-
-      this.yMousePointer = y;
+      if (this.isExploringThroughKeyboard) {
+        this.yMousePointer = y;
+      }
       this.currentFnYValue = y;
       this.$emit("needNotifyStatus", this.functionStatus);
       if (!this.isCurrentYInDisplayedRange) {
