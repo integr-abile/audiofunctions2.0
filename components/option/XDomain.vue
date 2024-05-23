@@ -37,6 +37,7 @@
           id="step"
           type="number"
           step="0.1"
+          min="0.1"
           style="width: 80px"
           v-model="step"
         ></b-form-input>
