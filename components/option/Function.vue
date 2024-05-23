@@ -2,21 +2,57 @@
   <div>
     <!-- <VueAnnouncer /> -->
     <h2>Funzione</h2>
-    <div v-if="!isTraitFunction" class="d-flex align-items-center">
-      <vue-mathjax :formula="preFieldLabelText" class="mr-1"></vue-mathjax>
-      <!-- Se sono su un elemento role application devo comunque attivarlo (premere enter) prima di iniziare a scrivere -->
-      <h3 class="sr-only">
-        Attiva la funzione (premi "Invio" su "applicazione")
-      </h3>
+    <div v-if="!isTraitFunction" class="d-flex flex-column">
+      <h3>Inserimento&nbsp;<span class="sr-only">funzione</span></h3>
+      <div class="d-flex align-items-center mb-4">
+        <vue-mathjax :formula="preFieldLabelText" class="mr-1"></vue-mathjax>
 
-      <math-field
-        id="mathlive-mathfield"
-        ref="mathfield"
-        role="application"
-        aria-label="attiva per inserire una funzione"
-        class="border w-100"
-      >
-      </math-field>
+        <math-field
+          id="mathlive-mathfield"
+          ref="mathfield"
+          role="application"
+          aria-label="attiva per inserire una funzione"
+          class="border w-100"
+        >
+        </math-field>
+      </div>
+
+      <div class="d-flex align-items-center">
+        <h3 class="mr-2">Funzione corrente</h3>
+        <div class="d-flex align-items-center">
+          <b-button
+            variant="outline-secondary"
+            size="sm"
+            aria-label="Copia formula latex"
+            title="Copia formula latex"
+            v-clipboard:copy="stableInputFunctionLatex"
+            v-clipboard:success="onCopy"
+            v-clipboard:error="onCopyError"
+            v-if="!isTraitFunction"
+          >
+            <b-icon-files></b-icon-files>
+          </b-button>
+          <b-alert
+            v-model="showCopyAlert"
+            :variant="lastCopyFunctionSuccess ? 'success' : 'danger'"
+            dismissible
+            aria-live="polite"
+            aria-atomic="true"
+          >
+            {{
+              this.lastCopyFunctionSuccess
+                ? "Copiato"
+                : "Errore durante la copia"
+            }}
+          </b-alert>
+        </div>
+      </div>
+
+      <vue-mathjax
+        :formula="mathJaxFunctionLatext"
+        v-if="!isTraitFunction"
+      ></vue-mathjax>
+      <span v-else>Funzione a tratti</span>
     </div>
     <div v-else>
       <p>Modifica della funzione a tratti non ancora supportata</p>
@@ -39,11 +75,18 @@ export default {
   props: {
     optionData: Object,
   },
+  computed: {
+    mathJaxFunctionLatext() {
+      return "$$" + this.stableInputFunctionLatex + "$$";
+    },
+  },
   data() {
     return {
       preFieldLabelText: "$$f(x) = $$",
       stableInputFunctionLatex: "",
       lastInsertedLatexFunction: "",
+      lastCopyFunctionSuccess: false,
+      showCopyAlert: false,
       currentToSpeakFunction: "",
       isTraitFunction: false,
       currentOptionData: {},
@@ -122,6 +165,16 @@ export default {
 
       mathField.removeEventListener("focus-out", this.focusOutEvtFn);
       mathField.removeEventListener("focus", this.focusInEvtFn);
+    },
+    onCopy(evt) {
+      this.lastCopyFunctionSuccess = true;
+      this.showCopyAlert = true;
+      console.log("copia ok " + evt.text);
+    },
+    onCopyError(evt) {
+      this.lastCopyFunctionSuccess = false;
+      this.showCopyAlert = true;
+      console.error("errore copia");
     },
     setupMathField() {
       const mathField = this.$refs.mathfield;
