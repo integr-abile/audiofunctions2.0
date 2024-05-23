@@ -12,6 +12,7 @@
       :domYRange="functionSonificationOptions.domYRange"
       :earconObj="earconToNotifyObj"
       :shouldResetState="isFnExplorationOutOfBounds"
+      :isMute="isMute"
     />
     <TextToSpeech
       ref="tts"
@@ -26,6 +27,7 @@
         ref="actionMenu"
         :customizableItems="initialConfiguration"
         :initialIsTTSEnabled="isTTSEnabled"
+        :isMute="isMute"
         @saveChanges="onOptionsChangesSaved"
         @switchPredefinedFunction="onSwitchPredefinedFunction"
         @userInteraction="handleFunctionActionRequest"
@@ -39,6 +41,7 @@
         @customizableItemsConfigurationChange="
           (newConfig) => (currentConfiguration = newConfig)
         "
+        @audioOutStatusChange="handleAudioOutStatusChange"
       />
     </header>
     <main class="h-100" aria-label="Grafico della funzione" tabindex="0">
@@ -101,6 +104,7 @@ export default {
       blockInsertIntoQueueTimeoutSeconds: 5,
       messageQueueMaxCapacity: 2, //non voglio tenere in coda messaggi troppo vecchi
       version: appVersion,
+      isMute: false,
     };
   },
   created() {
@@ -241,6 +245,10 @@ export default {
       //   this.requestFnAsText();
       // }
       this.$refs.tts.getVoicesIfNeeded();
+    },
+    handleAudioOutStatusChange(event) {
+      this.isMute = event;
+      console.log("audio out status changed " + event);
     },
     onVoicesLoaded(voices) {
       console.log("Caricamento voci completato");

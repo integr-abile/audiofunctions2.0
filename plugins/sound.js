@@ -4,7 +4,6 @@ import _ from "lodash";
 export default ({ app }, inject) => {
   class SoundFactory {
     constructor(availableInstrumentNames) {
-      //TODO: availableInstrumentNames è un array che indica quali nomi di strumenti sono ammessi tra quelli tra cui scegliere
       this.#createPanner();
       this.#createNoise();
     }
@@ -154,6 +153,7 @@ export default ({ app }, inject) => {
     playSample(
       audioSampleId,
       ignoreNotFinishedYet = true,
+      isMute = false,
       additionaKeyValueInfo
     ) {
       switch (audioSampleId) {
@@ -163,18 +163,19 @@ export default ({ app }, inject) => {
               audioSampleId
             ).toDestination();
             this.#audioNoYPlayer.autostart = true;
+            this.#audioNoYPlayer.mute = isMute;
           } else {
             if (ignoreNotFinishedYet) {
               console.log(
                 "request play noYAtX. IgnoreNotFinished -> " +
                   ignoreNotFinishedYet
               );
-              this.playAudio(this.#audioNoYPlayer);
+              this.playAudio(this.#audioNoYPlayer, isMute);
             } else {
               if (this.#audioNoYPlayer.state == "started") {
                 return;
               }
-              this.playAudio(this.#audioNoYPlayer);
+              this.playAudio(this.#audioNoYPlayer, isMute);
             }
           }
           break;
@@ -190,15 +191,16 @@ export default ({ app }, inject) => {
             this.#audioDomainExtremeBorder = new Tone.Player(audioSampleId);
             this.#audioDomainExtremeBorder.connect(this.#earconBorderPanner);
             this.#audioDomainExtremeBorder.autostart = true;
+            this.#audioDomainExtremeBorder.mute = isMute;
           } else {
             this.#earconBorderPanner.pan.value = panValue;
             if (ignoreNotFinishedYet) {
-              this.playAudio(this.#audioDomainExtremeBorder);
+              this.playAudio(this.#audioDomainExtremeBorder, isMute);
             } else {
               if (this.#audioDomainExtremeBorder.state == "started") {
                 return;
               }
-              this.playAudio(this.#audioDomainExtremeBorder);
+              this.playAudio(this.#audioDomainExtremeBorder, isMute);
             }
           }
           break;
@@ -208,26 +210,28 @@ export default ({ app }, inject) => {
               audioSampleId
             ).toDestination();
             this.#yAxisIntersectionAudioPlayer.autostart = true;
+            this.#yAxisIntersectionAudioPlayer.mute = isMute;
           } else {
             if (ignoreNotFinishedYet) {
-              this.playAudio(this.#yAxisIntersectionAudioPlayer);
+              this.playAudio(this.#yAxisIntersectionAudioPlayer, isMute);
             } else {
               if (this.#yAxisIntersectionAudioPlayer.state == "started") {
                 return;
               }
-              this.playAudio(this.#yAxisIntersectionAudioPlayer);
+              this.playAudio(this.#yAxisIntersectionAudioPlayer, isMute);
             }
           }
           break;
       }
     }
-    playAudio(player) {
+    playAudio(player, isMute) {
       if (!player.loaded) {
         return;
       }
       if (player.state === "started") {
         player.stop();
       }
+      player.mute = isMute;
       player.start();
     }
     getAllInstrumentsName() {
@@ -258,11 +262,11 @@ export default ({ app }, inject) => {
         })
       );
     }
-    startNoiseIfNeeded(yValue) {
+    startNoiseIfNeeded(yValue, isMute) {
       if (this.#pinkNoiseSynth.state == "stopped") {
         this.#pinkNoiseSynth.start();
       }
-      this.#pinkNoiseSynth.mute = yValue >= 0; //sonifico il rumore (noise) solo se il valore della funzione è strettamente sotto zero
+      this.#pinkNoiseSynth.mute = yValue >= 0 || isMute; //sonifico il rumore (noise) solo se il valore della funzione è strettamente sotto zero o è manualmente forzato in mute
     }
     stopNoise() {
       if (this.#pinkNoiseSynth.state == "started") {
@@ -295,10 +299,11 @@ export default ({ app }, inject) => {
       domYFrequencyMap,
       domXRange, //da cui dipende il pan
       domYRange, //da cui dipende il volume
-      instrumentId
+      instrumentId,
+      isMute
     ) {
       //Background noise management
-      this.startNoiseIfNeeded(yValue);
+      this.startNoiseIfNeeded(yValue, isMute);
 
       const curPanningValue = this.#getPanningFrom(xValue, domXRange);
       const curGain = this.#getGainFrom(
@@ -343,13 +348,13 @@ export default ({ app }, inject) => {
               console.log("modifico solo la frequenza ed eventualmente il pan");
               concreteInstrument.set({ frequency: `${targetFrequency}` });
               this.#panner.pan.value = curPanningValue;
-              this.#gain.gain.value = curGain;
+              this.#gain.gain.value = isMute ? 0 : curGain;
             } else {
               console.log("setup strument per primo avvio");
               concreteInstrument.connect(this.#panner); //quando fermo lo strumento mi devo preoccupare di disconnetterlo
               concreteInstrument.set({ frequency: `${targetFrequency}` });
               this.#panner.pan.value = curPanningValue;
-              this.#gain.gain.value = curGain;
+              this.#gain.gain.value = isMute ? 0 : curGain;
               instrument.name == "sine"
                 ? concreteInstrument.start()
                 : concreteInstrument.triggerAttack(`${targetFrequency}`);
@@ -377,7 +382,7 @@ export default ({ app }, inject) => {
             console.log(`pitch class ${pitchClass}`);
             concreteInstrument.connect(this.#panner);
             this.#panner.pan.value = curPanningValue;
-            this.#gain.gain.value = curGain;
+            this.#gain.gain.value = isMute ? 0 : curGain;
             concreteInstrument.triggerAttackRelease(pitchClass, "4n");
           }.bind(this),
           1

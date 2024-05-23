@@ -72,6 +72,19 @@
             @shortkey="handleShortkey"
             >Switch funzione</b-button
           >
+          <b-button
+            @click="toggleVolume"
+            v-shortkey.once="['v']"
+            @shortkey="toggleVolume"
+          >
+            <b-icon
+              :icon="'volume-' + (isMute ? 'up-fill' : 'mute')"
+              aria-hidden="true"
+            ></b-icon>
+            <span class="sr-only"
+              >{{ isMute ? "Abilita" : "Disabilita" }} volume</span
+            >
+          </b-button>
           <NuxtLink class="btn btn-secondary" to="/">
             <b-icon icon="house" aria-hidden="true"></b-icon>
             <span class="sr-only">Vai alla home page</span>
@@ -121,6 +134,7 @@ export default {
     "functionInteractionEnableStatusChange",
     "customizableItemsConfigurationChange",
     "switchPredefinedFunction",
+    "audioOutStatusChange",
   ],
   props: {
     customizableItems: {
@@ -131,6 +145,7 @@ export default {
       },
     },
     initialIsTTSEnabled: false,
+    isMute: false,
   },
   computed: {
     mapTypeComponent() {
@@ -177,26 +192,8 @@ export default {
       currentCustomizableItems: [],
       favoritesBarRefreshKey: 0,
       currentFunctionLatex: "$$f(x) = $$",
-      // currentFunctionIntervalArith: null,
       lastCopyFunctionSuccess: false,
       showCopyAlert: false,
-      // predefinedFunctions: [
-      //   "((((2)/(3))x^(3)-1)/(x^(2)))-3cos(x)",
-      //   "[0,150]-x+180;[150,244]30;[244,394]x-120-30*PI;",
-      //   "[0,20](PI*x^2(30-x))/3;[20,25]16*PI*(x-20)+(4/3)*PI*1000;",
-      //   "[-3,0]x^2;[0,3]x;", //funzione a tratti di esempio
-      //   "0",
-      //   "3",
-      //   "x+3",
-      //   "(1/2)(x+3)",
-      //   "-x+3",
-      //   "x^4",
-      //   "x^2",
-      //   "(1/2)x^2",
-      //   "(1/2)abs(x)",
-      //   "sqrt(x)",
-      //   "(x^2)/(x^2+1)",
-      // ],
       currentPredefinedFunction: null,
     };
   },
@@ -232,6 +229,9 @@ export default {
           this.goToNextFunction(false);
           break;
       }
+    },
+    toggleVolume() {
+      this.$emit("audioOutStatusChange", !this.isMute);
     },
     updateCurrentCustomizableItems(newConfiguration) {
       this.currentCustomizableItems = _.cloneDeep(newConfiguration); //bisognare fare un deep clone altrimenti non mi fa una copia anche degli elementi contenuti nell'array

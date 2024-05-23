@@ -14,6 +14,7 @@ export default {
     "domYRange",
     "earconObj",
     "shouldResetState",
+    "isMute",
   ],
   data() {
     return {
@@ -44,10 +45,15 @@ export default {
       if (!this.checkPreconditions() || !this.isEnabled) {
         return;
       }
-      this.$soundFactory.playSample(val.id, val.ignoreIsStillPlaying, {
-        xFunctionValue: this.xFunctionValue,
-        domXRange: this.domXRange,
-      });
+      this.$soundFactory.playSample(
+        val.id,
+        val.ignoreIsStillPlaying,
+        this.isMute,
+        {
+          xFunctionValue: this.xFunctionValue,
+          domXRange: this.domXRange,
+        }
+      );
     },
     shouldSound(val) {
       console.log(`should sound: ${val}`);
@@ -185,7 +191,8 @@ export default {
         this.domYFrequencyMap,
         this.domXRange,
         this.domYRange,
-        this.instrument
+        this.instrument,
+        this.isMute
       );
     },
   },
