@@ -342,15 +342,15 @@ export default {
             })
           );
           break;
-        case this.$FunctionAction.readCurrentExpression:
-          this.$nextTick(() => {
-            let el = document.getElementById("currentFormulaMathJax");
-            el.blur(); //rimuove il focus
-            setTimeout(() => {
-              el.focus();
-            }, 500); //do un po' di tempo per risettarlo perchè altrimenti se premo F o shift+F senza aver lasciato l'ultimo focus, lo SR non legge l'aggiornamento
-          });
-          break;
+        // case this.$FunctionAction.readCurrentExpression:
+        //   this.$nextTick(() => {
+        //     let el = document.getElementById("currentFormulaMathJax");
+        //     el.blur(); //rimuove il focus
+        //     setTimeout(() => {
+        //       el.focus();
+        //     }, 500); //do un po' di tempo per risettarlo perchè altrimenti se premo F o shift+F senza aver lasciato l'ultimo focus, lo SR non legge l'aggiornamento
+        //   });
+        //   break;
         case this.$FunctionAction.zoomIn:
           this.$emit("displayedIntervalChangeRequest", {
             requestType: this.$FunctionGesture.zoomIn,

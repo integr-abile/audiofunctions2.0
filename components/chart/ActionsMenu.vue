@@ -92,7 +92,7 @@
         </div>
       </div>
     </div>
-    <ChartInteractionsMenu
+    <!-- <ChartInteractionsMenu
       :initial-is-function-interaction-mode-enabled="
         isFunctionInteractionModeEnabled
       "
@@ -102,7 +102,7 @@
         (isTextToSpeechEnabled) =>
           $emit('ttsEnableStatusChange', isTextToSpeechEnabled)
       "
-    />
+    /> -->
     <ChartFavoritesBar
       :key="favoritesBarRefreshKey"
       v-if="favoriteItems.length > 0"
@@ -123,14 +123,14 @@ import OptionXDomain from "../option/XDomain.vue";
 import OptionYDomain from "../option/YDomain.vue";
 import OptionFunction from "../option/Function.vue";
 import OptionSonification from "../option/Sonification.vue";
-import OptionTTS from "../option/TTS.vue";
+// import OptionTTS from "../option/TTS.vue";
 import _ from "lodash";
 
 export default {
   emits: [
     "saveChanges",
     "userInteraction",
-    "ttsEnableStatusChange",
+    // "ttsEnableStatusChange",
     "functionInteractionEnableStatusChange",
     "customizableItemsConfigurationChange",
     "switchPredefinedFunction",
@@ -144,7 +144,7 @@ export default {
         return [];
       },
     },
-    initialIsTTSEnabled: false,
+    // initialIsTTSEnabled: false,
     isMute: false,
   },
   computed: {
@@ -154,7 +154,7 @@ export default {
         yDomain: OptionYDomain,
         function: OptionFunction,
         sonification: OptionSonification,
-        tts: OptionTTS,
+        // tts: OptionTTS,
       };
     },
     sortedFavorites() {
@@ -186,7 +186,7 @@ export default {
   },
   data() {
     return {
-      functionInteractionEnabledUserChoice: null, //tiene a mente la preferenza esplicita dell'utente
+      // functionInteractionEnabledUserChoice: null, //tiene a mente la preferenza esplicita dell'utente
       isFunctionInteractionModeEnabled: true, //default
       favoriteItems: [],
       currentCustomizableItems: [],

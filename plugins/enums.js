@@ -11,7 +11,7 @@ const FunctionAction = {
   currentCoordinatesRequest: `${fnCommandPrefix}_currentCoordinatesRequest`,
   currentXIntervalRequest: `${fnCommandPrefix}_currentXIntervalRequest`,
   currentYIntervalRequest: `${fnCommandPrefix}_currentYIntervalRequest`,
-  readCurrentExpression: `${fnCommandPrefix}_readCurrentExpression`,
+  // readCurrentExpression: `${fnCommandPrefix}_readCurrentExpression`,
   zoomIn: `${fnCommandPrefix}_zoomIn`,
   zoomOut: `${fnCommandPrefix}_zoomOut`,
   dragRight: `${fnCommandPrefix}_dragRight`,

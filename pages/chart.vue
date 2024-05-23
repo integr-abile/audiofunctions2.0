@@ -14,26 +14,14 @@
       :shouldResetState="isFnExplorationOutOfBounds"
       :isMute="isMute"
     />
-    <TextToSpeech
-      ref="tts"
-      v-bind="ttsOptions"
-      :isEnabled="isTTSEnabled"
-      :text-to-read="textToRead"
-      lang="it-IT"
-      @onVoicesLoaded="onVoicesLoaded"
-    />
     <header>
       <ChartActionsMenu
         ref="actionMenu"
         :customizableItems="initialConfiguration"
-        :initialIsTTSEnabled="isTTSEnabled"
         :isMute="isMute"
         @saveChanges="onOptionsChangesSaved"
         @switchPredefinedFunction="onSwitchPredefinedFunction"
         @userInteraction="handleFunctionActionRequest"
-        @ttsEnableStatusChange="
-          (isTextToSpeechEnabled) => (isTTSEnabled = isTextToSpeechEnabled)
-        "
         @functionInteractionEnableStatusChange="
           (isFunctionInteractionEnabled) =>
             (isFnInteractionEnabled = isFunctionInteractionEnabled)
@@ -44,6 +32,17 @@
         @audioOutStatusChange="handleAudioOutStatusChange"
       />
     </header>
+
+    <label
+      v-if="liveMessage"
+      for="monitor"
+      class="d-flex justify-content-center"
+    >
+      <output class="p-2" style="border-style: solid" id="monitor">{{
+        liveMessage
+      }}</output>
+    </label>
+
     <main class="h-100" aria-label="Grafico della funzione" tabindex="0">
       <ChartFunctionPlot
         v-bind="functionOptions"
@@ -72,15 +71,12 @@
 
 <script>
 import _ from "lodash";
-var Queue = require("queue-fifo");
-import moment from "moment";
 import appVersion from "~/assets/version.js";
 
 export default {
   layout: "fullscreen",
   data() {
     return {
-      textToRead: "",
       lastTimeTextToReadChanged: null,
       chartActionMenuRefreshKey: 0,
       lastPendingMessageToRead: "",
@@ -88,23 +84,16 @@ export default {
       initialConfiguration: [],
       currentConfiguration: [],
       functionActionRequest: null, //oggetto del tipo {requestType: enum, repetition: 1}
-      ttsOptions: null, //oggetto di configurazione che dice cosa può dire e quando il TTS
-      isTTSEnabled: false, //questa variabile dev'essere mantenuta sincronizzata con quella nell'interaction bar come valore di default
       fnTextRepresentation: "",
-      availableTTSVoices: [],
-      isFnInteractionEnabled: true, //questa variabile dev'essere mantenuta sincronizzata con quella nell'interaction bar come valore di default
+      isFnInteractionEnabled: true, //questa variabile dev'essere mantenuta sincronizzata con quella nell'interaction bar come valore di default. Quando la sidebar è aperta gli shortcut per la funzione sono disabilitati
       lastFunctionActionRequestType: null,
       functionSonificationData: {},
       functionSonificationOptions: {},
       isFnExplorationOutOfBounds: false,
       earconToNotifyObj: {},
-      messageQueue: new Queue(),
-      ttsMessageID: null,
-      lastTimeAMessageIsInsertedIntoQueue: null,
-      blockInsertIntoQueueTimeoutSeconds: 5,
-      messageQueueMaxCapacity: 2, //non voglio tenere in coda messaggi troppo vecchi
       version: appVersion,
       isMute: false,
+      liveMessage: "",
     };
   },
   created() {
@@ -112,7 +101,7 @@ export default {
     window.addEventListener("mousedown", this.handleEvent);
     //Deserializzazione URL per configurazione iniziale
     const sessionDataSerializer = this.$sessionDataSerializer;
-    this.startMonitoringMessageQueue();
+    // this.startMonitoringMessageQueue();
     const initialEncodedConfiguration =
       this.$route.query[sessionDataSerializer.sessionDataQueryParamKey];
     if (initialEncodedConfiguration == null) {
@@ -150,20 +139,6 @@ export default {
     initialConfiguration(val) {
       this.currentConfiguration = val;
       this.valorizeFunctionParamsFromOptions(val);
-    },
-    availableTTSVoices(val) {
-      if (_.isNil(this.ttsOptions)) {
-        return;
-      }
-      const ttsData = _.head(
-        _.filter(this.initialConfiguration, function (item) {
-          return item.identifier == "tts";
-        })
-      );
-      if (!_.isNil(ttsData)) {
-        ttsData.data.availableVoices = val;
-        this.initialConfiguration = _.cloneDeep(this.initialConfiguration); //x trigger aggiornamento data
-      }
     },
   },
   computed: {
@@ -204,55 +179,18 @@ export default {
           },
           isFavorite: false,
         },
-        {
-          identifier: "tts",
-          data: {
-            speechPermissions: [
-              {
-                identifier: this.$TextToSpeechOption.coordinates,
-              },
-              {
-                identifier: this.$TextToSpeechOption.intervals,
-              },
-              {
-                identifier: this.$TextToSpeechOption.currentFunction,
-              },
-            ],
-            availableVoices: [],
-            selectedVoice: null,
-          },
-          isFavorite: false,
-        },
       ];
     },
   },
   methods: {
-    // requestFnAsText() {
-    //   // debugger;
-    //   this.fnTextRepresentation = document
-    //     .getElementById("mathlive-mathfield")
-    //     .getValue("spoken-text");
-    //   console.log(
-    //     "richiedo formula parlata " +
-    //       document.getElementById("mathlive-mathfield").getValue("spoken-text")
-    //   );
-    // },
     async handleEvent(evt) {
       if (!this.$soundFactory.isToneEngineStarted()) {
         this.$soundFactory.enableSonifier();
       }
-      // if (_.isEmpty(this.fnTextRepresentation)) {
-      //   this.requestFnAsText();
-      // }
-      this.$refs.tts.getVoicesIfNeeded();
     },
     handleAudioOutStatusChange(event) {
       this.isMute = event;
       console.log("audio out status changed " + event);
-    },
-    onVoicesLoaded(voices) {
-      console.log("Caricamento voci completato");
-      this.availableTTSVoices = voices;
     },
     onChartAreaVisibilityChange(evt, hidden) {
       console.log("hidden " + hidden);
@@ -430,14 +368,6 @@ export default {
         domXRange: this.functionOptions.domXRange,
         domYRange: this.functionOptions.domYRange,
       };
-      this.ttsOptions = {
-        speechPermissions: _.isNil(ttsData)
-          ? this.ttsOptions.speechPermissions
-          : ttsData.data.speechPermissions,
-        voice: _.isNil(ttsData)
-          ? this.ttsOptions.voice
-          : ttsData.data.selectedVoice,
-      };
     },
     handleFunctionActionRequest(requestType) {
       this.functionActionRequest = {
@@ -451,80 +381,12 @@ export default {
     },
     handleFunctionStateNotification(functionState) {
       this.functionSonificationData = functionState;
-      if (!this.functionSonificationData.shouldSound) {
-        console.log("force stopping TTS");
-        this.$refs.tts.stop();
-      }
     },
     handleFunctionMessageEvent(functionMessageEvent) {
       console.log(
         `function message event: Tipo -> ${functionMessageEvent.type}, messaggio -> ${functionMessageEvent.message}`
       );
-      const permissionIndex = _.findIndex(this.ttsOptions.speechPermissions, {
-        identifier: functionMessageEvent.type,
-      });
-      if (permissionIndex == -1) {
-        this.$announcer.polite(
-          "Non hai il permesso di richiedere questa informazione"
-        );
-        return;
-      }
-      if (
-        this.ttsOptions.speechPermissions[permissionIndex]
-          .canPlayAutomatically ||
-        !_.has(
-          this.ttsOptions.speechPermissions[permissionIndex],
-          "canPlayAutomatically"
-        )
-      ) {
-        this.messageQueue.enqueue(functionMessageEvent.message);
-      }
-    },
-    startMonitoringMessageQueue() {
-      console.log("inizio monitoraggio coda messaggi TTS");
-      this.ttsMessageID = setInterval(
-        function () {
-          // console.log("controllo coda messaggi...");
-          if (this.messageQueue.isEmpty()) {
-            // console.log("la coda è vuota");
-            return;
-          }
-          const messageQueueCurrentSize = this.messageQueue.size();
-          if (messageQueueCurrentSize > this.messageQueueMaxCapacity) {
-            _.times(
-              messageQueueCurrentSize - this.messageQueueMaxCapacity,
-              () => {
-                this.messageQueue.dequeue(); //tolgo gli elementi in eccesso dalla coda a partire dal più vecchio
-              }
-            );
-          }
-          const message = this.messageQueue.dequeue();
-          console.log("TTS da passare a engine " + message);
-          if (this.isTTSEnabled) {
-            if (message !== this.textToRead) {
-              this.lastTimeTextToReadChanged = Date.now();
-            }
-            const momentDateNow = moment(Date.now());
-            const momentLastTimeTextToReadChanged = moment(
-              this.lastTimeTextToReadChanged
-            );
-            if (
-              !_.isNil(this.lastTimeTextToReadChanged) &&
-              momentDateNow.diff(momentLastTimeTextToReadChanged, "seconds") >
-                process.env.REPEAT_SAME_TEXT_TIME_THRESHOLD_SECONDS
-            ) {
-              console.log("TTS reset text to read");
-              this.$refs.tts.speak(message);
-            } else {
-              this.textToRead = message;
-            }
-          } else {
-            console.log(`speak through AT -> ${message}`);
-            this.$announcer.assertive(message);
-          }
-        }.bind(this),
-        process.env.TEXT_TO_SPEECH_MONITOR_QUEUE_INTERVAL_MS
-      );
+      this.liveMessage = functionMessageEvent.message;
     },
   },
 };
