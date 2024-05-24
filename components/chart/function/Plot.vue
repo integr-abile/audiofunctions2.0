@@ -8,8 +8,8 @@
       v-if="doesFunctionExists"
     >
       <div
-        class="w-100 h-100"
-        style="position: relative"
+        class="h-100"
+        :style="{ position: 'relative' }"
         @touchend="handleTouchEnd"
       >
         <resize-observer @notify="handleResize" :emitOnMount="true" />
@@ -20,7 +20,11 @@
             tabindex="0"
             :aria-label="chartAriaLabel"
           >
-            <div id="root" aria-hidden="true"></div>
+            <div
+              id="root"
+              aria-hidden="true"
+              class="d-flex justify-content-center"
+            ></div>
           </div>
           <template #overlay>
             <div class="w-100 h-100">
@@ -441,6 +445,7 @@ export default {
       this.$emit("needNotifyStatus", this.functionStatus);
     },
   },
+
   methods: {
     handleResize({ width, height }) {
       this.fnContainerWidth = width;
@@ -535,12 +540,15 @@ export default {
           ? functionsData.push(currentXIndicator)
           : functionsData.splice(1, 0, currentXIndicator);
       }
-
+      const whmin = Math.min(
+        this.fnContainerWidth,
+        this.fnContainerHeight * 0.99
+      );
       let config = {
         target: "#root",
         disableZoom: true,
-        width: this.fnContainerWidth,
-        height: this.fnContainerHeight * 0.99,
+        width: whmin,
+        height: whmin,
         yAxis: {
           domain: this.domYRange,
         },
