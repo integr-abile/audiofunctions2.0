@@ -6,6 +6,7 @@
         :is="optionComponent"
         :optionData="currentOptionData"
         @optionDataChange="handleOptionDataChange"
+        :key="refreshKey"
       />
       <!-- Le icone di bootstrap sono di default larghe 1em da documentazione, quindi tengo il container un po' più largo-->
       <div class="d-flex justify-content-end" style="width: 3em">
@@ -38,6 +39,7 @@ export default {
     return {
       isFavorite: false,
       currentOptionData: {},
+      refreshKey: 0,
     };
   },
   watch: {
@@ -77,6 +79,7 @@ export default {
     },
     salvaModifiche() {
       this.$emit("saveChanges", [this.optionIdentifier]);
+      this.refreshKey++;
     },
   },
 };

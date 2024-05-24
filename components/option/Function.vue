@@ -2,7 +2,7 @@
   <div>
     <!-- <VueAnnouncer /> -->
     <h2>Funzione</h2>
-    <div v-if="!isTraitFunction" class="d-flex flex-column">
+    <div class="d-flex flex-column">
       <h3>Inserimento&nbsp;<span class="sr-only">funzione</span></h3>
       <div class="d-flex align-items-center mb-4">
         <vue-mathjax :formula="preFieldLabelText" class="mr-1"></vue-mathjax>
@@ -54,15 +54,12 @@
       ></vue-mathjax>
       <span v-else>Funzione a tratti</span>
     </div>
-    <div v-else>
-      <p>Modifica della funzione a tratti non ancora supportata</p>
-    </div>
 
-    <Keypress
+    <!-- <Keypress
       key-event="keyup"
       :multiple-keys="readMathKeys"
       @success="readMathExpression"
-    />
+    /> -->
   </div>
 </template>
 
@@ -90,13 +87,13 @@ export default {
       currentToSpeakFunction: "",
       isTraitFunction: false,
       currentOptionData: {},
-      readMathKeys: [
-        {
-          keyCode: 81, //Q
-          modifiers: ["ctrlKey", "shiftKey"],
-          preventDefault: true,
-        },
-      ],
+      // readMathKeys: [
+      //   {
+      //     keyCode: 81, //Q
+      //     modifiers: ["ctrlKey", "shiftKey"],
+      //     preventDefault: true,
+      //   },
+      // ],
     };
   },
   watch: {
@@ -109,7 +106,7 @@ export default {
         this.$refs.mathfield.value = val;
         this.$emit("optionDataChange", this.currentOptionData);
       } else {
-        //TODO: gestire errore facendo apparire un messaggio sotto il campo di testo della formula
+        console.error("Errore nella formula");
       }
     },
   },
@@ -140,18 +137,18 @@ export default {
     validateFormula(latexFormula) {
       return this.$functionValidator.validate(latexFormula);
     },
-    readMathExpression(event, notRead = false) {
-      if (_.isEmpty(this.currentToSpeakFunction)) {
-        this.currentToSpeakFunction =
-          this.$refs.mathfield.getValue("spoken-text");
-      }
-      if (_.isEmpty(this.lastInsertedLatexFunction)) {
-        this.currentToSpeakFunction = "Nessuna formula presente";
-      }
+    // readMathExpression(event, notRead = false) {
+    //   if (_.isEmpty(this.currentToSpeakFunction)) {
+    //     this.currentToSpeakFunction =
+    //       this.$refs.mathfield.getValue("spoken-text");
+    //   }
+    //   if (_.isEmpty(this.lastInsertedLatexFunction)) {
+    //     this.currentToSpeakFunction = "Nessuna formula presente";
+    //   }
 
-      this.$announcer.polite(this.currentToSpeakFunction);
-      console.log(`mathexpr: ${this.currentToSpeakFunction}`);
-    },
+    //   this.$announcer.polite(this.currentToSpeakFunction);
+    //   console.log(`mathexpr: ${this.currentToSpeakFunction}`);
+    // },
     cleanUp() {
       const mathField = this.$refs.mathfield;
       if (_.isNil(mathField)) return;

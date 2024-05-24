@@ -13,7 +13,7 @@
         @open="handleOpenSidebar"
         @close="handleCloseSidebar"
       />
-      <div class="d-flex justify-content-end mx-3" style="flex: 1">
+      <!-- <div class="d-flex justify-content-end mx-3" style="flex: 1">
         <div class="d-flex align-items-center">
           <span
             class="mr-2 font-weight-bold text-info"
@@ -46,7 +46,7 @@
           </b-button>
         </div>
       </div>
-      <!-- Area alert-->
+      
       <b-alert
         v-model="showCopyAlert"
         :variant="lastCopyFunctionSuccess ? 'success' : 'danger'"
@@ -57,8 +57,8 @@
         {{
           this.lastCopyFunctionSuccess ? "Copiato" : "Errore durante la copia"
         }}
-      </b-alert>
-      <div class="d-flex justify-content-end">
+      </b-alert> -->
+      <div class="d-flex justify-content-end w-100">
         <div class="d-grid gap-3">
           <!-- TODO: gestire popup istruzioni e keymap-->
 
@@ -160,26 +160,26 @@ export default {
     sortedFavorites() {
       return _.sortBy(this.favoriteItems, ["identifier"]);
     },
-    isTraitFunction() {
-      if (_.isNil(this.currentFunctionIntervalArith)) {
-        return false;
-      }
-      const currentFnObj = this.$functionParser.parse(
-        this.currentFunctionIntervalArith
-      );
-      return this.$functionParser.isTraitFunction(currentFnObj);
-    },
-    currentFunctionIntervalArith() {
-      const functionData = _.find(
-        this.currentCustomizableItems,
-        function (item) {
-          return item.identifier == "function";
-        }
-      );
-      if (!_.isNil(functionData)) {
-        return functionData.data.fn;
-      }
-    },
+    // isTraitFunction() {
+    //   if (_.isNil(this.currentFunctionIntervalArith)) {
+    //     return false;
+    //   }
+    //   const currentFnObj = this.$functionParser.parse(
+    //     this.currentFunctionIntervalArith
+    //   );
+    //   return this.$functionParser.isTraitFunction(currentFnObj);
+    // },
+    // currentFunctionIntervalArith() {
+    //   const functionData = _.find(
+    //     this.currentCustomizableItems,
+    //     function (item) {
+    //       return item.identifier == "function";
+    //     }
+    //   );
+    //   if (!_.isNil(functionData)) {
+    //     return functionData.data.fn;
+    //   }
+    // },
     predefinedFunctions() {
       return this.$store.state.functions.predefinedFunctions;
     },
@@ -191,9 +191,9 @@ export default {
       favoriteItems: [],
       currentCustomizableItems: [],
       favoritesBarRefreshKey: 0,
-      currentFunctionLatex: "$$f(x) = $$",
-      lastCopyFunctionSuccess: false,
-      showCopyAlert: false,
+      // currentFunctionLatex: "$$f(x) = $$",
+      // lastCopyFunctionSuccess: false,
+      // showCopyAlert: false,
       currentPredefinedFunction: null,
     };
   },
@@ -207,14 +207,14 @@ export default {
     currentCustomizableItems(val) {
       this.$emit("customizableItemsConfigurationChange", val);
     },
-    currentFunctionIntervalArith(val) {
-      if (this.isTraitFunction) {
-        console.log("arith funzione a tratti");
-        return;
-      }
-      this.currentFunctionLatex =
-        "$$f(x) = " + this.$functionValidator.toLatex(val) + "$$";
-    },
+    // currentFunctionIntervalArith(val) {
+    //   if (this.isTraitFunction) {
+    //     console.log("arith funzione a tratti");
+    //     return;
+    //   }
+    //   this.currentFunctionLatex =
+    //     "$$f(x) = " + this.$functionValidator.toLatex(val) + "$$";
+    // },
   },
   created() {
     this.updateCurrentCustomizableItems(this.customizableItems);
@@ -268,16 +268,16 @@ export default {
       this.functionInteractionEnabledUserChoice = isInteractionEnabled;
       this.isFunctionInteractionModeEnabled = isInteractionEnabled;
     },
-    onCopy(evt) {
-      this.lastCopyFunctionSuccess = true;
-      this.showCopyAlert = true;
-      console.log("copia ok " + evt.text);
-    },
-    onCopyError(evt) {
-      this.lastCopyFunctionSuccess = false;
-      this.showCopyAlert = true;
-      console.error("errore copia");
-    },
+    // onCopy(evt) {
+    //   this.lastCopyFunctionSuccess = true;
+    //   this.showCopyAlert = true;
+    //   console.log("copia ok " + evt.text);
+    // },
+    // onCopyError(evt) {
+    //   this.lastCopyFunctionSuccess = false;
+    //   this.showCopyAlert = true;
+    //   console.error("errore copia");
+    // },
     changeFunction(evt) {
       this.goToNextFunction(true);
     },
