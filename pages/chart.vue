@@ -63,9 +63,9 @@
         @instrumentChangeRequest="handleInstrumentChangeRequest"
       />
     </main>
-    <footer>
+    <!-- <footer>
       <p style="font-size: 12px">v{{ version }}</p>
-    </footer>
+    </footer> -->
   </div>
 </template>
 

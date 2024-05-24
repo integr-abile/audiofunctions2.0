@@ -15,6 +15,7 @@
         <!-- https://blog.codeminer42.com/how-to-use-dynamic-components-in-vue/ -->
         <li v-for="(item, index) in customizableOptions" :key="index">
           <ChartPinnableOption
+            class="mb-3"
             :initialIsFavorite="item.isFavorite"
             :optionData="item.data"
             :optionComponent="mapTypeComponent[item.identifier]"
@@ -24,7 +25,6 @@
             "
             @optionDataChange="(evtData) => $emit('optionDataChange', evtData)"
             @saveChanges="saveOptions"
-            class="mb-3"
           />
         </li>
       </ul>
@@ -36,7 +36,7 @@
           @success="saveAll"
         />
         <div class="d-flex bg-dark text-light align-items-center px-3 py-2">
-          <strong class="mr-auto">Azioni</strong>
+          <strong class="mr-auto">v{{ version }}</strong>
           <b-button size="sm" @click="saveAll">Salva tutto</b-button>
         </div>
       </template>
@@ -45,6 +45,7 @@
 </template>
 
 <script>
+import appVersion from "~/assets/version.js";
 export default {
   emits: [
     "optionStateChange",
@@ -57,6 +58,7 @@ export default {
     return {
       refreshKey: 0,
       isSidebarOpen: false,
+      version: appVersion,
     };
   },
   components: {
