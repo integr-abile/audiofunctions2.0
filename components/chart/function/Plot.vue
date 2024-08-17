@@ -540,15 +540,11 @@ export default {
           ? functionsData.push(currentXIndicator)
           : functionsData.splice(1, 0, currentXIndicator);
       }
-      const whmin = Math.min(
-        this.fnContainerWidth,
-        this.fnContainerHeight * 0.99
-      );
       let config = {
         target: "#root",
         disableZoom: true,
-        width: whmin,
-        height: whmin,
+        width: this.fnContainerWidth,
+        height: this.fnContainerHeight * 0.99,
         yAxis: {
           domain: this.domYRange,
         },

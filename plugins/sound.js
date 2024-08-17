@@ -162,6 +162,7 @@ export default ({ app }, inject) => {
             this.#audioNoYPlayer = new Tone.Player(
               audioSampleId
             ).toDestination();
+            this.#audioNoYPlayer.volume.value = -18; //dB
             this.#audioNoYPlayer.autostart = true;
             this.#audioNoYPlayer.mute = isMute;
           } else {

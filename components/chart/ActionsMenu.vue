@@ -1,7 +1,7 @@
 <template>
   <div class="container-fluid">
     <div class="d-flex align-items-center w-100 mb-2">
-      <b-button v-b-toggle.options-sidebar>Opzioni</b-button>
+      <b-button v-b-toggle.options-sidebar v-shortkey.once="['o']" @shortkey="toggleSidebar">Opzioni</b-button>
       <ChartOptionsSidebar
         ref="chartOptionsSidebar"
         sidebar-id="options-sidebar"
@@ -13,58 +13,13 @@
         @open="handleOpenSidebar"
         @close="handleCloseSidebar"
       />
-      <!-- <div class="d-flex justify-content-end mx-3" style="flex: 1">
-        <div class="d-flex align-items-center">
-          <span
-            class="mr-2 font-weight-bold text-info"
-            style="text-decoration: underline"
-          >
-            Funzione corrente:
-          </span>
-          <vue-mathjax
-            :formula="currentFunctionLatex"
-            id="currentFormulaMathJax"
-            tabindex="-1"
-            class="mr-2"
-            v-if="!isTraitFunction"
-          ></vue-mathjax>
-          <span v-else>Funzione a tratti</span>
-        </div>
-
-        <div class="d-flex align-items-center">
-          <b-button
-            variant="outline-secondary"
-            size="sm"
-            aria-label="Copia formula latex"
-            title="Copia formula latex"
-            v-clipboard:copy="currentFunctionLatex"
-            v-clipboard:success="onCopy"
-            v-clipboard:error="onCopyError"
-            v-if="!isTraitFunction"
-          >
-            <b-icon-files></b-icon-files>
-          </b-button>
-        </div>
-      </div>
-      
-      <b-alert
-        v-model="showCopyAlert"
-        :variant="lastCopyFunctionSuccess ? 'success' : 'danger'"
-        dismissible
-        aria-live="polite"
-        aria-atomic="true"
-      >
-        {{
-          this.lastCopyFunctionSuccess ? "Copiato" : "Errore durante la copia"
-        }}
-      </b-alert> -->
       <div class="d-flex justify-content-end w-100">
         <div class="d-grid gap-3">
           <!-- TODO: gestire popup istruzioni e keymap-->
 
-          <b-button v-b-modal.instruction-modal>Istruzioni</b-button>
+          <b-button v-b-modal.instruction-modal style="display: none;">Istruzioni</b-button>
           <ChartInstructionModal modal-id="instruction-modal" />
-          <b-button v-b-modal.keymap-modal>Keymap</b-button>
+          <b-button v-b-modal.keymap-modal style="display: none;">Keymap</b-button>
           <ChartKeybindingModal modal-id="keymap-modal" />
           <b-button
             @click="changeFunction"
@@ -229,6 +184,9 @@ export default {
           this.goToNextFunction(false);
           break;
       }
+    },
+    toggleSidebar() {
+      this.$root.$emit("bv::toggle::collapse", "options-sidebar");
     },
     toggleVolume() {
       this.$emit("audioOutStatusChange", !this.isMute);

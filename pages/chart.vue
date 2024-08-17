@@ -33,15 +33,21 @@
       />
     </header>
 
-    <label
+    <div v-if="shouldDisplayLiveMessage" class="d-flex align-items-center flex-column">
+      <label
       v-if="liveMessage"
       for="monitor"
-      class="d-flex justify-content-center"
+      class="d-flex justify-content-center align-items-center flex-column"
     >
+    Ultimo messaggio:
       <output class="p-2" style="border-style: solid" id="monitor">{{
         liveMessage
       }}</output>
     </label>
+    <b-button v-if="liveMessage" v-shortkey.once="['h']" @shortkey="hideLiveMessage" @click="hideLiveMessage">Nascondi</b-button>
+    </div>
+    
+
 
     <main class="h-100" aria-label="Grafico della funzione" tabindex="0">
       <ChartFunctionPlot
@@ -94,6 +100,7 @@ export default {
       version: appVersion,
       isMute: false,
       liveMessage: "",
+      shouldDisplayLiveMessage: false,
     };
   },
   created() {
@@ -187,6 +194,10 @@ export default {
       if (!this.$soundFactory.isToneEngineStarted()) {
         this.$soundFactory.enableSonifier();
       }
+    },
+    hideLiveMessage(){
+      console.log("nascondo messaggio");
+      this.shouldDisplayLiveMessage = false;
     },
     handleAudioOutStatusChange(event) {
       this.isMute = event;
@@ -387,6 +398,7 @@ export default {
         `function message event: Tipo -> ${functionMessageEvent.type}, messaggio -> ${functionMessageEvent.message}`
       );
       this.liveMessage = functionMessageEvent.message;
+      this.shouldDisplayLiveMessage = true;
     },
   },
 };
