@@ -539,6 +539,10 @@ export default {
         functionsData.length <= 1
           ? functionsData.push(currentXIndicator)
           : functionsData.splice(1, 0, currentXIndicator);
+
+        for (let i = 0; i < functionsData.length; i++) {
+          console.log("function data: ", functionsData[i].range);
+        }
       }
       let config = {
         target: "#root",

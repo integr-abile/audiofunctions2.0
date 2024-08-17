@@ -54,6 +54,7 @@
         v-bind="functionOptions"
         :actionRequest="functionActionRequest"
         :isKeyboardInteractionEnabled="isFnInteractionEnabled"
+        :key="plotRefreshKey"
         id="fnPlot"
         ref="fnPlot"
         class="h-100"
@@ -85,6 +86,7 @@ export default {
     return {
       lastTimeTextToReadChanged: null,
       chartActionMenuRefreshKey: 0,
+      plotRefreshKey: 0,
       lastPendingMessageToRead: "",
       functionOptions: {},
       initialConfiguration: [],
@@ -317,6 +319,7 @@ export default {
       newFunctionOptions.fn = newFn;
       this.functionOptions = newFunctionOptions;
       this.updateFunctionInConfiguration(newFn);
+      this.plotRefreshKey++;
       this.$nextTick(() => {
         let el = document.getElementById("currentFormulaMathJax");
         if (el) {
