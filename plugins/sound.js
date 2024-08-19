@@ -85,15 +85,15 @@ export default ({ app }, inject) => {
     };
     #allPitchClasses = this.#generatePitchClasses();
     #allInstruments = [
-      {
-        name: "sine",
-        instrument: new Tone.Oscillator(), //usare Oscillator e non Synth() perchè il cambio di frequenza altrimenti avviene sentendo un "pop" ad ogni cambio. Non è dolce
-        instrumentType: this.InstrumentFrequencyType.continuous,
-        frequencyRange: {
-          min: 150,
-          max: 2000,
-        },
-      },
+      // {
+      //   name: "sine",
+      //   instrument: new Tone.Oscillator(), //usare Oscillator e non Synth() perchè il cambio di frequenza altrimenti avviene sentendo un "pop" ad ogni cambio. Non è dolce
+      //   instrumentType: this.InstrumentFrequencyType.continuous,
+      //   frequencyRange: {
+      //     min: 150,
+      //     max: 2000,
+      //   },
+      // },
       {
         name: "clarinet",
         instrument: new Tone.FMSynth({

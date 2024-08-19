@@ -34,12 +34,12 @@
     </header>
 
     <div v-if="shouldDisplayLiveMessage" class="d-flex align-items-center flex-column">
+      Ultimo messaggio:
       <label
       v-if="liveMessage"
       for="monitor"
       class="d-flex justify-content-center align-items-center flex-column"
     >
-    Ultimo messaggio:
       <output class="p-2" style="border-style: solid" id="monitor">{{
         liveMessage
       }}</output>
@@ -280,6 +280,8 @@ export default {
       this.$refs.actionMenu.updateCurrentCustomizableItems(
         this.currentConfiguration
       );
+      this.liveMessage = `Strumento cambiato in ${newInstrument}`;
+      this.shouldDisplayLiveMessage = true;
     },
 
     updateXDomainInConfiguration(newDomain) {
