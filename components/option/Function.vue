@@ -87,13 +87,6 @@ export default {
       currentToSpeakFunction: "",
       isTraitFunction: false,
       currentOptionData: {},
-      // readMathKeys: [
-      //   {
-      //     keyCode: 81, //Q
-      //     modifiers: ["ctrlKey", "shiftKey"],
-      //     preventDefault: true,
-      //   },
-      // ],
     };
   },
   watch: {

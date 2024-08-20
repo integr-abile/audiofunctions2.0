@@ -1,13 +1,22 @@
 <template>
   <div class="d-flex flex-column align-items-center">
-    <h2>Puoi iniziare provando una delle seguenti</h2>
-    <ul>
+    <h2 class="mt-2">Puoi iniziare provando una delle seguenti</h2>
+    <ul class="mb-3 d-flex flex-column" style="padding-inline-start: unset;">
       <li v-for="(fn, index) in mathjaxFunctionsLatex" :key="fn" class="my-3 d-flex flex-column align-items-center" style="list-style-type: none;">
         <b-button size="md" class="w-100" @click="handlePredefinedFunctionSelection(index)">
           <vue-mathjax :formula="fn"></vue-mathjax>
         </b-button>
       </li>
     </ul>
+    <h2>Oppure puoi scriverne una tu</h2>
+    <FormulaInput @insertedFunction="handleInsertedFunctionUpdate"/>
+    <NuxtLink class="btn btn-info my-3" to="/configure">Configura la funzione nel dettaglio</NuxtLink>
+
+    <p>Per scoprire tutte le funzionalità di Audiofunctions o per qualunque problema puoi sempre consultare le <NuxtLink to="/instructions">Istruzioni</NuxtLink></p>
+
+    <b-button size="lg" variant="success" class="my-3">Esplora la funzione</b-button>
+
+
   </div>
 </template>
 <script>
@@ -50,6 +59,9 @@ export default {
       const sessionDataSerializer = this.$sessionDataSerializer;
       const encodedOverrideParams = sessionDataSerializer.encode(fnObj);
       this.$router.push("/chart?sd=" + encodedOverrideParams);
+    },
+    handleInsertedFunctionUpdate(fnInsertedObj){
+      console.log("fnInsertedObj", fnInsertedObj);
     }
   }
 };
