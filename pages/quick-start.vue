@@ -1,5 +1,14 @@
 <template>
-  <div></div>
+  <div class="d-flex flex-column align-items-center">
+    <h2>Puoi iniziare provando una delle seguenti</h2>
+    <ul>
+      <li v-for="(fn, index) in mathjaxFunctionsLatex" :key="fn" class="my-3 d-flex flex-column align-items-center" style="list-style-type: none;">
+        <b-button size="md" class="w-100" @click="handlePredefinedFunctionSelection(index)">
+          <vue-mathjax :formula="fn"></vue-mathjax>
+        </b-button>
+      </li>
+    </ul>
+  </div>
 </template>
 <script>
 export default {
@@ -7,5 +16,41 @@ export default {
   mounted() {
     this.$store.commit("setTitle", "Crea la tua prima funzione");
   },
+  computed:{
+    predefinedFunctions(){
+      return this.$store.state.functions.predefinedFunctions;
+    },
+    predefinedSelectableFunctions(){
+      return this.predefinedFunctions
+      .filter((fn) => {
+        const fnObj = this.$functionParser.parse(fn);
+        return !this.$functionParser.isTraitFunction(fnObj);
+      });
+    },
+    mathjaxFunctionsLatex(){
+      return this.predefinedSelectableFunctions
+      .map((fn) => {
+        const latexFormula = this.$functionValidator.toLatex(fn)
+        return "$$" + latexFormula + "$$";
+      });
+    }
+  },
+  methods:{
+    handlePredefinedFunctionSelection(index){
+      const functionIntervalArithSelected = this.predefinedSelectableFunctions[index];
+      const fnObj = [{
+        identifier: "function",
+        params:[
+          {
+            id: "fn",
+            value: functionIntervalArithSelected
+          }
+        ]
+      }];
+      const sessionDataSerializer = this.$sessionDataSerializer;
+      const encodedOverrideParams = sessionDataSerializer.encode(fnObj);
+      this.$router.push("/chart?sd=" + encodedOverrideParams);
+    }
+  }
 };
 </script>

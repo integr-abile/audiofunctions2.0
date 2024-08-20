@@ -122,6 +122,7 @@ export default {
       const configOverrides = sessionDataSerializer.parse(
         initialEncodedConfiguration
       );
+      console.log("configOverrides", configOverrides);
       let defaultConfig = _.cloneDeep(this.defaultConfiguration);
       configOverrides.forEach((cfgOverride) => {
         const identifier = cfgOverride.identifier;
