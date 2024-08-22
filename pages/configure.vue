@@ -16,10 +16,10 @@
       <h2>Didattica</h2>
     </div>
     <div class="d-flex justify-content-end">
-      <b-button variant="primary" size="lg" class="mr-2" @click="showChartLink"
+      <b-button variant="primary" size="lg" class="mr-2" @click="showChartLink" :disabled="!canStartExploringFunction"
         >Genera link</b-button
       >
-      <b-button variant="success" size="lg" class="mr-3" @click="goToChart"
+      <b-button variant="success" size="lg" class="mr-3" @click="goToChart" :disabled="!canStartExploringFunction"
         >Esplora</b-button
       >
     </div>
@@ -60,7 +60,7 @@ export default {
     return {
       xDomainData: _.cloneDeep(this.$store.state.functions.xDomainDefaults),
       yDomainData: _.cloneDeep(this.$store.state.functions.yDomainDefaults),
-      functionData: "",
+      functionData: null,
       generatedLink: "",
       lastLinkCopySuccess: false,
     };
@@ -118,6 +118,9 @@ export default {
       const sessionDataSerializer = this.$sessionDataSerializer;
       const encodedSessionData = sessionDataSerializer.encode(sessionData);
       return "/chart?sd=" + encodedSessionData;
+    },
+    canStartExploringFunction(){
+      return this.functionData;
     },
   },
   methods: {
