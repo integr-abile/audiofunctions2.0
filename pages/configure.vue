@@ -60,7 +60,7 @@ export default {
     return {
       xDomainData: _.cloneDeep(this.$store.state.functions.xDomainDefaults),
       yDomainData: _.cloneDeep(this.$store.state.functions.yDomainDefaults),
-      functionData: {},
+      functionData: "",
       generatedLink: "",
       lastLinkCopySuccess: false,
     };
