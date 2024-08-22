@@ -9,27 +9,35 @@ class FunctionValidator {
     // const mathExpression = this.#latexToMathExpression(latexFnString)
     const preprocessedLatex = this.#preprocessLatex(latexFnString);
     console.log("Validate after pre-processing " + preprocessedLatex);
-    const mathExpression =
-      MathExpression.fromLatex(preprocessedLatex).toString();
-    console.log("Validate da passare math expression " + mathExpression);
-    const functionPlotFormula =
-      this.#mathExpressionToFunctionPlot(mathExpression);
-    console.log("Validate da passare a function plot " + functionPlotFormula);
     try {
-      const compileRes = fnCompiler(functionPlotFormula);
-      compileRes.eval({ x: 0 });
-      console.log("Validate formula compilation success");
-      return {
-        error: null,
-        forFnPlotFormula: functionPlotFormula,
-      };
+      const mathExpression =
+        MathExpression.fromLatex(preprocessedLatex).toString();
+      console.log("Validate da passare math expression " + mathExpression);
+      const functionPlotFormula =
+        this.#mathExpressionToFunctionPlot(mathExpression);
+      console.log("Validate da passare a function plot " + functionPlotFormula);
+      try {
+        const compileRes = fnCompiler(functionPlotFormula);
+        compileRes.eval({ x: 0 });
+        console.log("Validate formula compilation success");
+        return {
+          error: null,
+          forFnPlotFormula: functionPlotFormula,
+        };
+      } catch {
+        console.error("Validate Failed to compile");
+        return {
+          error: "Formula inserita non valida",
+          forFnPlotFormula: null,
+        };
+      }
     } catch {
-      console.error("Validate Failed to compile");
       return {
         error: "Formula inserita non valida",
         forFnPlotFormula: null,
       };
     }
+
     // const eLatex = lescape(latexFnString);
     // console.log("da valutare escaped " + eLatex);
   }

@@ -23,6 +23,7 @@ import _ from "lodash";
 
 export default {
   emits: ["insertedFunction"],
+  props: ["functionLatex"],
   data() {
     return {
       preFieldLabelText: "$$f(x) = $$",
@@ -38,16 +39,22 @@ export default {
   },
   watch: {
     lastInsertedLatexFunction(newVal) {
+      console.log("validating formula");
       const formulaValidationResult = this.validateFormula(newVal);
+      console.log("validated formula");
       this.isFormulaValid = _.isNil(formulaValidationResult.error);
-      this.$emit("insertedFunction",{
-        fnIntervalArith: formulaValidationResult.forFnPlotFormula,
-        fnLatex: newVal,
-        isValid: this.isFormulaValid
-      })
+      this.notifyInsertedFunction(
+        formulaValidationResult.forFnPlotFormula,
+        newVal,
+        false
+      );
     },
     isFormulaValid(newVal) {
       this.formulaStatusColor = newVal ? "green" : "red";
+    },
+    functionLatex(newVal) {
+      this.$refs.mathfield.value = newVal;
+      this.lastInsertedLatexFunction = newVal;
     },
   },
   mounted() {
@@ -57,6 +64,14 @@ export default {
     this.cleanUp();
   },
   methods: {
+    notifyInsertedFunction(fnIntervalArith, fnLatex, confirmed) {
+      this.$emit("insertedFunction", {
+        fnIntervalArith: fnIntervalArith,
+        fnLatex: fnLatex,
+        isValid: this.isFormulaValid,
+        confirmed: confirmed,
+      });
+    },
     validateFormula(latexFormula) {
       return this.$functionValidator.validate(latexFormula);
     },
@@ -143,6 +158,15 @@ export default {
     changeEvtFn(evt) {
       //Return o enter premuto
       this.lastInsertedLatexFunction = evt.target.value;
+      const formulaValidationResult = this.validateFormula(
+        this.lastInsertedLatexFunction
+      );
+      this.isFormulaValid = _.isNil(formulaValidationResult.error);
+      this.notifyInsertedFunction(
+        formulaValidationResult.forFnPlotFormula,
+        this.lastInsertedLatexFunction,
+        true
+      );
     },
   },
 };
