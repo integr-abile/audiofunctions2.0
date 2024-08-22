@@ -83,6 +83,7 @@ export default {
   },
   methods: {
     updateOptionData(currenValues) {
+      console.log("aggiornati dai in x domain");
       this.currentOptionData = currenValues;
       this.xMin = `${currenValues.xMin}`;
       this.xMax = `${currenValues.xMax}`;

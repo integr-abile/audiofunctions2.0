@@ -157,27 +157,17 @@ export default {
       return [
         {
           identifier: "function",
-          data: {
-            fn: "sin(x)", //formato interval arithmetic
-          },
+          data: this.$store.state.functions.defaultFunction,
           isFavorite: false,
         },
         {
           identifier: "xDomain",
-          data: {
-            xMin: -16, //stessi di geogebra
-            xMax: 16, //stessi di geogebra
-            step: 0.5,
-          },
+          data: this.$store.state.functions.xDomainDefaults,
           isFavorite: false,
         },
         {
           identifier: "yDomain",
-          data: {
-            yMin: -9, //stessi di geogebra
-            yMax: 9, //stessi di geogebra
-            step: 1,
-          },
+          data: this.$store.state.functions.yDomainDefaults,
           isFavorite: false,
         },
         {

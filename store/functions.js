@@ -16,10 +16,33 @@ export const state = () => ({
     "sqrt(x)",
     "(x^2)/(x^2+1)",
   ],
+
+  xDomainDefaults:{
+    xMin: -16,
+    xMax: 16,
+    step: 0.5
+  },
+
+  yDomainDefaults:{
+    yMin: -9,
+    yMax: 9,
+    step:1
+  },
+
+  defaultFunction:{
+    fn: "sin(x)"
+  }
+  
 });
 
 export const getters = {
   getPredefinedFunctions(state) {
     return state.predefinedFunctions;
   },
+  getXDomainDefaults(state){
+    return state.xDomainDefaults;
+  },
+  getYDomainDefaults(state){
+    return state.yDomainDefaults;
+  }
 };
