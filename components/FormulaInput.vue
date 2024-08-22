@@ -42,6 +42,7 @@ export default {
       this.isFormulaValid = _.isNil(formulaValidationResult.error);
       this.$emit("insertedFunction",{
         fnIntervalArith: formulaValidationResult.forFnPlotFormula,
+        fnLatex: newVal,
         isValid: this.isFormulaValid
       })
     },
