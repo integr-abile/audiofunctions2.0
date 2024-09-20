@@ -17,11 +17,11 @@
             </p>
           </b-card-text>
           <div id="start-now" class="flex flex-column">
-            <NuxtLink to="/quick-start" class="btn btn-primary btn-lg mr-2">
+            <!-- <NuxtLink to="/quick-start" class="btn btn-primary btn-lg mr-2">
               Inizia subito
-            </NuxtLink>
+            </NuxtLink> -->
             <NuxtLink to="/chart" class="btn btn-primary btn-lg">
-              Demo
+              Inizia subito
             </NuxtLink>
           </div>
         </b-card>
