@@ -8,7 +8,7 @@
       backdrop
       close-label="Chiudi"
       :id="sidebarId"
-      title="Opzioni"
+      title="Options"
       width="400px"
     >
       <ul class="px-3 py-2" :key="refreshKey" style="list-style-type: none">
@@ -37,7 +37,7 @@
         />
         <div class="d-flex bg-dark text-light align-items-center px-3 py-2">
           <strong class="mr-auto">v{{ version }}</strong>
-          <b-button size="sm" @click="saveAll">Salva tutto</b-button>
+          <b-button size="sm" @click="saveAll">Save all</b-button>
         </div>
       </template>
     </b-sidebar>

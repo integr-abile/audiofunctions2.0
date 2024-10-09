@@ -17,11 +17,11 @@
             </p>
           </b-card-text>
           <div id="start-now" class="flex flex-column">
-            <NuxtLink to="/quick-start" class="btn btn-primary btn-lg mr-2">
+            <!-- <NuxtLink to="/quick-start" class="btn btn-primary btn-lg mr-2">
               Inizia subito
-            </NuxtLink>
+            </NuxtLink> -->
             <NuxtLink to="/chart" class="btn btn-primary btn-lg">
-              Demo
+              Start now
             </NuxtLink>
           </div>
         </b-card>
@@ -39,7 +39,7 @@
       </b-col>
     </b-row>
     <!-- Caratteristiche -->
-    <h2 class="text-center">Principali caratteristiche</h2>
+    <h2 class="text-center">Main features</h2>
     <ul style="margin-top: 48px; margin-bottom: 128px">
       <li v-for="feature in features" :key="feature.title">
         <b-row>
@@ -52,7 +52,7 @@
       </li>
     </ul>
     <!-- Carosello immagini -->
-    <h2 class="text-center">Alcuni screenshot dell'applicazione</h2>
+    <h2 class="text-center">Some application screenshots</h2>
     <span class="sr-only">
       Di seguito è presente un carosello di immagini e relative spiegazioni. è
       possibile andare avanti e indietro nelle slide attraverso i bottoni "Slide

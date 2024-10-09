@@ -1,7 +1,7 @@
 <template>
   <div class="container-fluid">
     <div class="d-flex align-items-center w-100 mb-2">
-      <b-button v-b-toggle.options-sidebar v-shortkey.once="['o']" @shortkey="toggleSidebar">Opzioni</b-button>
+      <b-button v-b-toggle.options-sidebar v-shortkey.once="['o']" @shortkey="toggleSidebar">Options</b-button>
       <ChartOptionsSidebar
         ref="chartOptionsSidebar"
         sidebar-id="options-sidebar"
@@ -25,7 +25,7 @@
             @click="changeFunction"
             v-shortkey.once="{ next: ['f'], previous: ['shift', 'f'] }"
             @shortkey="handleShortkey"
-            >Switch funzione</b-button
+            >Switch function</b-button
           >
           <b-button
             @click="toggleVolume"
@@ -37,12 +37,12 @@
               aria-hidden="true"
             ></b-icon>
             <span class="sr-only"
-              >{{ isMute ? "Abilita" : "Disabilita" }} volume</span
+              >{{ isMute ? "Enable" : "Disable" }} volume</span
             >
           </b-button>
           <NuxtLink class="btn btn-secondary" to="/">
             <b-icon icon="house" aria-hidden="true"></b-icon>
-            <span class="sr-only">Vai alla home page</span>
+            <span class="sr-only">Go to the home page</span>
           </NuxtLink>
         </div>
       </div>

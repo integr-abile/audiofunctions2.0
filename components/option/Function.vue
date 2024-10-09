@@ -1,20 +1,20 @@
 <template>
   <div>
-    <h2>Funzione</h2>
+    <h2>Function</h2>
     <div class="d-flex flex-column">
-      <h3>Inserimento&nbsp;<span class="sr-only">funzione</span></h3>
+      <h3>Input&nbsp;<span class="sr-only">function</span></h3>
       <div class="d-flex align-items-center mb-4">
         <FormulaInput class="w-100" :functionLatex="stableInputFunctionLatex" @insertedFunction="handleInsertedFunctionUpdate"/>
       </div>
 
       <div class="d-flex align-items-center">
-        <h3 class="mr-2">Funzione corrente</h3>
+        <h3 class="mr-2">Current function</h3>
         <div class="d-flex align-items-center">
           <b-button
             variant="outline-secondary"
             size="sm"
-            aria-label="Copia formula latex"
-            title="Copia formula latex"
+            aria-label="Copy latex formula"
+            title="Copy latex formula"
             v-clipboard:copy="stableInputFunctionLatex"
             v-clipboard:success="onCopy"
             v-clipboard:error="onCopyError"
@@ -31,8 +31,8 @@
           >
             {{
               this.lastCopyFunctionSuccess
-                ? "Copiato"
-                : "Errore durante la copia"
+                ? "Copied"
+                : "Error copying formula"
             }}
           </b-alert>
         </div>
@@ -42,7 +42,7 @@
         :formula="mathJaxFunctionLatext"
         v-if="!isTraitFunction"
       ></vue-mathjax>
-      <span v-else>Funzione a tratti</span>
+      <span v-else>Trait function</span>
     </div>
   </div>
 </template>

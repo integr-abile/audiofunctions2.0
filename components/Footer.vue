@@ -7,9 +7,9 @@
             reserved.
           </p>
           <p class="text-center">
-            <NuxtLink to="/configure">Configura</NuxtLink> |
-            <NuxtLink to="/instructions">Istruzioni</NuxtLink> |
-            <NuxtLink to="/about">Chi siamo</NuxtLink>
+            <NuxtLink to="/configure">Configure</NuxtLink> |
+            <NuxtLink to="/instructions">Instructions</NuxtLink> |
+            <NuxtLink to="/about">Who we are</NuxtLink>
           </p>
         </b-col>
       </b-row>

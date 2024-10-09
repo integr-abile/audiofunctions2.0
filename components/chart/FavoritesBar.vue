@@ -1,5 +1,5 @@
 <template>
-  <div role="toolbar" aria-label="Preferiti">
+  <div role="toolbar" aria-label="Favorites">
     <div class="d-flex flex-wrap justify-content-evenly">
       <div
         v-for="(item, index) in options"
@@ -15,7 +15,7 @@
         />
       </div>
       <div class="d-flex align-items-center">
-        <b-button @click="(evtData) => $emit('saveChanges')">Salva</b-button>
+        <b-button @click="(evtData) => $emit('saveChanges')">Save</b-button>
       </div>
     </div>
   </div>
