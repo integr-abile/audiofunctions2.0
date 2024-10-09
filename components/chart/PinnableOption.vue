@@ -21,7 +21,7 @@
       </div>
     </div>
     <div class="d-flex justify-content-end">
-      <b-button size="sm" @click="salvaModifiche">Applica</b-button>
+      <b-button size="sm" @click="salvaModifiche">Apply</b-button>
     </div>
   </div>
 </template>

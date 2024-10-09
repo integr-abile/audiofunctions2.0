@@ -1,43 +1,45 @@
 <template>
   <div>
-    <h2>Lista delle scorciatoie da tastiera</h2>
-    Le seguenti scorciatoie da tastiera sono disponibili per semplificare l'uso di Audiofunctions e sono disponibili all'interno della pagina che mostra il grafico della funzione:
+    <h2>List of Keyboard Shortcuts</h2>
+    The following keyboard shortcuts are available to simplify the use of Audiofunctions and are accessible within the page displaying the function graph:
     <ul>
       <li>
-        <kdb>f</kdb> e <kdb>Shift</kdb>+<kdb>f</kdb> per andare avanti e indietro tra le funzioni predefinite
+        <kdb>f</kdb> and <kdb>Shift</kdb>+<kdb>f</kdb> to move forward and backward through predefined functions
       </li>
       <li>
-        <kdb>v</kdb> per attivare/disattivare il volume dell'audio prodotto dalla funzione
+        <kdb>v</kdb> to toggle the volume of the audio produced by the function
       </li>
       <li>
-        <kdb>x</kdb> per rivelare il valore dell'intervallo visualizzato sull'asse X
+        <kdb>x</kdb> to reveal the value of the displayed range on the X-axis
       </li>
       <li>
-        <kdb>y</kdb> per rivelare il valore dell'intervallo visualizzato sull'asse Y
+        <kdb>y</kdb> to reveal the value of the displayed range on the Y-axis
       </li>
       <li>
-        <kdb>c</kdb> per rivelare il valore della coordinata corrente
+        <kdb>c</kdb> to reveal the value of the current coordinate
       </li>
       <li>
-        <kdb>i</kdb> per cambiare strumento col quale sonificare la funzione (per ora cambio tra clarinetto e chitarra)
+        <kdb>i</kdb> to change the instrument used to sonify the function (currently switches between clarinet and guitar)
       </li>
       <li>
-        <kdb>z</kdb> e <kdb>Shift</kdb>+<kdb>z</kdb> per zoomare avanti e indietro. Il centro dello zoom è attorno alle coordinate correnti della funzione
+        <kdb>z</kdb> and <kdb>Shift</kdb>+<kdb>z</kdb> to zoom in and out. The zoom center is around the current coordinates of the function
       </li>
-      <li><kdb>w</kdb> <kdb>a</kdb> <kdb>s</kdb> <kdb>d</kdb> per muoversi lungo gli assi X e Y in modo analogo a come avviene nei videogiochi:
+      <li>
+        <kdb>w</kdb> <kdb>a</kdb> <kdb>s</kdb> <kdb>d</kdb> to move along the X and Y axes similar to how it's done in video games:
         <ul>
-          <li><kdb>w</kdb> per muoversi in alto</li>
-          <li><kdb>a</kdb> per muoversi a sinistra</li>
-          <li><kdb>s</kdb> per muoversi in basso</li>
-          <li><kdb>d</kdb> per muoversi a destra</li>
+          <li><kdb>w</kdb> to move up</li>
+          <li><kdb>a</kdb> to move left</li>
+          <li><kdb>s</kdb> to move down</li>
+          <li><kdb>d</kdb> to move right</li>
         </ul>
       </li>
       <li>
-        <kdb>o</kdb> apre/chiude il pannello laterale delle opzioni disponibili. Il pannello è chiudibile anche attraverso il tasto <kdb>Esc</kdb>
+        <kdb>o</kdb> opens/closes the side panel of available options. The panel can also be closed using the <kdb>Esc</kdb> key
       </li>
     </ul>
   </div>
 </template>
+
 <style>
 kdb{
   background-color: #f8f9fa;

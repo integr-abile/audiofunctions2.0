@@ -1,12 +1,12 @@
 <template>
   <div>
-    <h2>Sonificazione</h2>
+    <h2>Sonification</h2>
     <div class="d-flex mb-2">
       <div class="mr-2">
         <label
           class="h-100 d-flex align-items-center"
           for="sonification-instrument-type"
-          >Strumento</label
+          >Instrument</label
         >
       </div>
       <b-form-select
@@ -25,10 +25,10 @@
       </b-form-checkbox>
       <div class="ml-2">
         <label aria-hidden="true" class="h-100 d-flex align-items-center"
-          >Stato: {{ status }}</label
+          >State: {{ status }}</label
         >
         <label for="sonification-abilitation-check" class="sr-only">
-          Stato sonificazione:
+          Sonification state:
         </label>
       </div>
     </div>
@@ -49,7 +49,7 @@ export default {
   },
   computed: {
     sonificationAbilitationState() {
-      return this.isEnabled ? "Abilitata" : "Disabilitata";
+      return this.isEnabled ? "Enabled" : "Disabled";
     },
   },
   watch: {

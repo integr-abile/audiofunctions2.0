@@ -5,13 +5,13 @@
     </b-navbar-brand>
     <b-navbar-nav class="ml-auto">
       <b-nav-item>
-        <NuxtLink to="/configure">Configura</NuxtLink>
+        <NuxtLink to="/configure">Configure</NuxtLink>
       </b-nav-item>
       <b-nav-item>
-        <NuxtLink to="/instructions">Istruzioni</NuxtLink>
+        <NuxtLink to="/instructions">Instructions</NuxtLink>
       </b-nav-item>
       <b-nav-item>
-        <NuxtLink to="/about">Chi siamo</NuxtLink>
+        <NuxtLink to="/about">Who we are</NuxtLink>
       </b-nav-item>
     </b-navbar-nav>
   </b-navbar>
