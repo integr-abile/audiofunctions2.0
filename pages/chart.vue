@@ -132,7 +132,8 @@ export default {
         });
       });
       console.log(defaultConfig);
-      this.initialConfiguration = defaultConfig;
+      this.initialConfiguration = defaultConfig
+      ;
     } catch (e) {
       this.initialConfiguration = this.defaultConfiguration;
       alert(e.message);

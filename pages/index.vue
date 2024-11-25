@@ -3,7 +3,7 @@
     <h1 class="text-center m-4 display-1">Audiofunctions</h1>
 
     <b-row style="margin-bottom: 128px">
-      <b-col cols="7">
+      <b-col class="order-2 order-lg-1" cols="12" lg="7">
         <b-card>
           <b-card-title>
             <h2 class="display-3">
@@ -17,29 +17,31 @@
             </p>
           </b-card-text>
           <div id="start-now" class="flex flex-column">
-            <!-- <NuxtLink to="/quick-start" class="btn btn-primary btn-lg mr-2">
-              Inizia subito
-            </NuxtLink> -->
             <NuxtLink to="/chart" class="btn btn-primary btn-lg">
               Inizia subito
             </NuxtLink>
           </div>
         </b-card>
       </b-col>
-      <b-col cols="5">
+      <b-col class="order-1 order-lg-2" cols="12" lg="5">
         <iframe
           src="https://www.youtube.com/embed/K4TOrB7at0Y?si=bLonZ736ZhazMx7L"
+          class="sized"
           title="YouTube video player"
           frameborder="0"
           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
           referrerpolicy="strict-origin-when-cross-origin"
           allowfullscreen
-          style="transform: translate(-50px, 25px); width: 100%; height: 75%"
         ></iframe>
       </b-col>
     </b-row>
+    <h2 class="text-center my-4">Cos'è Audiofunctions</h2>
+    <p>Audiofunctions è un progetto innovativo del <a href="http://www.integr-abile.unito.it/">Laboratorio “S. Polin” del Dipartimento di Matematica “G. Peano” dell’Università degli Studi di Torino</a> che permette di esplorare i grafici di funzioni a una variabile reale con un approccio multimodale. </p>
+    <p>Lo studio di grafici di funzione si trasformerà in un'esperienza multisensoriale! Grazie alle tecniche di sonificazione, puoi esplorare i grafici non solo con la vista, attraverso il classico piano cartesiano, ma anche con l’udito, ascoltando l’andamento della funzione attraverso i suoni.</p>
+    <p>In classe, questo strumento offre un’opportunità unica per rendere i grafici di funzione accessibili a tutti gli studenti, favorendo un apprendimento innovativo delle STEM e consentendo la progettazione di attività didattiche inclusive che rispondano alle esigenze di ogni alunno.</p>
+    <hr class="my-4">
     <!-- Caratteristiche -->
-    <h2 class="text-center">Principali caratteristiche</h2>
+    <h2 class="text-center my-4">Principali caratteristiche</h2>
     <ul style="margin-top: 48px; margin-bottom: 128px">
       <li v-for="feature in features" :key="feature.title">
         <b-row>
@@ -109,6 +111,17 @@ li {
 #start-now {
   transform: scale(1.5) translate(100px, 25px);
 }
+.sized{
+  width: 100%;
+  height: 50vh;
+}
+@media (min-width: 992px) {
+  .sized {
+    width: 100%;
+    height: 75%;
+    transform: translate(-50px, 25px);
+  }
+}
 </style>
 
 <script>
@@ -137,19 +150,19 @@ export default {
         {
           title: "Slide 1",
           description: "Description 1",
-          image: "sample-1.jpg",
+          image: "keyboard-batch-exploration.jpeg",
           imageAlt: "Sample 1",
         },
         {
           title: "Slide 2",
           description: "Description 2",
-          image: "sample-2.jpg",
+          image: "keyboard-exploration.jpeg",
           imageAlt: "Sample 2",
         },
         {
           title: "Slide 3",
           description: "Description 3",
-          image: "sample-3.webp",
+          image: "mouse-exploration.jpeg",
           imageAlt: "Sample 3",
         },
       ],

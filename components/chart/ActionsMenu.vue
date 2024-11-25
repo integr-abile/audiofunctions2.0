@@ -40,6 +40,17 @@
               >{{ isMute ? "Abilita" : "Disabilita" }} volume</span
             >
           </b-button>
+          <b-button v-b-modal.keybindings-modal v-shortkey.once="['k']" @shortkey="toggleKeybindingsModal">
+            <b-icon
+              :icon="'keyboard'"
+              aria-hidden="true"
+            >
+            </b-icon>
+            <span class="sr-only">Scorciatoie da tastiera</span>
+          </b-button>
+          <b-modal id="keybindings-modal" title="Scorciatoie da tastiera">
+            <div v-html="keybindings"></div>
+          </b-modal>
           <NuxtLink class="btn btn-secondary" to="/">
             <b-icon icon="house" aria-hidden="true"></b-icon>
             <span class="sr-only">Vai alla home page</span>
@@ -47,17 +58,6 @@
         </div>
       </div>
     </div>
-    <!-- <ChartInteractionsMenu
-      :initial-is-function-interaction-mode-enabled="
-        isFunctionInteractionModeEnabled
-      "
-      :initialIsTTSEnabled="initialIsTTSEnabled"
-      @onFunctionInteractionModeChange="handleIsFunctionInteractionEnableChange"
-      @onTTSEnabledChange="
-        (isTextToSpeechEnabled) =>
-          $emit('ttsEnableStatusChange', isTextToSpeechEnabled)
-      "
-    /> -->
     <ChartFavoritesBar
       :key="favoritesBarRefreshKey"
       v-if="favoriteItems.length > 0"
@@ -111,6 +111,9 @@ export default {
         sonification: OptionSonification,
         // tts: OptionTTS,
       };
+    },
+    keybindings(){
+      return this.$store.state.keybindings.list;
     },
     sortedFavorites() {
       return _.sortBy(this.favoriteItems, ["identifier"]);
@@ -176,6 +179,7 @@ export default {
   },
   methods: {
     handleShortkey(event) {
+      console.log("shortkey "+event.srcKey);
       switch (event.srcKey) {
         case "next":
           this.goToNextFunction(true);
@@ -190,6 +194,9 @@ export default {
     },
     toggleVolume() {
       this.$emit("audioOutStatusChange", !this.isMute);
+    },
+    toggleKeybindingsModal(){
+      this.$root.$emit("bv::toggle::modal", "keybindings-modal");
     },
     updateCurrentCustomizableItems(newConfiguration) {
       this.currentCustomizableItems = _.cloneDeep(newConfiguration); //bisognare fare un deep clone altrimenti non mi fa una copia anche degli elementi contenuti nell'array
