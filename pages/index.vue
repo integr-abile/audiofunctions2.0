@@ -24,7 +24,8 @@
         </b-card>
       </b-col>
       <b-col class="order-1 order-lg-2" cols="12" lg="5">
-        <iframe
+        <img class="img-fluid traslated-back" src="/hero-image.png" alt="">
+        <!-- <iframe
           src="https://www.youtube.com/embed/K4TOrB7at0Y?si=bLonZ736ZhazMx7L"
           class="sized"
           title="YouTube video player"
@@ -32,7 +33,7 @@
           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
           referrerpolicy="strict-origin-when-cross-origin"
           allowfullscreen
-        ></iframe>
+        ></iframe> -->
       </b-col>
     </b-row>
     <h2 class="text-center my-4">Cos'è Audiofunctions</h2>
@@ -111,7 +112,7 @@ li {
 #start-now {
   transform: scale(1.5) translate(100px, 25px);
 }
-.sized{
+/* .sized{
   width: 100%;
   height: 50vh;
 }
@@ -121,7 +122,10 @@ li {
     height: 75%;
     transform: translate(-50px, 25px);
   }
-}
+} */
+.traslated-back{
+  transform: translate(-50px, 25px);
+ }
 </style>
 
 <script>

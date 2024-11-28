@@ -42,7 +42,7 @@
           </b-button>
           <b-button v-b-modal.keybindings-modal v-shortkey.once="['k']" @shortkey="toggleKeybindingsModal">
             <b-icon
-              :icon="'keyboard'"
+              :icon="'file-ruled'"
               aria-hidden="true"
             >
             </b-icon>
