@@ -4,9 +4,9 @@
       <NuxtLink to="/">Audiofunctions</NuxtLink>
     </b-navbar-brand>
     <b-navbar-nav class="ml-auto">
-      <b-nav-item>
+      <!-- <b-nav-item>
         <NuxtLink to="/configure">Configura</NuxtLink>
-      </b-nav-item>
+      </b-nav-item> -->
       <b-nav-item>
         <NuxtLink to="/instructions">Istruzioni</NuxtLink>
       </b-nav-item>
