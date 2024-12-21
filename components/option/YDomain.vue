@@ -1,9 +1,9 @@
 <template>
   <div>
-    <h2>Intervallo asse Y</h2>
+    <h2>Intervalo eje Y</h2>
     <b-form inline>
       <label for="min-y-domain-value" class="sr-only"
-        >Valore minimo di y mostrato sul grafico</label
+        >Valor mínimo de y mostrado en la gráfica</label
       >
       <b-form-input
         id="min-y-domain-value"
@@ -18,7 +18,7 @@
       </span>
 
       <label for="max-y-domain-value" class="sr-only"
-        >valore massimo di Y mostrato sul grafico</label
+        >Valor máximo de y mostrado en la gráfica</label
       >
       <b-form-input
         id="max-y-domain-value"

@@ -5,7 +5,7 @@
 export default {
   layout: "innerPage",
   mounted() {
-    this.$store.commit("setTitle", "Chi siamo");
+    this.$store.commit("setTitle", "Quiénes somos");
   },
 };
 </script>

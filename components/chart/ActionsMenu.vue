@@ -1,7 +1,7 @@
 <template>
   <div class="container-fluid">
     <div class="d-flex align-items-center w-100 mb-2">
-      <b-button v-b-toggle.options-sidebar v-shortkey.once="['o']" @shortkey="toggleSidebar">Opzioni</b-button>
+      <b-button v-b-toggle.options-sidebar v-shortkey.once="['o']" @shortkey="toggleSidebar">Opciones</b-button>
       <ChartOptionsSidebar
         ref="chartOptionsSidebar"
         sidebar-id="options-sidebar"
@@ -17,15 +17,15 @@
         <div class="d-grid gap-3">
           <!-- TODO: gestire popup istruzioni e keymap-->
 
-          <b-button v-b-modal.instruction-modal style="display: none;">Istruzioni</b-button>
+          <b-button v-b-modal.instruction-modal style="display: none;">Instrucciones</b-button>
           <ChartInstructionModal modal-id="instruction-modal" />
-          <b-button v-b-modal.keymap-modal style="display: none;">Keymap</b-button>
+          <b-button v-b-modal.keymap-modal style="display: none;">Mapa teclas</b-button>
           <ChartKeybindingModal modal-id="keymap-modal" />
           <b-button
             @click="changeFunction"
             v-shortkey.once="{ next: ['f'], previous: ['shift', 'f'] }"
             @shortkey="handleShortkey"
-            >Switch funzione</b-button
+            >Cambia función</b-button
           >
           <b-button
             @click="toggleVolume"
@@ -37,12 +37,12 @@
               aria-hidden="true"
             ></b-icon>
             <span class="sr-only"
-              >{{ isMute ? "Abilita" : "Disabilita" }} volume</span
+              >{{ isMute ? "Activar" : "Desactivar" }} volume</span
             >
           </b-button>
           <NuxtLink class="btn btn-secondary" to="/">
             <b-icon icon="house" aria-hidden="true"></b-icon>
-            <span class="sr-only">Vai alla home page</span>
+            <span class="sr-only">Ir a la página de inicio</span>
           </NuxtLink>
         </div>
       </div>

@@ -1,10 +1,10 @@
 <template>
   <div>
-    <h2>Intervallo asse X</h2>
+    <h2>Intervalo eje X</h2>
     <b-form>
       <div class="d-flex mb-2">
         <label for="min-x-domain-value" class="sr-only"
-          >Valore minimo di x mostrato sul grafico</label
+          >Valor mínimo de x mostrado en la gráfica</label
         >
         <b-form-input
           id="min-x-domain-value"
@@ -17,7 +17,7 @@
         <vue-mathjax :formula="formula" aria-hidden="true"></vue-mathjax>
 
         <label for="max-x-domain-value" class="sr-only"
-          >Valore massimo di x mostrato sul grafico</label
+          >Valor máximo de x mostrado en la gráfica</label
         >
         <b-form-input
           id="max-x-domain-value"
@@ -30,7 +30,7 @@
       <div class="d-flex">
         <div class="mr-2">
           <label class="h-100 d-flex align-items-center" for="step"
-            >Passo</label
+            >Paso</label
           >
         </div>
         <b-form-input

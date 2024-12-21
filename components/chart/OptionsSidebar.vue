@@ -8,7 +8,7 @@
       backdrop
       close-label="Chiudi"
       :id="sidebarId"
-      title="Opzioni"
+      title="Opciones"
       width="400px"
     >
       <ul class="px-3 py-2" :key="refreshKey" style="list-style-type: none">
@@ -37,7 +37,7 @@
         />
         <div class="d-flex bg-dark text-light align-items-center px-3 py-2">
           <strong class="mr-auto">v{{ version }}</strong>
-          <b-button size="sm" @click="saveAll">Salva tutto</b-button>
+          <b-button size="sm" @click="saveAll">Guardar todo</b-button>
         </div>
       </template>
     </b-sidebar>
@@ -86,7 +86,7 @@ export default {
       console.log("salvataggio tutte le opzioni");
 
       this.$emit("saveChanges", _.map(this.customizableOptions, "identifier"));
-      this.$announcer.polite("Salvataggio effettuato");
+      this.$announcer.polite("Se ha guardado correctamente");
       this.$refs.sidebar.hide();
     },
     handleShowSidebar() {
@@ -101,7 +101,7 @@ export default {
     },
     saveOptions(optionIdentifiers) {
       this.$emit("saveChanges", optionIdentifiers);
-      this.$announcer.polite("Salvataggio effettuato");
+      this.$announcer.polite("Se ha guardado correctamente");
     },
   },
 };

@@ -7,21 +7,21 @@
         <b-card>
           <b-card-title>
             <h2 class="display-3">
-              Guarda le funzioni matematiche da un'altra prospettiva
+              Observe la representación de funciones matemáticas desde una perspectiva diferente
             </h2>
           </b-card-title>
           <b-card-text class="py-3">
             <p class="lead">
-              Hai mai pensato di poter esplorare le funzioni matematiche
-              attraverso il suono?
+              ¿Ha pensado alguna vez que podría explorar las funciones matemáticas
+              a través del sonido?
             </p>
           </b-card-text>
           <div id="start-now" class="flex flex-column">
             <NuxtLink to="/quick-start" class="btn btn-primary btn-lg mr-2">
-              Inizia subito
+              Empezar
             </NuxtLink>
             <NuxtLink to="/chart" class="btn btn-primary btn-lg">
-              Demo
+              Demostración
             </NuxtLink>
           </div>
         </b-card>
@@ -39,7 +39,7 @@
       </b-col>
     </b-row>
     <!-- Caratteristiche -->
-    <h2 class="text-center">Principali caratteristiche</h2>
+    <h2 class="text-center">Características principales</h2>
     <ul style="margin-top: 48px; margin-bottom: 128px">
       <li v-for="feature in features" :key="feature.title">
         <b-row>
@@ -52,12 +52,9 @@
       </li>
     </ul>
     <!-- Carosello immagini -->
-    <h2 class="text-center">Alcuni screenshot dell'applicazione</h2>
+    <h2 class="text-center">Algunas capturas de la aplicación</h2>
     <span class="sr-only">
-      Di seguito è presente un carosello di immagini e relative spiegazioni. è
-      possibile andare avanti e indietro nelle slide attraverso i bottoni "Slide
-      precedente" e "Slide successiva" posti sotto il carosello. Accanto a
-      questi bottoni c'è un testo che indica il numero della slide corrente
+      A continuación encontrará un carrusel de imágenes y sus explicaciones. Puede avanzar y retroceder en las diapositivas mediante los botones «Diapositiva anterior» y «Diapositiva siguiente» situados debajo del carrusel. Junto a estos botones hay un texto que indica el número de la diapositiva actual.
     </span>
     <b-row style="margin-bottom: 72px">
       <b-col>

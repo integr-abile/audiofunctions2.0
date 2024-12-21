@@ -10,16 +10,16 @@
           v-model="isFunctionInteractionModeEnabled"
         />
         <label for="enableFnCheckbox" class="sr-only"
-          >Interazione con la funzione tramite tastiera</label
+          >Interacción con la función a través del teclado</label
         >
-        <label aria-hidden="true">Interazione tramite tastiera</label>
+        <label aria-hidden="true">Interacción con el teclado</label>
       </div>
       <div>
         <input type="checkbox" id="enableTTSCheckbox" v-model="isTTSEnabled" />
-        <label aria-hidden="true">Sintesi vocale web</label>
+        <label aria-hidden="true">Síntesis vocal web</label>
         <label for="enableTTSCheckbox" class="sr-only"
-          >Sintesi vocale web. Se hai uno screen reader attivo disabilita questa
-          opzione per evitare una sovrapposizione di voci</label
+          >Síntesis de voz web. Si tiene un lector de pantalla activo, desactive esta
+          opción para evitar una superposición de voces</label
         >
       </div>
     </div>
@@ -57,7 +57,7 @@ export default {
         this.$emit("onFunctionInteractionModeChange", newVal);
         this.$announcer.polite(
           newVal
-            ? "Ora quando esplori il grafico funzione potrai interagire con la tastiera"
+            ? "Ahora, al explorar el gráfico de la función, puede interactuar con el teclado"
             : ""
         );
       },
