@@ -17,7 +17,7 @@ export default {
   head: {
     title: "AudioFunctions 2.0",
     htmlAttrs: {
-      lang: "it-IT",
+      lang: "es-ES",
     },
     meta: [
       { charset: "utf-8" },

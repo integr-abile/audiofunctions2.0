@@ -24,13 +24,12 @@
     >
 
     <p>
-      Per scoprire tutte le funzionalità di Audiofunctions o per qualunque
-      problema puoi sempre consultare le
-      <NuxtLink to="/instructions">Istruzioni</NuxtLink>
+      ara descubrir todas las características de Audiofunctions o para cualquier  problema siempre puedes consultar las
+      <NuxtLink to="/instructions">instrucciones</NuxtLink>
     </p>
 
     <b-button :disabled="!canStartExploringFunction" size="lg" variant="success" class="my-3" @click="goToChart"
-      >Esplora la funzione</b-button
+      >Explora la función</b-button
     >
   </div>
 </template>

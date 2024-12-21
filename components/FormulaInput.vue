@@ -5,13 +5,13 @@
       <math-field
         ref="mathfield"
         role="application"
-        aria-label="attiva per inserire una funzione"
+        aria-label="activar para insertar una función"
         class="border w-100"
       >
       </math-field>
     </div>
     <p v-if="lastInsertedLatexFunction" :style="{ color: formulaStatusColor }">
-      {{ isFormulaValid ? "Formula valida" : "Formula non valida" }}
+      {{ isFormulaValid ? "Fórmula válida" : "Fórmula no válida" }}
     </p>
     <vue-mathjax class="sr-only" :formula="mathJaxFunctionLatex"></vue-mathjax>
   </div>
@@ -138,7 +138,7 @@ export default {
         )["-1"];
         console.log(`cancellato ${deletedText}`);
         this.lastInsertedLatexFunction = latexAfterDeletion;
-        this.$announcer.assertive(`cancellato ${deletedText}`);
+        this.$announcer.assertive(`${deletedText} eliminado`);
       }
     },
     keydownEvtFn(evt) {
